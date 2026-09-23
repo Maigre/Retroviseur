@@ -39,10 +39,13 @@
 		justify-content: space-between;
 		gap: 0.5rem;
 		min-width: 0;
-		background: var(--band);
+		/* film-box stripes: Fujifilm green on top (below the status bar), Kodak red under */
+		background:
+			linear-gradient(var(--stripe-2), var(--stripe-2)) 0 env(safe-area-inset-top) / 100% 0.22rem no-repeat,
+			var(--band);
 		color: var(--band-fg);
-		border-bottom: 0.2rem solid var(--stripe);
-		padding: calc(0.2rem + env(safe-area-inset-top)) max(0.6rem, env(safe-area-inset-right)) 0.2rem
+		border-bottom: 0.22rem solid var(--stripe);
+		padding: calc(0.45rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.45rem
 			max(0.6rem, env(safe-area-inset-left));
 	}
 	h1 {
@@ -51,7 +54,7 @@
 		overflow: hidden;
 		text-overflow: clip;
 		white-space: nowrap;
-		font: clamp(1.1rem, 6.5cqw, 1.45rem) / 1 var(--font);
+		font: clamp(1.35rem, 8cqw, 1.8rem) / 1 var(--font);
 		letter-spacing: 0.08em;
 	}
 	.actions {
@@ -60,21 +63,21 @@
 		gap: 0.3rem;
 	}
 	button {
-		width: 1.8rem;
-		height: 1.8rem;
+		width: 2.1rem;
+		height: 2.1rem;
 		display: grid;
 		place-items: center;
 		background: none;
 		color: inherit;
 		border: 2px solid currentColor;
 		border-radius: 0.25rem;
-		font-size: 1.2rem;
+		font-size: 1.4rem;
 		line-height: 1;
 		padding: 0;
 	}
 	svg {
-		width: 1rem;
-		height: 1rem;
+		width: 1.15rem;
+		height: 1.15rem;
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 2.4;

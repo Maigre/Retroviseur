@@ -46,8 +46,8 @@ camera until the first has been collected.
 
 ## Screens
 
-Every screen sits under a slim **header band**: RETROVISEUR in VT323, Fujifilm
-green on Kodak yellow with a red stripe, **?** (About) and **Share** (share
+Every screen sits under a **header band**: a Fujifilm-green line, RETROVISEUR in VT323
+Kodak yellow on a dark band, a red line under it, **?** (About) and **Share** (share
 sheet, or copy the link). On a wide screen the app is framed as a phone.
 Android's back gesture closes sheets and overlays first, never the app by
 accident.

@@ -294,15 +294,13 @@
 						</button>
 						{#if hasFlash()}<FlashToggle bind:on={flash} label={t('flash')} />{/if}
 					</div>
-					<div class="controls">
-						<div class="winder">
-							<Thumbwheel {armed} {turned} label={t('wind')} onflick={flick} ontick={tick} />
-						</div>
-						<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
+					<div class="winder">
+						<Thumbwheel {armed} {turned} label={t('wind')} onflick={flick} ontick={tick} />
 					</div>
+					<!-- hangs just past the finder's right edge -->
+					<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
 				</div>
-				<div class="finder-area">
-					<div class="finder">
+				<div class="finder">
 						<video bind:this={video} playsinline muted autoplay></video>
 						<div class="blackout" class:on={blackout}></div>
 						{#if cameraMessage[camera]}
@@ -311,7 +309,6 @@
 								<button class="link" onclick={() => ((camera = 'off'), startCamera())}>{t('retry')}</button>
 							</div>
 						{/if}
-					</div>
 				</div>
 			</div>
 		</main>
@@ -406,14 +403,28 @@
 		padding: 0;
 		overflow: hidden;
 	}
+	/* One width for the tools row and the finder (--fw): the counter lines up
+	   with the finder's left edge, the wheel with its right edge, and the shutter
+	   hangs just past it. The custom properties resolve against the stage
+	   container where they are used (its content box, i.e. inside the padding);
+	   the stage's own padding and gap can't use cq units — they would resolve
+	   against the device instead. */
 	.stage {
+		--gap: 0.6rem;
+		--shutter: clamp(2.5rem, 17cqh, 4.2rem);
+		--fw: min(
+			calc(100cqw - 2 * (var(--shutter) + var(--gap)) - 0.9rem),
+			calc((100cqh - var(--shutter) - var(--gap) - 0.9rem) * 3 / 2)
+		);
 		position: absolute;
 		inset: 0;
 		container: stage / size;
-		display: grid;
-		grid-template-rows: auto minmax(0, 1fr);
-		gap: 1.5cqh;
-		padding: 2cqh 2cqw;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--gap);
+		padding: 0.6rem 0.8rem;
 		box-sizing: border-box;
 	}
 	/* Portrait screen: swap the stage's width/height and turn it a quarter-turn
@@ -428,38 +439,34 @@
 		transform: translateX(var(--body-w)) rotate(90deg);
 	}
 	.tools {
-		--shutter: clamp(2.5rem, 16cqh, 4.2rem);
+		position: relative;
+		width: var(--fw);
+		height: var(--shutter);
+		flex: none;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 3cqw;
-		min-width: 0;
 	}
-	.info,
-	.controls {
+	.info {
 		display: flex;
 		align-items: center;
 		gap: clamp(0.5rem, 3cqw, 1.2rem);
 		min-width: 0;
 	}
 	.winder {
-		width: calc(var(--shutter) * 1.9);
-		height: calc(var(--shutter) * 0.62);
+		flex: none;
+		width: min(calc(var(--shutter) * 2.6), 45%);
+		height: calc(var(--shutter) * 0.72);
 	}
 
-	/* Tunnel viewfinder, 3:2 landscape, as large as the stage allows. */
-	.finder-area {
-		min-height: 0;
-		min-width: 0;
-		container-type: size;
-		display: grid;
-		place-items: center;
-	}
+	/* Tunnel viewfinder, 3:2 landscape. */
 	.finder {
 		position: relative;
 		container-type: size;
+		flex: none;
 		aspect-ratio: 3 / 2;
-		width: min(calc(100cqw - 0.9rem), calc((100cqh - 0.9rem) * 3 / 2));
+		width: var(--fw);
 		border-radius: 0.9rem;
 		overflow: hidden;
 		background: #000;
@@ -534,7 +541,9 @@
 		}
 	}
 	.shutter {
-		flex: none;
+		position: absolute;
+		left: calc(100% + var(--gap));
+		top: 0;
 		width: var(--shutter);
 		height: var(--shutter);
 		border-radius: 50%;

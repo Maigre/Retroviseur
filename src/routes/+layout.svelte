@@ -23,9 +23,10 @@
 		--muted: #9d9a8c;
 		--accent: #ffc20e; /* Kodak yellow */
 		--accent-fg: #111;
-		--band: #ffc20e; /* Kodak yellow */
-		--band-fg: #007a3d; /* Fujifilm green */
-		--stripe: #e4002b; /* film-box red */
+		--band: #1c1f1c; /* a shade above the body, so it reads as a band */
+		--band-fg: #ffc20e; /* Kodak yellow on dark: ~11:1 */
+		--stripe: #e4002b; /* film-box red, under the band */
+		--stripe-2: #007a3d; /* Fujifilm green, over the band */
 		--window: #e9e3cf; /* frame-counter window */
 		--font: 'VT323', ui-monospace, monospace;
 	}

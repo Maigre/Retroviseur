@@ -248,6 +248,16 @@ Trade-off: the finder is ~42 % of a small phone's screen (33 % on tall phones),
 down from 55–63 % in D28 — the price of tools across the top of a landscape body.
 Header colours swapped: Kodak-yellow band, Fujifilm-green lettering.
 
+## D32 — Aligned tools row, dark striped header · 2026-09-23
+
+- The tools row and the finder share one width: the counter starts at the finder's
+  left edge, the wheel (now larger, ~2.6× the shutter) ends at its right edge, and
+  the shutter hangs just past it.
+- Header, Thomas's proposal: a **Fujifilm-green line on top, a dark band with
+  Kodak-yellow lettering, a red line at the bottom**. Green-on-yellow and
+  yellow-on-green were both ~3.4:1 contrast; yellow on the dark band is ~11:1.
+  Bigger lettering and more padding.
+
 ---
 
 ## Open questions
