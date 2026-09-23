@@ -157,10 +157,15 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 - The Node service logs no IPs, no ids — only counts and errors.
 - **holden**: the `retroviseur.37m.gr` vhost gets `access_log off`.
 - **kxkm-prod**: the `*.37m.gr` catch-all logs every request to
-  `holden-edge-access.log`; a dedicated `retroviseur.37m.gr` server block with
-  `access_log off` (same TLS + proxy as the catch-all, mirrored in
-  `deploy/kxkm-prod/`) overrides it for this host — applied 2026-09-23. Lines
-  logged before that (the first tests) age out with log rotation.
+  `holden-edge-access.log`; a dedicated `retroviseur.37m.gr` server block
+  (mirrored in `deploy/kxkm-prod/`) overrides it for this host with
+  `access_log off`. Abuse is held there without watching everyone (D46):
+  per-client limits kept in memory (`retro_all` 30 r/s burst 60,
+  `retro_lab` 5 r/s burst 30 on `/api/lab/`, 20 connections), rejections answered
+  `429`; **only rejected requests** are written, with their address, to
+  `retroviseur-blocked.log` (rotated daily, 14 days), which the fail2ban jail
+  `retroviseur` reads — 20 rejections within a minute → banned from 80/443 for an
+  hour (tailnet never). Ordinary visits leave no trace.
 - About page (FR/EN): "The lab stores your rolls encrypted with a key only your
   ticket holds. We cannot see your photos or know whose they are. Rolls are
   destroyed one hour after pickup, or 30 days after they are ready. Hosting

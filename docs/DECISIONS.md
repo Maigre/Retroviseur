@@ -383,6 +383,19 @@ one (Q11). Verified end to end against the production server with a 15 s test
 wait: upload, ticket, phone left with no frames and no key, server files without
 the key, developing → ready → collect, 27-frame zip, app sees the pickup.
 
+## D46 — Protect without watching: limits + log-on-block · 2026-09-23
+
+Thomas: with no access log at all, how do we fend off trouble? The gateway had no
+automatic protection reading access logs (fail2ban only guarded sshd), but this host
+had no rate limit either — and kxkm-prod is shared with Seafile. Now, on kxkm-prod
+for retroviseur.37m.gr: per-client request and connection limits kept in memory
+(30 r/s, 5 r/s on the lab API, 20 connections), `429` beyond; only rejected requests
+are logged with their address (`retroviseur-blocked.log`), and fail2ban (jail
+`retroviseur`) bans repeat offenders from 80/443 for an hour. Ordinary visits are
+still not logged. The promise becomes: "visits are not logged; an address is only
+recorded when it is blocked for abuse." Volumetric DDoS stays out of scope (only an
+upstream shield would help, at the cost of a third party in the path).
+
 ---
 
 ## Open questions
