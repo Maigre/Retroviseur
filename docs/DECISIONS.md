@@ -345,6 +345,11 @@ the starting parameters as they are. C200 stays in `stocks.ts` for the bench.
 The date imprint (answers Q8) is European, year last — `23 9 '26` — and smaller:
 digits ~2.6 % of the frame's short side tall (was 4.5 %), squatter (width 0.68 × height).
 
+## D42 — Date stamp blends into the picture · 2026-09-23
+
+The imprint is screened in at 65 % (`STAMP_OPACITY`), so the picture shows through
+the digits and their glow, closer to a real imprint on the emulsion.
+
 ---
 
 ## Open questions

@@ -9,6 +9,7 @@
  * Curves and tints work on display (sRGB) values — that is where the stock
  * curves were drawn. No WebGL2 → the frame is returned untouched.
  */
+import { STAMP_OPACITY } from '../config';
 import { buildLut } from './curve';
 import { hash01, type Leak } from './leak';
 import { drawStamp } from './stamp';
@@ -57,6 +58,7 @@ uniform float saturation, grainAmount, grainSize, vignette, softness, halation;
 uniform vec4 stampRect;     // uv rect (x0, y0, x1, y1); empty = no stamp
 uniform vec3 leak;          // dir.xy, reach (0 reach = no leak)
 uniform float leakStrength;
+uniform float stampOpacity;
 const vec3 LUM = vec3(0.2126, 0.7152, 0.0722);
 
 // integer hash (pcg2d): no float-precision patterns at large pixel coordinates
@@ -117,7 +119,7 @@ void main() {
 	// date stamp, before grain — like a real imprint on the emulsion
 	if (stampRect.z > stampRect.x && uv.x >= stampRect.x && uv.x <= stampRect.z && uv.y >= stampRect.y && uv.y <= stampRect.w) {
 		vec4 s = texture(stampTex, (uv - stampRect.xy) / (stampRect.zw - stampRect.xy));
-		c = 1.0 - (1.0 - c) * (1.0 - s.rgb * s.a);
+		c = 1.0 - (1.0 - c) * (1.0 - s.rgb * s.a * stampOpacity);
 	}
 
 	// grain: clumped, strongest in the mid-tones, faintly coloured
@@ -305,6 +307,7 @@ export function develop(src: HTMLCanvasElement, opts: DevelopOptions): HTMLCanva
 			gl.uniform4fv(u('stampRect'), rect);
 			gl.uniform3f(u('leak'), opts.leak?.dir[0] ?? 0, opts.leak?.dir[1] ?? 0, opts.leak?.reach ?? 0);
 			gl.uniform1f(u('leakStrength'), opts.leak?.strength ?? 0);
+			gl.uniform1f(u('stampOpacity'), STAMP_OPACITY);
 		}
 	);
 
