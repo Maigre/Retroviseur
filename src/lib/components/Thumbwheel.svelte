@@ -1,17 +1,23 @@
 <script lang="ts">
-	// Vertical ribbed film-advance wheel beside the shutter, away from the screen
-	// edges (Android edge swipes = back). Flick it upward with the thumb: it
-	// ticks continuously while it turns, each quick flick is one advance notch;
-	// the parent's Winder decides when the film is wound.
+	// Horizontal ribbed film-advance wheel beside the shutter, like the one on a
+	// disposable. Roll it leftward with the thumb: it ticks continuously while it
+	// turns, each quick flick is one advance notch; the parent's Winder decides
+	// when the film is wound. On a turned stage (portrait screen, phone held
+	// sideways) "leftward" is screen-upward — a vertical swipe mid-screen, clear
+	// of Android's edge-swipe back gesture.
 	import { FlickDetector } from '$lib/camera/flick';
 	import { WHEEL_TICK_PX } from '$lib/config';
 
 	let {
 		armed,
+		turned = false,
 		label,
 		onflick,
 		ontick
-	}: { armed: boolean; label: string; onflick: () => void; ontick: () => void } = $props();
+	}: { armed: boolean; turned?: boolean; label: string; onflick: () => void; ontick: () => void } = $props();
+
+	// position along the wheel's travel axis, decreasing as it rolls "left"
+	const along = (e: PointerEvent) => (turned ? e.clientY : e.clientX);
 
 	const detector = new FlickDetector();
 	let offset = $state(0); // texture scroll in px, follows the thumb
@@ -20,12 +26,12 @@
 
 	function down(e: PointerEvent) {
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-		detector.start(e.clientY, e.timeStamp);
+		detector.start(along(e), e.timeStamp);
 		lastTick = 0;
 	}
 
 	function move(e: PointerEvent) {
-		const travel = detector.travel(e.clientY);
+		const travel = detector.travel(along(e));
 		if (armed) {
 			offset = rest - Math.min(travel, 3); // wound: the wheel is blocked
 			return;
@@ -35,7 +41,7 @@
 			lastTick += WHEEL_TICK_PX;
 			ontick();
 		}
-		if (detector.move(e.clientY, e.timeStamp)) onflick();
+		if (detector.move(along(e), e.timeStamp)) onflick();
 	}
 
 	function up() {
@@ -58,7 +64,7 @@
 	onpointermove={move}
 	onpointerup={up}
 	onpointercancel={up}
-	onkeydown={(e) => (e.key === 'ArrowUp' || e.key === ' ') && !armed && onflick()}
+	onkeydown={(e) => (e.key === 'ArrowLeft' || e.key === ' ') && !armed && onflick()}
 ></div>
 
 <style>
@@ -67,12 +73,12 @@
 		height: 100%;
 		border-radius: 0.8rem;
 		background:
-			linear-gradient(90deg, rgb(255 255 255 / 0.1), transparent 35%, rgb(0 0 0 / 0.55)),
-			linear-gradient(rgb(0 0 0 / 0.75), transparent 22%, transparent 78%, rgb(0 0 0 / 0.75)),
-			repeating-linear-gradient(#4c4c4c 0 3px, #1a1a1a 3px 7px);
-		background-position: 0 0, 0 0, 0 var(--offset);
+			linear-gradient(rgb(255 255 255 / 0.12), transparent 35%, rgb(0 0 0 / 0.55)),
+			linear-gradient(90deg, rgb(0 0 0 / 0.75), transparent 22%, transparent 78%, rgb(0 0 0 / 0.75)),
+			repeating-linear-gradient(90deg, #4c4c4c 0 3px, #1a1a1a 3px 7px);
+		background-position: 0 0, 0 0, var(--offset) 0;
 		touch-action: none;
-		cursor: ns-resize;
+		cursor: ew-resize;
 		box-shadow: inset 0 0 0 1px #000;
 		transition: box-shadow 150ms;
 	}

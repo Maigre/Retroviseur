@@ -21,6 +21,7 @@
 - [x] Hidden dev mode (view frames, fill to last frame, skip the wait) — D27
 - [x] Collect early (from phase 3): zip → share/download → confirmed wipe — D26
 - [x] Feedback round 2: layout v3 (finder first, one control deck, vertical wheel off the edges, cq-based sizing, no text-scale), back gesture closes overlays, dev viewer with reachable prev/next/close, 90s Fuji/Kodak palette — D28, D29
+- [x] Layout v4: landscape camera body on a portrait-locked screen, yellow header — D31
 - [ ] Vibration: fails in the Chrome tab on the Jelly Star — retest in the installed PWA
 - [ ] Check on the Jelly Star: vibration (dev panel → test vibration), saved-frame orientation in portrait and landscape (dev panel → view frames)
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)

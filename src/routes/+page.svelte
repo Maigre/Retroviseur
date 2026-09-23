@@ -40,6 +40,11 @@
 	let camera = $state<'off' | 'starting' | 'live' | 'denied' | 'unavailable' | 'insecure'>('off');
 	let visible = $state(true);
 
+	// The camera stage is turned when the space below the header is portrait.
+	let bodyW = $state(0);
+	let bodyH = $state(0);
+	const turned = $derived(bodyH > bodyW);
+
 	let collecting = $state(false);
 	let saved = $state(false);
 
@@ -168,7 +173,8 @@
 		buzz(HAPTIC.shutter);
 		const minBlack = new Promise((r) => setTimeout(r, SHUTTER_BLACKOUT_MS));
 		try {
-			const jpeg = await captureStill(stream, video);
+			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
+			const jpeg = await captureStill(stream, video, turned ? -90 : 0);
 			await repo.recordFrame(inCamera.id, await jpeg.arrayBuffer(), flash);
 			winder.fire(); // the film is only consumed once the frame is safely stored
 			armed = false;
@@ -272,36 +278,40 @@
 			</section>
 		</main>
 	{:else if shooting && inCamera}
-		<!-- Viewfinder takes everything the controls don't need. All controls live in
-		     one deck: bottom in portrait, right-hand side in landscape — right thumb. -->
-		<main class="camera">
-			<div class="finder-area">
-				<div class="finder">
-					<video bind:this={video} playsinline muted autoplay></video>
-					<div class="blackout" class:on={blackout}></div>
-					{#if cameraMessage[camera]}
-						<div class="finder-msg">
-							<p>{t(cameraMessage[camera])}</p>
-							<button class="link" onclick={() => ((camera = 'off'), startCamera())}>{t('retry')}</button>
-						</div>
-					{/if}
-				</div>
-			</div>
-
-			<div class="deck">
-				<div class="info">
-					<button class="counter" aria-label={t('framesLeft')} onclick={counterTap}>
-						{#key inCamera.shot}
-							<span class="digits" in:fly={{ y: -18, duration: 320 }}>{String(framesLeft(inCamera)).padStart(2, '0')}</span>
-						{/key}
-					</button>
-					{#if hasFlash()}<FlashToggle bind:on={flash} label={t('flash')} />{/if}
-				</div>
-				<div class="controls">
-					<div class="winder">
-						<Thumbwheel {armed} label={t('wind')} onflick={flick} ontick={tick} />
+		<!-- A landscape camera on a portrait-locked screen (D31). The stage is laid
+		     out in landscape — tools along the top (counter + flash left, wheel +
+		     shutter right), finder below — and turned a quarter-turn clockwise when the
+		     screen is portrait, so it reads upright with the phone held sideways and
+		     the header on the left. The shutter lands top-right, like a real camera. -->
+		<main class="camera" bind:clientWidth={bodyW} bind:clientHeight={bodyH} style:--body-w="{bodyW}px" style:--body-h="{bodyH}px">
+			<div class="stage" class:turned>
+				<div class="tools">
+					<div class="info">
+						<button class="counter" aria-label={t('framesLeft')} onclick={counterTap}>
+							{#key inCamera.shot}
+								<span class="digits" in:fly={{ y: -18, duration: 320 }}>{String(framesLeft(inCamera)).padStart(2, '0')}</span>
+							{/key}
+						</button>
+						{#if hasFlash()}<FlashToggle bind:on={flash} label={t('flash')} />{/if}
 					</div>
-					<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
+					<div class="controls">
+						<div class="winder">
+							<Thumbwheel {armed} {turned} label={t('wind')} onflick={flick} ontick={tick} />
+						</div>
+						<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
+					</div>
+				</div>
+				<div class="finder-area">
+					<div class="finder">
+						<video bind:this={video} playsinline muted autoplay></video>
+						<div class="blackout" class:on={blackout}></div>
+						{#if cameraMessage[camera]}
+							<div class="finder-msg">
+								<p>{t(cameraMessage[camera])}</p>
+								<button class="link" onclick={() => ((camera = 'off'), startCamera())}>{t('retry')}</button>
+							</div>
+						{/if}
+					</div>
 				</div>
 			</div>
 		</main>
@@ -389,24 +399,55 @@
 		padding: 0.6rem max(0.6rem, env(safe-area-inset-right)) max(0.6rem, env(safe-area-inset-bottom))
 			max(0.6rem, env(safe-area-inset-left));
 	}
-	/* Everything below is sized from the device (cq* units), never from rem
-	   alone, so a small or font-scaled phone can't push controls off-screen. */
+	/* Camera stage, laid out in landscape. Sizes come from the stage container
+	   (cq* units), never from rem alone. */
 	.camera {
-		--shutter: clamp(3.4rem, 19cqmin, 4.8rem);
-		display: grid;
-		gap: 0.6rem;
-		grid-template-rows: minmax(0, 1fr) auto;
-		grid-template-columns: minmax(0, 1fr);
+		position: relative;
+		padding: 0;
+		overflow: hidden;
 	}
-	@container device (orientation: landscape) {
-		.camera {
-			grid-template-rows: minmax(0, 1fr);
-			grid-template-columns: minmax(0, 1fr) auto;
-		}
+	.stage {
+		position: absolute;
+		inset: 0;
+		container: stage / size;
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr);
+		gap: 1.5cqh;
+		padding: 2cqh 2cqw;
+		box-sizing: border-box;
+	}
+	/* Portrait screen: swap the stage's width/height and turn it a quarter-turn
+	   clockwise — its top edge becomes the screen's right edge. */
+	.stage.turned {
+		inset: auto;
+		top: 0;
+		left: 0;
+		width: var(--body-h);
+		height: var(--body-w);
+		transform-origin: 0 0;
+		transform: translateX(var(--body-w)) rotate(90deg);
+	}
+	.tools {
+		--shutter: clamp(2.5rem, 16cqh, 4.2rem);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 3cqw;
+		min-width: 0;
+	}
+	.info,
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: clamp(0.5rem, 3cqw, 1.2rem);
+		min-width: 0;
+	}
+	.winder {
+		width: calc(var(--shutter) * 1.9);
+		height: calc(var(--shutter) * 0.62);
 	}
 
-	/* Tunnel viewfinder: as large as the space allows, soft, vignetted — never
-	   the film look. Its area is a size container so it can fit 2:3 / 3:2. */
+	/* Tunnel viewfinder, 3:2 landscape, as large as the stage allows. */
 	.finder-area {
 		min-height: 0;
 		min-width: 0;
@@ -416,24 +457,30 @@
 	}
 	.finder {
 		position: relative;
-		aspect-ratio: 2 / 3;
-		width: min(calc(100cqw - 1rem), calc((100cqh - 1rem) * 2 / 3));
+		container-type: size;
+		aspect-ratio: 3 / 2;
+		width: min(calc(100cqw - 0.9rem), calc((100cqh - 0.9rem) * 3 / 2));
 		border-radius: 0.9rem;
 		overflow: hidden;
 		background: #000;
 		box-shadow: 0 0 0 0.35rem #262626, 0 0 0 0.45rem #000;
 	}
-	@container device (orientation: landscape) {
-		.finder {
-			aspect-ratio: 3 / 2;
-			width: min(calc(100cqw - 1rem), calc((100cqh - 1rem) * 3 / 2));
-		}
-	}
 	.finder video {
-		width: 100%;
-		height: 100%;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 100cqw;
+		height: 100cqh;
+		transform: translate(-50%, -50%);
 		object-fit: cover;
 		filter: blur(0.6px) saturate(0.85) brightness(0.95);
+	}
+	/* On a turned stage the finder is a window onto the scene: undo the stage's
+	   quarter-turn for the video itself. */
+	.turned .finder video {
+		width: 100cqh;
+		height: 100cqw;
+		transform: translate(-50%, -50%) rotate(-90deg);
 	}
 	.finder::after {
 		content: '';
@@ -465,47 +512,8 @@
 		padding: 1rem;
 		font-size: 1rem;
 	}
-
-	/* The deck. Portrait: counter + flash left, wheel + shutter right, in a row.
-	   Landscape: a column on the right, shutter at the bottom. */
-	.deck {
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 0.6rem;
-		min-width: 0;
-	}
-	.info {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.4rem;
-		min-width: 0;
-	}
-	.controls {
-		display: flex;
-		align-items: flex-end;
-		gap: clamp(0.6rem, 4cqw, 1.2rem);
-		/* keep the wheel off the right edge: edge swipes are Android's back */
-		flex: none;
-	}
-	.winder {
-		width: calc(var(--shutter) * 0.5);
-		height: calc(var(--shutter) * 1.35);
-	}
-	@container device (orientation: landscape) {
-		.deck {
-			flex-direction: column;
-			align-items: flex-end;
-			justify-content: space-between;
-			height: 100%;
-		}
-		.info {
-			align-items: flex-end;
-		}
-	}
 	.counter {
-		font: clamp(1.4rem, 9cqmin, 2rem) / 1 var(--font);
+		font: clamp(1.2rem, 10cqh, 1.9rem) / 1 var(--font);
 		color: #111;
 		background: var(--window);
 		border: 0;

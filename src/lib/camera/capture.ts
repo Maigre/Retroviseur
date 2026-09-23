@@ -36,15 +36,21 @@ export function closeCamera(stream: MediaStream | undefined): void {
  * (real sensor still). Elsewhere (iOS Safari): the current video frame.
  * Returns a 3:2 JPEG. The film look will be applied here in phase 2.
  */
-export async function captureStill(stream: MediaStream, video: HTMLVideoElement): Promise<Blob> {
+export async function captureStill(stream: MediaStream, video: HTMLVideoElement, rotate: 0 | -90 = 0): Promise<Blob> {
 	const bitmap = await grab(stream, video);
 	try {
 		const c = crop3x2(bitmap.width, bitmap.height, CAPTURE_MAX_LONG_SIDE);
 		const canvas = document.createElement('canvas');
-		canvas.width = c.dw;
-		canvas.height = c.dh;
+		// -90: the phone is held sideways on a portrait-locked screen, so world-up is
+		// the frame's right edge — turn it a quarter-turn anticlockwise.
+		canvas.width = rotate ? c.dh : c.dw;
+		canvas.height = rotate ? c.dw : c.dh;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) throw new Error('2d canvas unavailable');
+		if (rotate) {
+			ctx.translate(0, canvas.height);
+			ctx.rotate(-Math.PI / 2);
+		}
 		ctx.drawImage(bitmap, c.sx, c.sy, c.sw, c.sh, 0, 0, c.dw, c.dh);
 		return await new Promise<Blob>((resolve, reject) =>
 			canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('JPEG encoding failed'))), 'image/jpeg', JPEG_QUALITY)

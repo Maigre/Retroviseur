@@ -46,21 +46,21 @@ camera until the first has been collected.
 
 ## Screens
 
-Every screen sits under a slim **header band**: RETROVISEUR in VT323, Kodak
-yellow on Fujifilm green with a red stripe, **?** (About) and **Share** (share
+Every screen sits under a slim **header band**: RETROVISEUR in VT323, Fujifilm
+green on Kodak yellow with a red stripe, **?** (About) and **Share** (share
 sheet, or copy the link). On a wide screen the app is framed as a phone.
 Android's back gesture closes sheets and overlays first, never the app by
 accident.
 
 1. **Install gate** (iOS and Android browsers) — add to Home Screen first
    (Android: the Install button), skippable.
-2. **Camera body** — the only real screen (D28). The finder gets everything the
-   controls don't need; all controls live in one deck:
-   - Portrait: deck at the bottom — frame counter (cream window, counts *down*,
-     rolls on each shot) and flash switch on the left; the vertical
-     **thumbwheel** and the **shutter** on the right, under the right thumb.
-   - Landscape: deck on the right — counter and flash at the top, wheel and
-     shutter at the bottom right.
+2. **Camera body** — the only real screen (D31): a **landscape camera on a
+   portrait-locked screen**. Hold the phone a quarter-turn anticlockwise:
+   header down the left side; along the top, the frame counter (cream window,
+   counts *down*, rolls on each shot) and the flash switch on the left, the
+   horizontal **thumbwheel** and the **shutter** on the right (top-right, under
+   the index finger); the 3:2 tunnel finder centred below. Held upright, the
+   same body appears turned: tools in a column on the right, counter at 90°.
    - Flash: a switch with a bolt icon — hidden on iOS until the native app (D15).
 3. **Roll finished** — "take it to the lab" (drop-off).
 4. **At the lab** — a quiet line at the bottom; no countdown, no date. The next
@@ -72,8 +72,9 @@ accident.
 
 ### Thumbwheel (film advance)
 
-- Vertical ribbed wheel beside the shutter (never on a screen edge, where
-  Android's swipe means "back"). **Flick it upward** with the thumb.
+- Horizontal ribbed wheel beside the shutter. With the phone held sideways,
+  **roll it to the left** with the thumb (on the upright screen that is a swipe
+  up, mid-screen — never Android's edge-swipe "back").
 - While it turns it **ticks continuously** (a ratchet tooth every 7 px).
 - A quick flick counts as one **notch**; ~3 notches (`WIND_CLICKS`) and it
   **locks** with a heavier thunk + a strong haptic, outlined in orange.

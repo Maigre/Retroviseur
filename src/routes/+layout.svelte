@@ -23,8 +23,8 @@
 		--muted: #9d9a8c;
 		--accent: #ffc20e; /* Kodak yellow */
 		--accent-fg: #111;
-		--band: #007a3d; /* Fujifilm green */
-		--band-fg: #ffc20e;
+		--band: #ffc20e; /* Kodak yellow */
+		--band-fg: #007a3d; /* Fujifilm green */
 		--stripe: #e4002b; /* film-box red */
 		--window: #e9e3cf; /* frame-counter window */
 		--font: 'VT323', ui-monospace, monospace;
