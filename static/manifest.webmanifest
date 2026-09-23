@@ -1,0 +1,12 @@
+{
+	"name": "Rétroviseur",
+	"short_name": "Rétroviseur",
+	"description": "A disposable film camera: 27 shots, no preview, develop to discover.",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#111111",
+	"theme_color": "#111111",
+	"icons": []
+}
