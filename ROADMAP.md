@@ -15,19 +15,21 @@
 - [ ] Thumbwheel gesture (flick recogniser) + ratchet sound + haptics
 - [ ] Shutter sound, finder blackout
 - [ ] PWA: service worker (offline), icons, iOS "Add to Home Screen" onboarding
-- [ ] First self-hosted deploy (Q1)
+- [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
+- [ ] Deploy to the Node VM on Rachael (D17, details pending)
 
 ## Phase 2 — Film look
 - [ ] WebGL2 pipeline (FILM-LOOK.md pass order)
 - [ ] `/bench` route: both stocks on reference photos
-- [ ] Flash switch: torch where available, simulated flash look (Q2)
+- [ ] Flash switch: Android torch; hidden on iOS (D15)
 - [ ] Date stamp, light leaks
 - [ ] Pick `FILM_STOCK`
 
 ## Phase 3 — Develop & collect (local lab)
-- [ ] Drop-off screen, developing state, ready check on open
+- [ ] Drop-off screen, developing state, ready check on open (D16)
+- [ ] Next roll loadable while one is at the lab (D14)
 - [ ] Collect: unseal → zip (fflate) → share sheet / download → wipe
-- [ ] Settle Q3–Q6
+- [ ] Settle Q4, Q5
 
 ## Phase 4 — Remote lab (email)
 - [ ] Small lab backend: upload sealed roll + wrapped key, develop, email a link
@@ -36,7 +38,8 @@
 
 ## Phase 5 — Native apps
 - [ ] Capacitor wrap (iOS/Android): native camera, haptics, local notifications
-- [ ] Store listings as **Rétroviseur**
+- [ ] Flash switch back on iOS with the native flash
+- [ ] Store listings as **Retroviseur**
 
 ## Someday
 - [ ] Real photo lab integration (prints by post)

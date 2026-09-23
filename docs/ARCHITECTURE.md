@@ -15,7 +15,8 @@
 src/lib/
   config.ts            developer constants (roll size, wind clicks, develop window, stock)
   i18n.ts              FR/EN strings, browser language detection
-  roll/                Roll model + forward-only state machine
+  platform.ts          platform quirks (iOS detection → flash availability)
+  roll/                Roll model, forward-only state machine, camera/lab occupancy rules
   camera/winder.ts     thumbwheel logic (shutter lock)
   lab/                 Lab interface + implementations (local time-lock today)
   film/stocks.ts       film look parameter sets (shader coming in phase 2)
@@ -41,6 +42,10 @@ stateDiagram-v2
 
 Transitions are pure functions in [`roll/roll.ts`](../src/lib/roll/roll.ts);
 illegal moves throw `RollError`. States only ever move forward.
+
+Occupancy (D14, [`roll/rules.ts`](../src/lib/roll/rules.ts)): at most one roll
+in the camera (`loaded`/`full`) and one at the lab (`developing`/`ready`).
+`canLoad` / `canDropOff` gate the two user actions.
 
 ## Capture pipeline (phase 1–2)
 
@@ -112,8 +117,8 @@ Losing a roll is the worst bug, so:
 |---|---|---|---|
 | Rear camera via `getUserMedia` | ✅ | ✅ (installed PWA ok) | — |
 | Full-res still (`ImageCapture.takePhoto`) | ✅ | ❌ | fall back to video-frame grab; request 4K stream |
-| Torch for the flash | ✅ `torch` constraint | ⚠️ unreliable — verify on bench | simulated flash look (Q2) |
-| Background "ready" notification | Web Push (server) | Web Push for installed PWAs, iOS 16.4+ (server) | check on open for the local lab (Q6) |
+| Torch for the flash | ✅ `torch` constraint | ⚠️ unreliable | switch hidden on iOS until native (D15) |
+| Background "ready" notification | Web Push (server) | Web Push for installed PWAs, iOS 16.4+ (server) | check on open (D16); native local notifications later |
 | Haptics (`navigator.vibrate`) | ✅ | ❌ | sound carries the feedback on iOS |
 | Share files (Web Share L2) | ✅ | ✅ | download fallback |
 

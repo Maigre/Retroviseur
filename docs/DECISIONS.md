@@ -93,23 +93,55 @@ backend), must stay open.
 The `build/` output is served from one of our own boxes over HTTPS. See
 [DEPLOY.md](DEPLOY.md).
 
+## D13 — Display name without accent: Retroviseur · 2026-09-23
+
+Supersedes the display-name half of D1: the app is **Retroviseur** everywhere
+(stores, home screen, repo), no *é*. Simpler to type, search and share
+internationally; the *rétro + viseur* pun still reads.
+
+## D14 — One roll in the camera, one at the lab · 2026-09-23
+
+Answers Q3. After dropping a roll off, a new one can be loaded right away.
+At most **one roll in the camera** (loaded/full) and **one at the lab**
+(developing/ready): a second full roll waits in the camera until the first has
+been collected. Rules in [`src/lib/roll/rules.ts`](../src/lib/roll/rules.ts).
+
+## D15 — Flash hidden on iOS until the native app · 2026-09-23
+
+Answers Q2. The browser can't reliably drive the torch on iOS, so the flash
+switch is not shown there ([`src/lib/platform.ts`](../src/lib/platform.ts)).
+It comes back with the Capacitor app and the native flash. No simulated flash
+look on iOS in the meantime.
+
+## D16 — "Ready" is noticed on open (no push) · 2026-09-23
+
+Answers Q6. With the local lab, the app checks whether the roll is ready when
+it is opened; no push server. Real notifications arrive with the native app
+(local notifications), which is planned soon.
+
+## D17 — Hosting: a Node VM on Rachael · 2026-09-23
+
+Refines D12 / answers Q1: the PWA will be served from a dedicated VM on
+Rachael, set up by Thomas; deployment details to follow. Until then, the app
+is validated from the laptop over the LAN (`npm run preview:lan`, DEPLOY.md).
+
+## D18 — Node 24 LTS · 2026-09-23
+
+Tooling pinned to the active LTS line (`.nvmrc` = 24, `engines.node >= 24`).
+
 ---
 
 ## Open questions
 
-- **Q1 — Which box / domain** serves the PWA? (D12)
-- **Q2 — Flash on iOS**: the torch control in the browser is unreliable there;
-  is a simulated flash look acceptable, or should the switch hide on iOS?
-- **Q3 — Next roll while developing?** D6 says one roll at a time; strictly,
-  that blocks shooting for 1–3 days after drop-off. Alternative: one roll *in
-  the camera* + one *at the lab*.
+- ~~Q1 — Which box / domain~~ → D17 (VM on Rachael; domain still to set).
+- ~~Q2 — Flash on iOS~~ → D15.
+- ~~Q3 — Next roll while developing?~~ → D14.
 - **Q4 — Archive contents**: JPEGs only, or JPEGs + a contact-sheet image +
   a small `roll.json` (dates, stock, frame order)?
 - **Q5 — Archive timing (local lab)**: is the .zip built at drop-off (sealed
   archive sitting on the phone) or at collection?
-- **Q6 — Ready notification**: a PWA can't reliably wake itself up without a
-  server (Web Push). Accept "you'll see it next time you open the app" for the
-  local lab, or add a minimal push server early?
+- ~~Q6 — Ready notification~~ → D16.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - **Q8 — Date stamp format**: `'26 9 23` (classic Japanese compact) or `23 9 '26`?
+- **Q9 — Domain name** for the Rachael-hosted PWA.

@@ -1,4 +1,4 @@
-# Rétroviseur
+# Retroviseur
 
 **A disposable film camera for your phone.**
 27 exposures. No preview, no delete, no settings. Wind the film, shoot, repeat —
@@ -16,7 +16,7 @@ camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
 
 ## The ritual
 
-1. **Load** a roll — 27 frames, one roll at a time.
+1. **Load** a roll — 27 frames. One roll in the camera, one at the lab.
 2. **Wind** the thumbwheel (a few flicks, ratchet clicks + haptics) to arm the shutter.
 3. **Shoot** through a small tunnel viewfinder. The frame is gone: you can't see it or delete it.
 4. **Finish** the roll → **drop it at the lab**.
@@ -36,11 +36,12 @@ camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
 
 ## Develop
 
-Requires Node ≥ 22.12 (`nvm use` reads `.nvmrc`).
+Requires Node 24 LTS (`nvm use` reads `.nvmrc`).
 
 ```sh
 npm install
-npm run dev -- --host     # camera needs HTTPS on a phone, see docs/DEPLOY.md
+npm run dev:lan           # HTTPS on the LAN for a phone, see docs/DEPLOY.md
+npm run preview:lan       # same, on the production build
 npm test                  # vitest — pure domain logic
 npm run check             # svelte-check / TypeScript
 npm run build             # static SPA in build/

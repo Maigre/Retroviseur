@@ -10,16 +10,25 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"test": "vitest run",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"dev:lan": "HTTPS=1 vite dev --host",
+		"preview:lan": "vite build && HTTPS=1 vite preview --host"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@types/node": "^24.13.6",
+		"@vitejs/plugin-basic-ssl": "^2.3.0",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"typescript": "^6.0.3",
 		"vite": "^8.0.16",
 		"vitest": "^5.0.1"
+	},
+	"description": "Retroviseur — a disposable film camera for your phone: 27 shots, no preview, develop to discover.",
+	"license": "AGPL-3.0-only",
+	"engines": {
+		"node": ">=24"
 	}
 }

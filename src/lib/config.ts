@@ -1,6 +1,6 @@
 /**
  * Developer-fixed constants. None of these are exposed to the user:
- * Rétroviseur is a disposable camera, not a settings screen.
+ * Retroviseur is a disposable camera, not a settings screen.
  * See docs/DECISIONS.md for why each value is what it is.
  */
 import type { FilmStockId } from './film/stocks';

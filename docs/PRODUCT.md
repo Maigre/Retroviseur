@@ -2,7 +2,7 @@
 
 ## Pitch
 
-Phones made photography infinite, instant and editable. Rétroviseur takes all
+Phones made photography infinite, instant and editable. Retroviseur takes all
 three away on purpose: a **finite roll**, **no instant feedback**, **no second
 chance**. What you get back is the feeling of opening an envelope of prints.
 
@@ -26,7 +26,7 @@ chance**. What you get back is the feeling of opening an envelope of prints.
 | gallery on the phone | the photos live at the lab, then in the archive — not in the app |
 | stock / ISO / filter picker | one film, chosen by us |
 | live film look in the finder | it would spoil the reveal |
-| parallel rolls | one roll in the camera at a time |
+| more than two rolls | one in the camera, one at the lab — that's it |
 | selfie camera | a disposable only looks one way |
 
 ## Flow
@@ -39,8 +39,10 @@ chance**. What you get back is the feeling of opening an envelope of prints.
       └──────────────────────────── load a new roll ◀──────────────────────────────────────────┘
 ```
 
-A new roll can only be loaded once the current one has been collected
-(see open question Q3 in [DECISIONS.md](DECISIONS.md)).
+Two rolls at most (D14): one **in the camera** (loaded or full) and one **at
+the lab** (developing or ready). As soon as a roll is dropped off, a new one can
+be loaded; if that one fills up before the first comes back, it waits in the
+camera until the first has been collected.
 
 ## Screens
 
@@ -50,9 +52,10 @@ A new roll can only be loaded once the current one has been collected
      slightly soft — like a plastic optical finder. No film look.
    - **Thumbwheel** on the right edge.
    - **Shutter** button: big, stiff, disabled until the film is wound.
-   - **Flash slider** (on/off), like on a QuickSnap.
+   - **Flash slider** (on/off), like on a QuickSnap — hidden on iOS until the native app (D15).
 2. **Roll finished** — "take it to the lab" (drop-off action).
-3. **Developing** — an envelope/lab-bag state; no countdown, no date.
+3. **Developing** — an envelope/lab-bag state; no countdown, no date. Checked
+   each time the app opens (D16). Meanwhile the next roll can be loaded.
 4. **Ready** — "your prints are ready" → collect.
 5. **Collected** — the archive is handed off (share sheet / download); load a new roll.
 
@@ -75,8 +78,8 @@ haptic. Pressing it unwound = dry, dull click, nothing happens.
 
 ### Flash
 
-Two-position slider. Real torch where the platform allows it, simulated flash
-look otherwise ([ARCHITECTURE.md § Platform limits](ARCHITECTURE.md#platform-limits)).
+Two-position slider driving the real torch (Android). Hidden on iOS until the
+native app (D15).
 
 ## What the frames look like
 
@@ -90,6 +93,6 @@ on the first and last frame. Details in [FILM-LOOK.md](FILM-LOOK.md).
 - **Dispo** — photos "develop" at 9 a.m. next day, social feed.
 - **Huji Cam** — the look, without the constraint.
 
-Rétroviseur's difference: the **roll** is the unit — it leaves the phone as a
+Retroviseur's difference: the **roll** is the unit — it leaves the phone as a
 sealed whole, goes to a *lab* (local time-lock today, email or a real lab
 tomorrow), and comes back as an archive, never as a feed.

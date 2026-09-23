@@ -4,6 +4,7 @@
 	import { Winder } from '$lib/camera/winder';
 	import { FILM_STOCK } from '$lib/config';
 	import { t } from '$lib/i18n';
+	import { hasFlash } from '$lib/platform';
 	import { expose, framesLeft, loadRoll } from '$lib/roll/roll';
 
 	const winder = new Winder();
@@ -31,7 +32,9 @@
 	<div class="finder" aria-hidden="true"></div>
 
 	{#if roll.state === 'loaded'}
-		<label class="flash"><input type="checkbox" bind:checked={flash} /> {t('flash')}</label>
+		{#if hasFlash()}
+			<label class="flash"><input type="checkbox" bind:checked={flash} /> {t('flash')}</label>
+		{/if}
 		<button class="wheel" onclick={flick} aria-label={t('wind')} style:--p={wound}></button>
 		<button class="shutter" onclick={shoot} disabled={wound < 1} aria-label="shutter"></button>
 	{:else}

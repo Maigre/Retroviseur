@@ -1,6 +1,6 @@
 {
-	"name": "Rétroviseur",
-	"short_name": "Rétroviseur",
+	"name": "Retroviseur",
+	"short_name": "Retroviseur",
 	"description": "A disposable film camera: 27 shots, no preview, develop to discover.",
 	"start_url": "./",
 	"scope": "./",
