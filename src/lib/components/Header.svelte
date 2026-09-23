@@ -45,7 +45,7 @@
 			var(--band);
 		color: var(--band-fg);
 		border-bottom: 0.22rem solid var(--stripe);
-		padding: calc(0.45rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.45rem
+		padding: calc(0.85rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.85rem
 			max(0.6rem, env(safe-area-inset-left));
 	}
 	h1 {

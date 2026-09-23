@@ -265,6 +265,18 @@ dark for 150 ms (+120 ms fade) when the shutter fires, whatever capture takes;
 capture and storage carry on behind it with the shutter locked, and the counter
 roll marks the moment the frame is stored.
 
+## D34 — Blackout until the counter rolls; equal breathing room · 2026-09-23
+
+- Supersedes D33: a 150 ms blink left the live view visibly frozen while
+  `takePhoto` ran. The finder now stays dark from the shutter until the frame is
+  stored and the counter rolls, with 150 ms as the minimum. The dev panel shows
+  the last shot's method, source size and capture/store timings, so we can judge
+  on the real phone whether grabbing the video frame instead (no freeze, but
+  stream resolution) is worth it.
+- Held sideways, the counter/flash/wheel/finder block sits as far from the header
+  as it is from the shutter (`--side`); the shutter keeps its place.
+- Taller header (more padding, same lettering).
+
 ---
 
 ## Open questions

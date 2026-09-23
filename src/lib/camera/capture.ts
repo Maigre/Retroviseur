@@ -36,8 +36,16 @@ export function closeCamera(stream: MediaStream | undefined): void {
  * (real sensor still). Elsewhere (iOS Safari): the current video frame.
  * Returns a 3:2 JPEG. The film look will be applied here in phase 2.
  */
-export async function captureStill(stream: MediaStream, video: HTMLVideoElement, rotate: 0 | -90 = 0): Promise<Blob> {
-	const bitmap = await grab(stream, video);
+export interface Still {
+	jpeg: Blob;
+	/** how the pixels were obtained, for the dev panel */
+	method: 'takePhoto' | 'video';
+	sourceWidth: number;
+	sourceHeight: number;
+}
+
+export async function captureStill(stream: MediaStream, video: HTMLVideoElement, rotate: 0 | -90 = 0): Promise<Still> {
+	const { bitmap, method } = await grab(stream, video);
 	try {
 		const c = crop3x2(bitmap.width, bitmap.height, CAPTURE_MAX_LONG_SIDE);
 		const canvas = document.createElement('canvas');
@@ -52,23 +60,24 @@ export async function captureStill(stream: MediaStream, video: HTMLVideoElement,
 			ctx.rotate(-Math.PI / 2);
 		}
 		ctx.drawImage(bitmap, c.sx, c.sy, c.sw, c.sh, 0, 0, c.dw, c.dh);
-		return await new Promise<Blob>((resolve, reject) =>
+		const jpeg = await new Promise<Blob>((resolve, reject) =>
 			canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('JPEG encoding failed'))), 'image/jpeg', JPEG_QUALITY)
 		);
+		return { jpeg, method, sourceWidth: bitmap.width, sourceHeight: bitmap.height };
 	} finally {
 		bitmap.close();
 	}
 }
 
-async function grab(stream: MediaStream, video: HTMLVideoElement): Promise<ImageBitmap> {
+async function grab(stream: MediaStream, video: HTMLVideoElement): Promise<{ bitmap: ImageBitmap; method: Still['method'] }> {
 	const track = stream.getVideoTracks()[0];
 	const IC = (globalThis as { ImageCapture?: new (t: MediaStreamTrack) => { takePhoto(): Promise<Blob> } }).ImageCapture;
 	if (IC && track) {
 		try {
-			return await createImageBitmap(await new IC(track).takePhoto());
+			return { bitmap: await createImageBitmap(await new IC(track).takePhoto()), method: 'takePhoto' };
 		} catch {
 			// some devices reject takePhoto on certain streams — fall back to the video frame
 		}
 	}
-	return createImageBitmap(video);
+	return { bitmap: await createImageBitmap(video), method: 'video' };
 }

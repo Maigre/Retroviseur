@@ -51,6 +51,7 @@
 	let about = $state(false);
 
 	let dev = $state(false);
+	let lastCapture = $state('');
 	let devTaps: number[] = [];
 
 	const inCamera = $derived(rolls.find((r) => r.state === 'loaded' || r.state === 'full'));
@@ -168,21 +169,28 @@
 			return;
 		}
 		busy = true;
-		blackout = true;
-		setTimeout(() => (blackout = false), SHUTTER_BLACKOUT_MS);
+		blackout = true; // dark until the counter rolls, never shorter than a blink (D34)
+		const minBlack = new Promise((r) => setTimeout(r, SHUTTER_BLACKOUT_MS));
 		sounds.shutter();
 		buzz(HAPTIC.shutter);
+		const t0 = performance.now();
 		try {
 			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
-			const jpeg = await captureStill(stream, video, turned ? -90 : 0);
-			await repo.recordFrame(inCamera.id, await jpeg.arrayBuffer(), flash);
+			const still = await captureStill(stream, video, turned ? -90 : 0);
+			const tCapture = performance.now();
+			await repo.recordFrame(inCamera.id, await still.jpeg.arrayBuffer(), flash);
+			const track = stream.getVideoTracks()[0]?.getSettings();
+			lastCapture = `${still.method} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track?.width}×${track?.height}`;
 			winder.fire(); // the film is only consumed once the frame is safely stored
 			armed = false;
+			await minBlack;
 			await refresh();
 		} catch (e) {
 			console.error(e);
 			notice = 'captureFailed';
 		} finally {
+			await minBlack;
+			blackout = false;
 			busy = false;
 		}
 	}
@@ -282,6 +290,7 @@
 		     the header on the left. The shutter lands top-right, like a real camera. -->
 		<main class="camera" bind:clientWidth={bodyW} bind:clientHeight={bodyH} style:--body-w="{bodyW}px" style:--body-h="{bodyH}px">
 			<div class="stage" class:turned>
+				<div class="block">
 				<div class="tools">
 					<div class="info">
 						<button class="counter" aria-label={t('framesLeft')} onclick={counterTap}>
@@ -294,7 +303,7 @@
 					<div class="winder">
 						<Thumbwheel {armed} {turned} label={t('wind')} onflick={flick} ontick={tick} />
 					</div>
-					<!-- hangs just past the finder's right edge -->
+					<!-- hangs past the finder's right edge, as far from it as the block is from the header -->
 					<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
 				</div>
 				<div class="finder">
@@ -306,6 +315,7 @@
 								<button class="link" onclick={() => ((camera = 'off'), startCamera())}>{t('retry')}</button>
 							</div>
 						{/if}
+				</div>
 				</div>
 			</div>
 		</main>
@@ -377,7 +387,7 @@
 {/if}
 
 {#if dev && repo}
-	<DevPanel {repo} {rolls} onchange={refresh} onexit={() => ((dev = false), setDev(false))} />
+	<DevPanel {repo} {rolls} {lastCapture} onchange={refresh} onexit={() => ((dev = false), setDev(false))} />
 {/if}
 
 <style>
@@ -408,9 +418,12 @@
 	   against the device instead. */
 	.stage {
 		--gap: 0.6rem;
+		/* the block sits this far from the header edge, and the shutter this far
+		   from the block — equal breathing room on both sides */
+		--side: calc((100cqw - var(--fw) + 2 * var(--gap)) / 4);
 		--shutter: clamp(2.5rem, 17cqh, 4.2rem);
 		--fw: min(
-			calc(100cqw - 2 * (var(--shutter) + var(--gap)) - 0.9rem),
+			calc(100cqw - 2 * (var(--shutter) + var(--gap)) - 1.6rem),
 			calc((100cqh - var(--shutter) - var(--gap) - 0.9rem) * 3 / 2)
 		);
 		position: absolute;
@@ -418,11 +431,17 @@
 		container: stage / size;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: center;
-		gap: var(--gap);
-		padding: 0.6rem 0.8rem;
+		padding: 0.6rem 0;
 		box-sizing: border-box;
+	}
+	.block {
+		position: relative;
+		margin-left: var(--side);
+		display: flex;
+		flex-direction: column;
+		gap: var(--gap);
 	}
 	/* Portrait screen: swap the stage's width/height and turn it a quarter-turn
 	   clockwise — its top edge becomes the screen's right edge. */
@@ -539,7 +558,7 @@
 	}
 	.shutter {
 		position: absolute;
-		left: calc(100% + var(--gap));
+		left: calc(100% + var(--side));
 		top: 0;
 		width: var(--shutter);
 		height: var(--shutter);

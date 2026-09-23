@@ -37,8 +37,9 @@ export const FLICK_MIN_PX = 22;
 export const FLICK_MAX_MS = 450;
 
 /**
- * The finder blinks dark this long when the shutter fires — a flash, not a wait.
- * Capture and storage carry on behind it; the counter roll says when it's done.
+ * The finder goes dark when the shutter fires and stays dark until the frame is
+ * stored and the counter rolls (the live view freezes during capture anyway) —
+ * but at least this long.
  */
 export const SHUTTER_BLACKOUT_MS = 150;
 

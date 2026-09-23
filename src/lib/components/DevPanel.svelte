@@ -10,9 +10,10 @@
 	let {
 		repo,
 		rolls,
+		lastCapture = '',
 		onchange,
 		onexit
-	}: { repo: RollRepository; rolls: Roll[]; onchange: () => Promise<void>; onexit: () => void } = $props();
+	}: { repo: RollRepository; rolls: Roll[]; lastCapture?: string; onchange: () => Promise<void>; onexit: () => void } = $props();
 
 	let busy = $state(false);
 	let frames = $state<DevFrame[]>([]);
@@ -112,6 +113,7 @@
 			>wipe everything</button
 		>
 	</div>
+	{#if lastCapture}<p class="log">last shot: {lastCapture}</p>{/if}
 	{#if log}<p class="log">{log}</p>{/if}
 
 	{#if frames.length}
