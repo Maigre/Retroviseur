@@ -156,6 +156,47 @@ On iOS in a Safari tab, the first screen asks to add the app to the Home Screen
 (Safari may evict a tab's storage after ~7 days unused; installed PWAs are
 exempt). A small "continue in Safari anyway" link keeps testing possible.
 
+## D23 — Install gate on Android too · 2026-09-23
+
+Extends D22 after Thomas's first phone test. On Android the gate offers Chrome's
+own install prompt (`beforeinstallprompt`, captured at module load in
+`src/lib/install.svelte.ts`) or, when the browser doesn't offer it, the
+"⋮ → Add to Home screen" instructions. Still skippable.
+
+## D24 — Camera layout: top bar, thumb corner, free rotation · 2026-09-23
+
+Supersedes the portrait lock. Header band (app name in VT323 — the waverz.net
+font — on a plain orange band, About + Share buttons). Below it, portrait:
+counter top-left, horizontal wheel top-right, finder, flash switch bottom-left,
+shutter bottom-right; landscape: finder in the middle, wheel top-right and
+shutter bottom-right, both under the right thumb. The screen may rotate, so the
+camera stream (and the saved frame) follows the phone's orientation. On wide
+screens the app sits in a phone-sized frame. Everything fits the viewport: no
+scrolling on a small phone (checked at 320×569).
+
+## D25 — Winding and shutter feedback · 2026-09-23
+
+The wheel turns leftward and ticks continuously while it moves (one tick every
+7 px), a notch per counted flick, a heavier lock on the third. A wound camera
+**stays wound across reloads** (`roll.wound`), like a real one. After a shot the
+finder blacks out ~450 ms and the counter rolls to its new value with a glow.
+Haptics are ≥ 20 ms pulses (cheap motors ignore shorter ones).
+
+## D26 — Collect = zip, then a confirmed wipe · 2026-09-23
+
+Provisionally answers Q4/Q5: the archive is built at collection, JPEGs only
+(`retroviseur-YYYY-MM-DD/01.jpg…`, stored uncompressed), handed to the share
+sheet or downloaded. The roll is removed from the phone only after the user
+confirms they saved it — a download can't be verified, and losing a roll is the
+worst bug.
+
+## D27 — Hidden developer mode · 2026-09-23
+
+Seven taps on the frame counter. A collapsible panel to view the sealed frames,
+fill a roll to its last frame, skip the lab wait, test vibration and wipe all
+data. It breaks the product rules on purpose, is English-only, and is never
+advertised.
+
 ---
 
 ## Open questions
@@ -163,10 +204,9 @@ exempt). A small "continue in Safari anyway" link keeps testing possible.
 - ~~Q1 — Which box / domain~~ → D17 (VM on Rachael; domain still to set).
 - ~~Q2 — Flash on iOS~~ → D15.
 - ~~Q3 — Next roll while developing?~~ → D14.
-- **Q4 — Archive contents**: JPEGs only, or JPEGs + a contact-sheet image +
-  a small `roll.json` (dates, stock, frame order)?
-- **Q5 — Archive timing (local lab)**: is the .zip built at drop-off (sealed
-  archive sitting on the phone) or at collection?
+- **Q4 — Archive contents**: JPEGs only for now (D26); add a contact sheet or
+  a `roll.json`?
+- ~~Q5 — Archive timing~~ → built at collection (D26).
 - ~~Q6 — Ready notification~~ → D16.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?

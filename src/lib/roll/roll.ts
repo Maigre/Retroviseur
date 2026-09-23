@@ -18,8 +18,8 @@ export function expose(roll: Roll, now = Date.now()): Roll {
 	if (roll.state !== 'loaded') throw new RollError(`cannot expose a ${roll.state} roll`);
 	const shot = roll.shot + 1;
 	return shot >= roll.exposures
-		? { ...roll, shot, state: 'full', fullAt: now }
-		: { ...roll, shot };
+		? { ...roll, shot, wound: false, state: 'full', fullAt: now }
+		: { ...roll, shot, wound: false };
 }
 
 export function dropOff(roll: Roll, ticket: LabTicket): Roll {

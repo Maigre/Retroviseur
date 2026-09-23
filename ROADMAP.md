@@ -17,7 +17,10 @@
 - [x] PWA: service worker (offline shell), icons, iOS "Add to Home Screen" gate
 - [x] Minimal drop-off to the local lab (so a full roll doesn't block testing)
 - [ ] **Validate on real phones** (Android Chrome + installed iOS PWA): orientation of saved frames, capture latency, sounds/haptics feel
-- [ ] Landscape shots: the UI is portrait-locked, so a phone held sideways may save a sideways frame — rotate from device orientation if the bench confirms it
+- [x] Feedback round 1 (Thomas, Jelly Star): Android install gate, continuous wheel ticks, longer blackout + counter roll, top-bar/thumb-corner layout with rotation, flash switch, header band (VT323) with About/Share, phone frame on desktop, wound state kept on reload, stronger haptics
+- [x] Hidden dev mode (view frames, fill to last frame, skip the wait) — D27
+- [x] Collect early (from phase 3): zip → share/download → confirmed wipe — D26
+- [ ] Check on the Jelly Star: vibration (dev panel → test vibration), saved-frame orientation in portrait and landscape (dev panel → view frames)
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
 - [x] Deployed to gaff → https://retroviseur.37m.gr (`deploy/deploy.sh`, D19)
 
@@ -31,8 +34,8 @@
 ## Phase 3 — Develop & collect (local lab)
 - [ ] Drop-off screen, developing state, ready check on open (D16)
 - [ ] Next roll loadable while one is at the lab (D14)
-- [ ] Collect: unseal → zip (fflate) → share sheet / download → wipe
-- [ ] Settle Q4, Q5
+- [x] Collect: unseal → zip (fflate) → share sheet / download → confirmed wipe
+- [ ] Settle Q4 (contact sheet / roll.json in the archive?)
 
 ## Phase 4 — Remote lab (email)
 - [ ] Small lab backend: upload sealed roll + wrapped key, develop, email a link

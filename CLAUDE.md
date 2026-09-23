@@ -9,5 +9,6 @@ questions) before changing behaviour.
 - **Never** add user-facing settings, previews, delete, or a gallery — see the "no" list.
 - UI components never hold frame pixels; frames go capture → film look → seal → storage.
 - New develop backends implement `Lab` (`src/lib/lab/types.ts`); the camera must not know which lab it has.
-- Every user-visible string goes through `src/lib/i18n.ts` (FR + EN).
+- Every user-visible string goes through `src/lib/i18n.ts` (FR + EN) — except the hidden dev panel (`src/lib/dev.ts`, `DevPanel.svelte`), which is English-only and the one place allowed to unseal frames.
+- Layout lives inside `.device` (a size container): use `cq*` units / `@container device` queries, not `dv*` units or `@media` orientation; overlays are `position: absolute`, not `fixed`.
 - A changed decision gets a new entry in `docs/DECISIONS.md`; don't rewrite old ones.

@@ -19,9 +19,14 @@ export class Sounds {
 		if (this.#ctx.state === 'suspended') void this.#ctx.resume();
 	}
 
-	/** One ratchet tooth. */
+	/** One ratchet tooth — fired continuously while the wheel moves. */
 	tick(): void {
-		this.#burst(0, 0.012, 3200, 0.5);
+		this.#burst(0, 0.007, 2600 + Math.random() * 1400, 0.3);
+	}
+
+	/** A full flick registered: one advance notch. */
+	notch(): void {
+		this.#burst(0, 0.014, 1900, 0.6);
 	}
 
 	/** The wheel hits its stop: film advanced, shutter armed. */
@@ -59,11 +64,17 @@ export class Sounds {
 	}
 }
 
-/** Haptics where the platform has them (Android); silently nothing on iOS. */
-export function buzz(pattern: number | number[]): void {
+/**
+ * Haptics where the platform has them (Android); nothing on iOS. Pulses are
+ * ≥ 20 ms: cheap vibration motors don't spin up for shorter ones.
+ * Returns what the browser answered (false = refused or unsupported).
+ */
+export function buzz(pattern: number | number[]): boolean {
 	try {
-		navigator.vibrate?.(pattern);
+		return navigator.vibrate?.(pattern) ?? false;
 	} catch {
-		// ignore
+		return false;
 	}
 }
+
+export const HAPTIC = { notch: 25, lock: 60, shutter: 45, dry: 20 } as const;

@@ -44,3 +44,13 @@ it('fills the roll, then allows one more roll once it is at the lab', async () =
 	expect((await repo.list()).map((r) => r.state)).toEqual(['developing', 'loaded']);
 	expect(next.shot).toBe(0);
 });
+
+it('keeps the wound state across reloads and clears it on exposure', async () => {
+	const name = `test-${n++}`;
+	const repo = await RollRepository.open(name);
+	const roll = await repo.load('superia400');
+	await repo.setWound(roll.id, true);
+	expect((await (await RollRepository.open(name)).list())[0].wound).toBe(true);
+	const after = await repo.recordFrame(roll.id, jpeg(0), false);
+	expect(after.wound).toBe(false);
+});

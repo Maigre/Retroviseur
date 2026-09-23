@@ -46,35 +46,42 @@ camera until the first has been collected.
 
 ## Screens
 
-1. **Camera body** — the only real screen.
-   - Frame counter (orange digits in a black window, counts *down*).
-   - Small **tunnel viewfinder** in the middle: live but small, vignetted,
-     slightly soft — like a plastic optical finder. No film look.
-   - **Thumbwheel** on the right edge.
-   - **Shutter** button: big, stiff, disabled until the film is wound.
-   - **Flash slider** (on/off), like on a QuickSnap — hidden on iOS until the native app (D15).
-2. **Roll finished** — "take it to the lab" (drop-off action).
-3. **Developing** — an envelope/lab-bag state; no countdown, no date. Checked
-   each time the app opens (D16). Meanwhile the next roll can be loaded.
-4. **Ready** — "your prints are ready" → collect.
-5. **Collected** — the archive is handed off (share sheet / download); load a new roll.
+Every screen sits under a **header band**: RETROVISEUR in VT323 on plain
+orange, with **?** (About) and **Share** (share sheet, or copy the link). On a
+wide screen the app is framed as a phone.
+
+1. **Install gate** (iOS and Android browsers) — add to Home Screen first
+   (Android: the Install button), skippable.
+2. **Camera body** — the only real screen (D24).
+   - Portrait: counter top-left (orange digits, counts *down*, rolls on each
+     shot), horizontal **thumbwheel** top-right; the **tunnel viewfinder**;
+     flash switch bottom-left, **shutter** bottom-right under the right thumb.
+   - Landscape: finder in the middle, wheel top-right, shutter bottom-right.
+   - Flash: a switch with a bolt icon, like a QuickSnap slider — hidden on
+     iOS until the native app (D15).
+3. **Roll finished** — "take it to the lab" (drop-off).
+4. **At the lab** — a quiet line at the bottom; no countdown, no date. The next
+   roll can be loaded meanwhile (D14). Checked each time the app opens (D16).
+5. **Prints ready** — "collect them" opens a sheet: save the roll (.zip via
+   the share sheet or a download), then confirm to clear it from the phone (D26).
 
 ## Gestures
 
 ### Thumbwheel (film advance)
 
-- Ribbed wheel on the right edge, under the right thumb.
-- **Flick upward ~3 times** (`WIND_CLICKS`). Each flick = one ratchet *click*:
-  a short tick sound + light haptic; the wheel texture scrolls with the finger.
-- The last click **locks** with a heavier thunk + stronger haptic; the counter
-  ticks down by one. Further flicks do nothing (the wheel is blocked, as on a
-  real camera).
+- Horizontal ribbed wheel, top right. **Push it leftward** with the thumb.
+- While it turns it **ticks continuously** (a ratchet tooth every 7 px).
+- A quick flick counts as one **notch**; ~3 notches (`WIND_CLICKS`) and it
+  **locks** with a heavier thunk + a strong haptic, outlined in orange.
+  Further pushes barely move it (blocked, as on a real camera).
+- The wound state is kept across reloads (D25).
 - Shutter is disabled until the wheel is locked; firing unlocks it again.
 
 ### Shutter
 
-Press-and-release with a mechanical *clack*, a brief finder blackout, and a
-haptic. Pressing it unwound = dry, dull click, nothing happens.
+Press-and-release with a mechanical *clack*, the finder blacks out ~450 ms,
+the counter rolls down with a glow, and a haptic pulse. Pressing it unwound =
+dry, dull click, nothing happens.
 
 ### Flash
 

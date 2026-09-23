@@ -49,6 +49,11 @@ npm run check             # svelte-check / TypeScript
 npm run build             # static SPA in build/
 ```
 
+## Credits
+
+Font: [VT323](https://fonts.google.com/specimen/VT323) by Peter Hull (SIL Open
+Font License 1.1), the same face as waverz.net.
+
 ## License
 
 [AGPL-3.0](LICENSE) — the code is open, and so must be any fork, including one

@@ -32,5 +32,8 @@
 	"license": "AGPL-3.0-only",
 	"engines": {
 		"node": ">=24"
+	},
+	"dependencies": {
+		"fflate": "^0.8.3"
 	}
 }

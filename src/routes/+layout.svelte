@@ -2,4 +2,70 @@
 	let { children } = $props();
 </script>
 
-{@render children()}
+<!-- Full screen on phones; a phone-sized "device" in the middle of wide screens. -->
+<div class="device">
+	{@render children()}
+</div>
+
+<style>
+	@font-face {
+		font-family: 'VT323';
+		font-style: normal;
+		font-weight: 400;
+		font-display: swap;
+		src: url('/fonts/vt323-latin.woff2') format('woff2');
+	}
+	:global(:root) {
+		--bg: #0a0a0a;
+		--body: #1b1b1b;
+		--fg: #eee;
+		--muted: #9a9a9a;
+		--accent: #ff6a13;
+		--band: #ff6a13;
+		--band-fg: #0a0a0a;
+		--font: 'VT323', ui-monospace, monospace;
+	}
+	:global(html),
+	:global(body) {
+		margin: 0;
+		height: 100%;
+		background: var(--bg);
+	}
+	:global(body) {
+		color: var(--fg);
+		font: 1.25rem/1.25 var(--font);
+		overscroll-behavior: none;
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+	:global(button) {
+		font-family: var(--font);
+	}
+	.device {
+		position: relative;
+		height: 100dvh;
+		width: 100%;
+		overflow: hidden;
+		container-type: size;
+		container-name: device;
+		background: radial-gradient(circle at 50% 45%, var(--body), var(--bg) 75%);
+	}
+	/* Wide screens: a fake smartphone in the middle of the page. */
+	@media (min-width: 700px) and (min-height: 560px) {
+		:global(body) {
+			display: grid;
+			place-items: center;
+			background: radial-gradient(circle at 50% 30%, #1d1d1d, #050505 70%);
+		}
+		.device {
+			width: min(400px, calc((100dvh - 3rem) * 0.48));
+			height: min(840px, calc(100dvh - 3rem));
+			border-radius: 2.6rem;
+			box-shadow:
+				0 0 0 0.7rem #050505,
+				0 0 0 0.8rem #2a2a2a,
+				0 2rem 4rem rgb(0 0 0 / 0.7);
+		}
+	}
+</style>

@@ -22,6 +22,8 @@ export interface Roll {
 	exposures: number;
 	/** Frames exposed so far. Frames themselves live in storage, never in UI state. */
 	shot: number;
+	/** Film advanced and shutter armed — survives reloads, like a real wound camera. */
+	wound?: boolean;
 	loadedAt: number;
 	fullAt?: number;
 	/** Set once the roll is dropped off; opaque to everything but its Lab. */

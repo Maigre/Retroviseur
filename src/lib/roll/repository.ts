@@ -78,6 +78,24 @@ export class RollRepository {
 		return next;
 	}
 
+	/** Remember that the film is wound (or not) so a reload keeps the shutter armed. */
+	async setWound(rollId: string, wound: boolean): Promise<void> {
+		const tx = this.db.transaction('rolls', 'readwrite');
+		const store = tx.objectStore('rolls');
+		const record = await request<RollRecord | undefined>(store.get(rollId));
+		if (!record || record.roll.state !== 'loaded') return;
+		store.put({ ...record, roll: { ...record.roll, wound } });
+		await committed(tx);
+	}
+
+	/** A collected roll leaves the app: record, key and every frame, in one go. */
+	async remove(rollId: string): Promise<void> {
+		const tx = this.db.transaction(['rolls', 'frames'], 'readwrite');
+		tx.objectStore('rolls').delete(rollId);
+		tx.objectStore('frames').delete(IDBKeyRange.bound([rollId, 0], [rollId, Infinity]));
+		await committed(tx);
+	}
+
 	async key(rollId: string): Promise<CryptoKey> {
 		return (await this.#record(rollId)).key;
 	}

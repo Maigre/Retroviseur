@@ -24,6 +24,11 @@ export class Winder {
 		return this.armed;
 	}
 
+	/** Restore a persisted state (a wound camera stays wound across reloads). */
+	restore(armed: boolean): void {
+		this.#clicks = armed ? this.clicksNeeded : 0;
+	}
+
 	/** Consume the advanced frame. Returns false (dry fire) if not armed. */
 	fire(): boolean {
 		if (!this.armed) return false;

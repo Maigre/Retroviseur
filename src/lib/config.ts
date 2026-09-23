@@ -35,3 +35,9 @@ export const JPEG_QUALITY = 0.9;
 /** Thumbwheel flick: upward travel (CSS px) within a short stroke counts as one click. */
 export const FLICK_MIN_PX = 22;
 export const FLICK_MAX_MS = 450;
+
+/** Finder stays dark at least this long after the shutter: "something happened". */
+export const SHUTTER_BLACKOUT_MS = 450;
+
+/** Wheel travel (CSS px) between two ratchet ticks while winding. */
+export const WHEEL_TICK_PX = 7;

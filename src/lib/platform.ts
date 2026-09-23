@@ -4,6 +4,10 @@ export function isIOS(nav: Pick<Navigator, 'userAgent' | 'maxTouchPoints'> | und
 	return /iPhone|iPad|iPod/.test(nav.userAgent) || (/Macintosh/.test(nav.userAgent) && nav.maxTouchPoints > 1);
 }
 
+export function isAndroid(nav: Pick<Navigator, 'userAgent'> | undefined = globalThis.navigator): boolean {
+	return !!nav && /Android/.test(nav.userAgent);
+}
+
 /**
  * Flash switch availability (D14). The browser can't reliably drive the
  * torch on iOS, so the switch is hidden there until the native (Capacitor)

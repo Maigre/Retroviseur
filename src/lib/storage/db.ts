@@ -16,7 +16,11 @@ export function openDB(name = DB_NAME): Promise<IDBDatabase> {
 			const frames = db.createObjectStore('frames', { keyPath: ['rollId', 'index'] });
 			frames.createIndex('byRoll', 'rollId');
 		};
-		req.onsuccess = () => resolve(req.result);
+		req.onsuccess = () => {
+			// let a database delete (dev reset) or a future upgrade proceed
+			req.result.onversionchange = () => req.result.close();
+			resolve(req.result);
+		};
 		req.onerror = () => reject(req.error);
 		req.onblocked = () => reject(new Error('database upgrade blocked by another tab'));
 	});

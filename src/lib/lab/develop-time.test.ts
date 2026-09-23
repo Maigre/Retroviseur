@@ -10,7 +10,7 @@ it('draws a developing time between 24 and 72 hours', () => {
 });
 
 it('local lab reports ready only after the deadline', async () => {
-	const lab = new LocalTimelockLab();
+	const lab = new LocalTimelockLab({ key: async () => { throw new Error(); }, frames: async function* () {} });
 	const ticket = { lab: lab.kind, droppedAt: 0, data: { readyAt: 100 } };
 	expect(await lab.status(ticket, 99)).toEqual({ state: 'developing' });
 	expect(await lab.status(ticket, 100)).toEqual({ state: 'ready' });
