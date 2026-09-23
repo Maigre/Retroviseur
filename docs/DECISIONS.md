@@ -137,6 +137,25 @@ Implements D17. Until a dedicated domain exists, the PWA lives at
 than nginx on gaff, since gaff hosts Node apps and has no local nginx.
 Details in [DEPLOY.md](DEPLOY.md).
 
+## D20 — Capture: 3:2, ≤ 3000 px, JPEG 0.9 (provisional) · 2026-09-23
+
+Phase 1 default pending Q7: centre-crop to 3:2 in the frame's own orientation,
+long side capped at 3000 px (~6 MP, ~1–3 MB per frame, well under 100 MB per
+roll). Constants in `config.ts`.
+
+## D21 — A frame is only "taken" once it is stored · 2026-09-23
+
+The shutter consumes the wound film only after the sealed frame and the new
+counter have committed together. If capture or storage fails, the counter does
+not move and the film stays wound — the user sees a short notice, not a lost
+frame.
+
+## D22 — iOS: install gate, skippable · 2026-09-23
+
+On iOS in a Safari tab, the first screen asks to add the app to the Home Screen
+(Safari may evict a tab's storage after ~7 days unused; installed PWAs are
+exempt). A small "continue in Safari anyway" link keeps testing possible.
+
 ---
 
 ## Open questions

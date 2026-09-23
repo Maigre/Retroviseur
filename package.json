@@ -15,11 +15,13 @@
 		"preview:lan": "vite build && HTTPS=1 vite preview --host"
 	},
 	"devDependencies": {
+		"@resvg/resvg-js": "^2.6.2",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@types/node": "^24.13.6",
 		"@vitejs/plugin-basic-ssl": "^2.3.0",
+		"fake-indexeddb": "^6.2.5",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"typescript": "^6.0.3",

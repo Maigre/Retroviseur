@@ -1,3 +1,4 @@
+import type { Sealed } from '../roll/seal';
 import type { FrameMeta, Roll } from '../roll/types';
 
 /**
@@ -19,7 +20,7 @@ export interface LabTicket {
 export interface SealedFrame {
 	meta: FrameMeta;
 	/** Encrypted JPEG bytes (see docs/ARCHITECTURE.md § Sealing). */
-	sealed: Blob;
+	sealed: Sealed;
 }
 
 export type LabStatus = { state: 'developing' } | { state: 'ready' };

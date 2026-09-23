@@ -8,13 +8,16 @@
 - [x] Placeholder camera body (wind → shoot ritual, no camera)
 
 ## Phase 1 — Real camera, sealed roll
-- [ ] Rear camera in the tunnel viewfinder (`getUserMedia`)
-- [ ] Full-res capture (`ImageCapture` / canvas fallback), 3:2 crop
-- [ ] Per-roll AES-GCM sealing, IndexedDB frame store, `storage.persist()`
-- [ ] Roll survives reloads; counter restored from storage
-- [ ] Thumbwheel gesture (flick recogniser) + ratchet sound + haptics
-- [ ] Shutter sound, finder blackout
-- [ ] PWA: service worker (offline), icons, iOS "Add to Home Screen" onboarding
+- [x] Rear camera in the tunnel viewfinder (`getUserMedia`)
+- [x] Full-res capture (`ImageCapture` / video-frame fallback), 3:2 crop, ≤ 3000 px long side
+- [x] Per-roll AES-GCM sealing, IndexedDB frame store, `storage.persist()`
+- [x] Roll survives reloads; counter restored from storage
+- [x] Thumbwheel gesture (flick recogniser) + synthesized ratchet sound + haptics
+- [x] Shutter sound, finder blackout, dry fire when not wound
+- [x] PWA: service worker (offline shell), icons, iOS "Add to Home Screen" gate
+- [x] Minimal drop-off to the local lab (so a full roll doesn't block testing)
+- [ ] **Validate on real phones** (Android Chrome + installed iOS PWA): orientation of saved frames, capture latency, sounds/haptics feel
+- [ ] Landscape shots: the UI is portrait-locked, so a phone held sideways may save a sideways frame — rotate from device orientation if the bench confirms it
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
 - [x] Deployed to gaff → https://retroviseur.37m.gr (`deploy/deploy.sh`, D19)
 

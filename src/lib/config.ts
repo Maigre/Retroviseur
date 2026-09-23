@@ -24,3 +24,14 @@ export const FILM_STOCK: FilmStockId = 'superia400';
 /** Frames fogged by light leaks at the head and tail of the roll. */
 export const LEAK_HEAD_FRAMES = 1;
 export const LEAK_TAIL_FRAMES = 1;
+
+/**
+ * Capture: frames are cropped to 3:2 (35 mm) and scaled so the long side is at
+ * most this many pixels (~6 MP). Provisional until Q7 is settled.
+ */
+export const CAPTURE_MAX_LONG_SIDE = 3000;
+export const JPEG_QUALITY = 0.9;
+
+/** Thumbwheel flick: upward travel (CSS px) within a short stroke counts as one click. */
+export const FLICK_MIN_PX = 22;
+export const FLICK_MAX_MS = 450;

@@ -18,6 +18,13 @@ src/lib/
   platform.ts          platform quirks (iOS detection → flash availability)
   roll/                Roll model, forward-only state machine, camera/lab occupancy rules
   camera/winder.ts     thumbwheel logic (shutter lock)
+  camera/flick.ts      pointer stroke → one ratchet click
+  camera/capture.ts    getUserMedia, full-res still, 3:2 crop (crop.ts), JPEG
+  camera/sound.ts      synthesized mechanical sounds (WebAudio) + haptics
+  storage/db.ts        IndexedDB promise layer
+  roll/seal.ts         AES-GCM per-roll key, seal/unseal
+  roll/repository.ts   the only door to stored rolls and sealed frames
+  components/          Thumbwheel.svelte
   lab/                 Lab interface + implementations (local time-lock today)
   film/stocks.ts       film look parameter sets (shader coming in phase 2)
 src/routes/            the camera body screen
@@ -66,6 +73,20 @@ seal (AES-GCM, per-roll key) ──▶ IndexedDB  { rollId, index, meta, sealed 
 
 The viewfinder is a separate, cheap path (small `<video>` + CSS vignette/blur);
 it never shows the look.
+
+## Storage
+
+IndexedDB `retroviseur`, two stores:
+
+| Store | Key | Value |
+|---|---|---|
+| `rolls` | `roll.id` | `{ roll: Roll, key: CryptoKey }` |
+| `frames` | `[rollId, index]` (index `byRoll`) | `{ rollId, index, meta, iv, data }` — `data` is ciphertext |
+
+`RollRepository.recordFrame` seals the JPEG first (crypto awaits would close an
+IndexedDB transaction), then writes the frame **and** the advanced roll in one
+transaction, re-checking the counter inside it. The UI consumes the wound film
+only after that commit: a failed capture never costs a frame.
 
 ## Sealing
 
