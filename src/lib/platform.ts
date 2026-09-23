@@ -32,3 +32,26 @@ export async function persistStorage(): Promise<boolean> {
 		return false;
 	}
 }
+
+const BROWSER_KEY = 'retroviseur-browser';
+
+/**
+ * The user chose to use Retroviseur in the browser instead of installing it (D48).
+ * An explicit, remembered choice — never implied by starting an install.
+ */
+export function browserMode(): boolean {
+	try {
+		return localStorage.getItem(BROWSER_KEY) === '1';
+	} catch {
+		return false;
+	}
+}
+
+export function setBrowserMode(on: boolean): void {
+	try {
+		if (on) localStorage.setItem(BROWSER_KEY, '1');
+		else localStorage.removeItem(BROWSER_KEY);
+	} catch {
+		// private mode: the choice lasts for this page only
+	}
+}

@@ -406,6 +406,16 @@ doesn't reappear. Safe-area insets were already honoured (`viewport-fit=cover`).
 Existing installs pick the change up when reinstalled (or when Chrome refreshes its
 WebAPK).
 
+## D48 — Installing never drops you into the browser app · 2026-09-23
+
+Thomas: after tapping Install, the page went on into the web app in the browser —
+confusing, people start shooting there. Now the install screen stays until the
+install is done ("Installing…" → "Installed — open it from your Home Screen, you
+can close this tab"), or shows "didn't go through — try again". The browser app is
+only reachable through an explicit, remembered choice ("Use it in the browser
+instead", on the welcome screen or after a failed install); the About sheet offers
+"Install the app" to change one's mind.
+
 ---
 
 ## Open questions

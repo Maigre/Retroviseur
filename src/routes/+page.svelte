@@ -20,7 +20,7 @@
 	import { LabClosedError, RemoteLab, type RemoteTicketData } from '$lib/lab/remote';
 	import { formatDay, formatWindow, ticketMessage } from '$lib/lab/ticket';
 	import type { Lab } from '$lib/lab/types';
-	import { isAndroid, isIOS, isStandalone, persistStorage } from '$lib/platform';
+	import { browserMode, isAndroid, isIOS, isStandalone, persistStorage, setBrowserMode } from '$lib/platform';
 	import { RollRepository } from '$lib/roll/repository';
 	import { dropOff, framesLeft, markReady } from '$lib/roll/roll';
 	import { canDropOff } from '$lib/roll/rules';
@@ -39,6 +39,10 @@
 	let rolls = $state<Roll[]>([]);
 	let booted = $state(false);
 	let installGate = $state<'ios' | 'android' | null>(null);
+	// Install flow (D48): the gate never lets the browser app through on its own —
+	// only the explicit "use it in the browser" choice does.
+	let installStage = $state<'offer' | 'installing' | 'failed'>('offer');
+	const platformGate = (): 'ios' | 'android' | null => (isIOS() ? 'ios' : isAndroid() ? 'android' : null);
 
 	let armed = $state(false);
 	let flash = $state(false);
@@ -82,8 +86,7 @@
 
 	onMount(() => {
 		dev = devEnabled();
-		const skipped = sessionStorage.getItem('install-skipped') === '1';
-		if (!isStandalone() && !skipped) installGate = isIOS() ? 'ios' : isAndroid() ? 'android' : null;
+		if (!isStandalone() && !browserMode()) installGate = platformGate();
 		void (async () => {
 			repo = await RollRepository.open();
 			local = new LocalTimelockLab(repo);
@@ -335,12 +338,22 @@
 	}
 
 	async function installNow() {
-		if (await promptInstall()) installGate = null;
+		installStage = 'installing';
+		const accepted = await promptInstall();
+		// accepted: Chrome builds the app in the background; stay here until it's done
+		if (!accepted) installStage = 'failed';
 	}
 
-	function skipInstall() {
-		sessionStorage.setItem('install-skipped', '1');
+	function useInBrowser() {
+		setBrowserMode(true);
 		installGate = null;
+	}
+
+	function offerInstall() {
+		setBrowserMode(false);
+		installStage = 'offer';
+		about = false;
+		installGate = platformGate();
 	}
 
 	// Seven taps on the counter within 3 s toggle developer mode.
@@ -377,13 +390,25 @@
 					<p>{t('installBodyIOS')}</p>
 				{:else if install.installed}
 					<p>{t('installedOpen')}</p>
+				{:else if installStage === 'installing'}
+					<p>{t('installing')}</p>
+					<p class="dots" aria-hidden="true">· · ·</p>
+				{:else if installStage === 'failed'}
+					<p>{t('installFailed')}</p>
+					{#if install.available}
+						<button class="big" onclick={installNow}>{t('installRetry')}</button>
+					{:else}
+						<p class="small">{t('installBodyAndroidManual')}</p>
+					{/if}
 				{:else if install.available}
 					<p>{t('installBodyAndroid')}</p>
 					<button class="big" onclick={installNow}>{t('installButton')}</button>
 				{:else}
 					<p>{t('installBodyAndroidManual')}</p>
 				{/if}
-				<button class="link" onclick={skipInstall}>{t('installSkip')}</button>
+				{#if !install.installed}
+					<button class="link" onclick={useInBrowser}>{t('installSkip')}</button>
+				{/if}
 			</section>
 		</main>
 	{:else if shooting && inCamera}
@@ -512,6 +537,9 @@
 		<p>{t('aboutBody')}</p>
 		<p class="small">{t('aboutHow')}</p>
 		<p class="small">{t('aboutPrivacy')}</p>
+		{#if !isStandalone() && platformGate()}
+			<button class="link" onclick={offerInstall}>{t('installAgain')}</button>
+		{/if}
 		<p class="small">
 			{t('aboutCredits')} · <a href="https://github.com/Maigre/Retroviseur" target="_blank" rel="noopener">GitHub</a> · {__APP_VERSION__}
 			<br />{t('aboutContact')} <a href="https://github.com/Maigre/Retroviseur/issues" target="_blank" rel="noopener">github.com/Maigre/Retroviseur</a>
@@ -793,6 +821,21 @@
 		text-decoration: underline;
 		font: inherit;
 		font-size: 1rem;
+	}
+	.dots {
+		letter-spacing: 0.4em;
+		color: var(--accent);
+		animation: pulse 1.2s ease-in-out infinite;
+	}
+	@keyframes pulse {
+		50% {
+			opacity: 0.3;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.dots {
+			animation: none;
+		}
 	}
 	.small {
 		font-size: 1rem;
