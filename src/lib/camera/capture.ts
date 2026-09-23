@@ -1,4 +1,4 @@
-import { CAPTURE_MAX_LONG_SIDE, JPEG_QUALITY } from '../config';
+import { CAPTURE_MAX_LONG_SIDE, JPEG_QUALITY, TORCH_SETTLE_MS } from '../config';
 import { crop3x2 } from './crop';
 
 export type CameraErrorKind = 'denied' | 'unavailable' | 'insecure';
@@ -89,7 +89,7 @@ export async function captureStill(
 	rotate: 0 | -90 = 0,
 	flash: FlashSupport | null = null
 ): Promise<Still> {
-	const { bitmap, method } = await withFlash(stream, flash, () => grab(stream, video, !!flash?.fill));
+	const { bitmap, method } = await withFlash(stream, video, flash);
 	try {
 		const c = crop3x2(bitmap.width, bitmap.height, CAPTURE_MAX_LONG_SIDE);
 		const canvas = document.createElement('canvas');
@@ -114,25 +114,34 @@ export async function captureStill(
 }
 
 /**
- * Real flash where takePhoto supports it; otherwise, where the torch exists,
- * light it just for the capture (a moment for exposure to settle), then off.
+ * Flash (D36). With a torch: light it, let exposure settle, take the *video*
+ * frame while it is lit, then switch it off — the light is on at the exact
+ * moment of the shot (takePhoto reconfigures the camera and its flash timing
+ * belongs to the phone's camera software, which fired late). Without a torch
+ * but with a fill-light mode: takePhoto with the flash. No flash: plain capture.
  */
-async function withFlash<T extends { method: Still['method'] }>(
+async function withFlash(
 	stream: MediaStream,
-	flash: FlashSupport | null,
-	capture: () => Promise<T>
-): Promise<T> {
-	if (!flash || flash.fill || !flash.torch) return capture();
+	video: HTMLVideoElement,
+	flash: FlashSupport | null
+): Promise<{ bitmap: ImageBitmap; method: Still['method'] }> {
+	if (!flash) return grab(stream, video);
+	if (!flash.torch) return grab(stream, video, flash.fill);
 	const track = stream.getVideoTracks()[0];
 	const torch = (on: boolean) => track.applyConstraints({ advanced: [{ torch: on } as MediaTrackConstraintSet] });
 	try {
 		await torch(true);
-		await new Promise((r) => setTimeout(r, 350));
-		const out = await capture();
-		return { ...out, method: out.method === 'video' ? 'video+torch' : out.method };
+		await new Promise((r) => setTimeout(r, TORCH_SETTLE_MS));
+		await nextFrame(video); // a frame rendered with the light on
+		return { bitmap: await createImageBitmap(video), method: 'video+torch' };
 	} finally {
 		await torch(false).catch(() => {});
 	}
+}
+
+function nextFrame(video: HTMLVideoElement): Promise<void> {
+	const v = video as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number };
+	return new Promise((resolve) => (v.requestVideoFrameCallback ? v.requestVideoFrameCallback(() => resolve()) : requestAnimationFrame(() => resolve())));
 }
 
 async function grab(

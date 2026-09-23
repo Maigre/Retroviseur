@@ -45,3 +45,6 @@ export const SHUTTER_BLACKOUT_MS = 150;
 
 /** Wheel travel (CSS px) between two ratchet ticks while winding. */
 export const WHEEL_TICK_PX = 7;
+
+/** Torch-as-flash: time for auto-exposure to settle once the torch is lit. */
+export const TORCH_SETTLE_MS = 450;

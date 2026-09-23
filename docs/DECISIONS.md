@@ -293,6 +293,17 @@ roll marks the moment the frame is stored.
   italic — the browser obliques it). The header's red bottom line continues
   around the camera area (sides and bottom).
 
+## D36 — Torch-lit video frame for flash shots; hairline frame · 2026-09-23
+
+- On the Jelly Star the flash fired late: with `takePhoto` the flash timing belongs
+  to the phone's camera software. Where a torch exists, a flash shot is now: torch
+  on → 450 ms for exposure → the next rendered video frame → torch off. The light
+  is on at the exact moment of the shot; the cost is that flash shots have the
+  live-video resolution (the dev panel's "last shot" shows it). `takePhoto` with
+  `fillLightMode: 'flash'` remains only for cameras with a flash but no torch.
+- The red line around the camera area is a 1 px hairline; the header keeps its
+  thicker red bottom line.
+
 ---
 
 ## Open questions
