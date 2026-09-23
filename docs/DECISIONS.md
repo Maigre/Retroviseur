@@ -372,6 +372,17 @@ pickup, expiry, a global cap and an in-memory per-IP limit. Access logs off for
 this host (holden; kxkm-prod block prepared for Thomas). Full spec:
 [LAB.md](LAB.md).
 
+## D45 — The lab, as built · 2026-09-23
+
+Built per LAB.md with two corrections to the spec that would have leaked the
+secret ready time: it is drawn at creation (not commit — an upload takes
+minutes), and `expiresAt` is only reported once the roll is ready. Hand-off also
+accepts "I saved it somewhere else" when neither share nor clipboard works. The
+hosting contact on the About page is the GitHub issues page until Thomas gives
+one (Q11). Verified end to end against the production server with a 15 s test
+wait: upload, ticket, phone left with no frames and no key, server files without
+the key, developing → ready → collect, 27-frame zip, app sees the pickup.
+
 ---
 
 ## Open questions

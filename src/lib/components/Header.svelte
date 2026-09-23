@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
 
-	let { onabout, onnotice }: { onabout: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
+	let { onabout, onnotice }: { onabout?: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
 
 	async function share() {
 		const data = { title: 'Retroviseur', text: t('shareText'), url: location.origin };
@@ -22,7 +22,7 @@
 <header>
 	<h1>RETROVISEUR</h1>
 	<div class="actions">
-		<button aria-label={t('about')} onclick={onabout}>?</button>
+		{#if onabout}<button aria-label={t('about')} onclick={onabout}>?</button>{/if}
 		<button aria-label={t('share')} onclick={share}>
 			<svg viewBox="0 0 24 24" aria-hidden="true">
 				<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />

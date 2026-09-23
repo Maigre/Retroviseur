@@ -1,14 +1,30 @@
-// Zero-dependency static server for the SPA build, run by pm2 on gaff.
+// Zero-dependency server for the SPA build and the lab API (/api/lab, see
+// lab.mjs and docs/LAB.md), run by pm2 on gaff.
 // Public path: kxkm-prod (TLS) → holden (nginx) → gaff:$PORT → this file.
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createLab } from './lab.mjs';
 
 const ROOT = process.env.ROOT ?? fileURLToPath(new URL('../build', import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? '0.0.0.0';
+// rolls live outside the git checkout so deploys never touch them
+const LAB_DIR = process.env.LAB_DIR ?? fileURLToPath(new URL('../.lab-data', import.meta.url));
+
+const lab = await createLab({
+	dir: LAB_DIR,
+	limits: {
+		proxyHops: Number(process.env.LAB_PROXY_HOPS ?? 0),
+		// test-only: shorten the developing wait (never set in production)
+		...(process.env.LAB_TEST_READY_MS
+			? { readyMin: Number(process.env.LAB_TEST_READY_MS), readyMax: Number(process.env.LAB_TEST_READY_MS) }
+			: {})
+	}
+});
+setInterval(() => lab.janitor().catch((e) => console.error('lab janitor:', e?.message ?? e)), 10 * 60_000).unref();
 
 const TYPES = {
 	'.html': 'text/html; charset=utf-8',
@@ -42,6 +58,13 @@ async function resolve(urlPath) {
 }
 
 createServer(async (req, res) => {
+	let pathname = '/';
+	try {
+		pathname = new URL(req.url ?? '/', 'http://x').pathname;
+	} catch {
+		// handled below
+	}
+	if (await lab.handle(req, res, pathname)) return;
 	if (req.method !== 'GET' && req.method !== 'HEAD') {
 		res.writeHead(405, { Allow: 'GET, HEAD' }).end();
 		return;

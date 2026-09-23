@@ -12,11 +12,14 @@
 	import { leakFor } from '$lib/film/leak';
 	import { formatStamp } from '$lib/film/stamp';
 	import { STOCKS } from '$lib/film/stocks';
-	import { devEnabled, setDev } from '$lib/dev';
-	import { t, type MessageKey } from '$lib/i18n';
+	import { devEnabled, devLabEnabled, setDev } from '$lib/dev';
+	import { detectLang, t, tf, type MessageKey } from '$lib/i18n';
 	import { onBack } from '$lib/back';
 	import { install, promptInstall } from '$lib/install.svelte';
 	import { LocalTimelockLab } from '$lib/lab/local-timelock';
+	import { LabClosedError, RemoteLab, type RemoteTicketData } from '$lib/lab/remote';
+	import { formatDay, formatWindow, ticketMessage } from '$lib/lab/ticket';
+	import type { Lab } from '$lib/lab/types';
 	import { isAndroid, isIOS, isStandalone, persistStorage } from '$lib/platform';
 	import { RollRepository } from '$lib/roll/repository';
 	import { dropOff, framesLeft, markReady } from '$lib/roll/roll';
@@ -27,7 +30,12 @@
 	const winder = new Winder();
 
 	let repo = $state<RollRepository>();
-	let lab: LocalTimelockLab | undefined;
+	// the real lab (D44); the on-phone time-lock is kept as the dev lab
+	let local: LocalTimelockLab | undefined;
+	let remote = $state<RemoteLab>();
+	const labFor = (r: Roll): Lab | undefined => (r.ticket?.lab === 'remote' || r.upload ? remote : local);
+	const lang = detectLang();
+	let uploading = $state<{ done: number; total: number } | null>(null);
 	let rolls = $state<Roll[]>([]);
 	let booted = $state(false);
 	let installGate = $state<'ios' | 'android' | null>(null);
@@ -63,6 +71,14 @@
 	const inCamera = $derived(rolls.find((r) => r.state === 'loaded' || r.state === 'full'));
 	const atLab = $derived(rolls.find((r) => r.state === 'developing' || r.state === 'ready'));
 	const shooting = $derived(inCamera?.state === 'loaded');
+	/** a remote roll whose ticket hasn't been handed off yet: nothing else until it is */
+	const pendingTicket = $derived(rolls.find((r) => r.ticket?.lab === 'remote' && !r.handedOff));
+	const remoteData = (r: Roll) => r.ticket?.data as RemoteTicketData;
+	const WEEK = 7 * 24 * 3_600_000;
+	/** the lab calls back a week before it destroys uncollected prints */
+	const labCalling = $derived(
+		!!atLab && atLab.state === 'ready' && atLab.ticket?.lab === 'remote' && !!remoteData(atLab).expiresAt && Date.now() >= remoteData(atLab).expiresAt! - WEEK
+	);
 
 	onMount(() => {
 		dev = devEnabled();
@@ -70,7 +86,8 @@
 		if (!isStandalone() && !skipped) installGate = isIOS() ? 'ios' : isAndroid() ? 'android' : null;
 		void (async () => {
 			repo = await RollRepository.open();
-			lab = new LocalTimelockLab(repo);
+			local = new LocalTimelockLab(repo);
+			remote = new RemoteLab(repo);
 			await refresh();
 			booted = true;
 		})();
@@ -102,16 +119,32 @@
 	});
 
 	async function refresh() {
-		if (!repo || !lab) return;
+		if (!repo) return;
 		let list = await repo.list();
-		// "Ready" is noticed on open (D16).
+		// The lab's news is picked up on open (D16): ready, collected, gone.
 		for (const r of list) {
-			if (r.state === 'developing' && r.ticket && (await lab.status(r.ticket)).state === 'ready') {
-				await repo.save(markReady(r));
-				list = await repo.list();
+			const lab = labFor(r);
+			if (!lab || !r.ticket || (r.state !== 'developing' && r.state !== 'ready')) continue;
+			if (r.ticket.lab === 'remote' && !r.handedOff) continue;
+			let s;
+			try {
+				s = await lab.status(r.ticket);
+			} catch {
+				continue; // offline: try again next time
+			}
+			if (s.state === 'ready' && r.state === 'developing') {
+				const ticket = s.expiresAt ? { ...r.ticket, data: { ...r.ticket.data, expiresAt: s.expiresAt } } : r.ticket;
+				await repo.save({ ...markReady(r), ticket });
+			} else if (s.state === 'ready' && s.expiresAt && remoteData(r)?.expiresAt !== s.expiresAt) {
+				await repo.save({ ...r, ticket: { ...r.ticket, data: { ...r.ticket.data, expiresAt: s.expiresAt } } });
+			} else if (s.state === 'collected' || s.state === 'gone') {
+				// picked up — by whoever held the ticket — or destroyed: the backup goes too
+				await repo.remove(r.id);
+				notice = s.state === 'collected' ? 'pickedUp' : 'labGone';
 			}
 		}
-		rolls = list;
+		rolls = await repo.list();
+		list = rolls;
 		const current = list.find((r) => r.state === 'loaded');
 		winder.restore(!!current?.wound); // a wound camera stays wound across reloads
 		armed = winder.armed;
@@ -212,15 +245,68 @@
 	}
 
 	async function takeToLab() {
-		if (!repo || !lab || !inCamera || !canDropOff(inCamera, rolls)) return;
-		const ticket = await lab.dropOff(inCamera, repo.frames(inCamera.id));
-		await repo.save(dropOff(inCamera, ticket));
+		if (!repo || !inCamera || uploading || !canDropOff(inCamera, rolls)) return;
+		const lab = devLabEnabled() ? local : remote;
+		if (!lab) return;
+		const id = inCamera.id;
+		uploading = { done: 0, total: inCamera.shot + 1 };
+		try {
+			const ticket = await lab.dropOff(inCamera, repo.frames(id), (done, total) => (uploading = { done, total }));
+			const fresh = (await repo.list()).find((r) => r.id === id)!; // holds the saved upload
+			await repo.save({ ...dropOff(fresh, ticket), upload: undefined, handedOff: lab === local });
+		} catch (e) {
+			console.error(e);
+			notice = e instanceof LabClosedError && e.reason === 'full' ? 'labFull' : 'labClosed';
+		} finally {
+			uploading = null;
+			await refresh();
+		}
+	}
+
+	// ---- the lab ticket: shared or copied, then the phone forgets the roll ----
+	const ticketText = (r: Roll) => ticketMessage(remote!.link(r), remoteData(r).windowFrom, remoteData(r).windowTo, lang);
+
+	async function handOff(proxy: Roll) {
+		if (!repo) return;
+		const r = $state.snapshot(proxy) as Roll; // IndexedDB can't store reactive proxies
+		await repo.save({ ...r, handedOff: true });
+		await repo.forget(r.id); // frames and key gone; the backup ticket stays
 		await refresh();
 	}
 
+	async function shareTicket(r: Roll) {
+		if (!navigator.share) return copyTicket(r);
+		try {
+			await navigator.share({ title: 'Retroviseur', text: ticketText(r) });
+			await handOff(r);
+		} catch (e) {
+			if ((e as DOMException).name !== 'AbortError') await copyTicket(r);
+		}
+	}
+
+	async function copyTicket(r: Roll) {
+		let ok = false;
+		try {
+			await navigator.clipboard.writeText(ticketText(r));
+			ok = true;
+		} catch {
+			// older path: select the ticket text in the sheet and copy it
+			const area = document.querySelector<HTMLTextAreaElement>('.ticket textarea');
+			if (area) {
+				area.focus();
+				area.select();
+				ok = document.execCommand?.('copy') ?? false;
+			}
+		}
+		if (!ok) return; // the text stays selectable, and "I saved it" hands off
+		notice = 'ticketCopied';
+		await handOff(r);
+	}
+
 	async function saveRoll() {
-		if (!lab || atLab?.state !== 'ready') return;
-		const delivery = await lab.collect(atLab);
+		// dev lab only: the real lab's pickup happens on the ticket page
+		if (!local || atLab?.state !== 'ready') return;
+		const delivery = await local.collect(atLab);
 		if (delivery.kind !== 'archive') return;
 		const file = delivery.file;
 		try {
@@ -354,25 +440,55 @@
 					<button class="big" onclick={loadRoll}>{t('loadNew')}</button>
 				{/if}
 			</section>
-			{#if atLab && !collecting}
-				{#if atLab.state === 'ready'}
-					<button class="lab ready" onclick={() => (collecting = true)}>{t('collectOpen')}</button>
-				{:else}
-					<p class="lab">{t('atLab')}</p>
-				{/if}
-			{/if}
+			{#if atLab && !collecting && !pendingTicket}{@render labLine('lab')}{/if}
 		</main>
 	{/if}
 </div>
 </div>
 
-{#if booted && !installGate && shooting && atLab && !collecting}
-	<!-- while shooting, the lab status is a small tag over the finder, never over the controls -->
-	{#if atLab.state === 'ready'}
-		<button class="lab-tag ready" onclick={() => (collecting = true)}>{t('collectOpen')}</button>
-	{:else}
-		<p class="lab-tag">{t('atLab')}</p>
+{#snippet labLine(cls: string)}
+	{#if atLab}
+		{#if atLab.ticket?.lab === 'remote'}
+			{@const d = remoteData(atLab)}
+			{#if atLab.state === 'ready'}
+				<a class="{cls} ready" class:calling={labCalling} href={remote?.link(atLab)}>
+					{labCalling ? tf('labCalled', { until: formatDay(d.expiresAt!, lang) }) : t('labReady')}
+				</a>
+			{:else}
+				{@const w = formatWindow(d.windowFrom, d.windowTo, lang)}
+				<p class={cls}>{tf('atLabWindow', { from: w.from, to: w.to })}</p>
+			{/if}
+		{:else if atLab.state === 'ready'}
+			<button class="{cls} ready" onclick={() => (collecting = true)}>{t('collectOpen')}</button>
+		{:else}
+			<p class={cls}>{t('atLab')}</p>
+		{/if}
 	{/if}
+{/snippet}
+
+{#if booted && !installGate && shooting && atLab && !collecting && !pendingTicket}
+	<!-- while shooting, the lab status is a small tag over the finder, never over the controls -->
+	{@render labLine('lab-tag')}
+{/if}
+
+{#if uploading}
+	<section class="sheet">
+		<h2>{t('dropOff')}</h2>
+		<p>{tf('labUploading', uploading)}</p>
+		<progress max={uploading.total} value={uploading.done}></progress>
+	</section>
+{/if}
+
+{#if pendingTicket && !uploading}
+	<!-- blocking: the roll only leaves the phone once its ticket is safe somewhere -->
+	<section class="sheet ticket">
+		<h2>{t('ticketTitle')}</h2>
+		<p class="small">{t('ticketBody')}</p>
+		<textarea readonly rows="5" onfocus={(e) => (e.currentTarget as HTMLTextAreaElement).select()}>{ticketText(pendingTicket)}</textarea>
+		<button class="big" onclick={() => shareTicket(pendingTicket)}>{t('ticketShare')}</button>
+		<button class="link" onclick={() => copyTicket(pendingTicket)}>{t('ticketCopy')}</button>
+		<button class="link" onclick={() => handOff(pendingTicket)}>{t('ticketSaved')}</button>
+	</section>
 {/if}
 
 {#if collecting && atLab?.state === 'ready'}
@@ -395,8 +511,10 @@
 		<h2>RETROVISEUR</h2>
 		<p>{t('aboutBody')}</p>
 		<p class="small">{t('aboutHow')}</p>
+		<p class="small">{t('aboutPrivacy')}</p>
 		<p class="small">
 			{t('aboutCredits')} · <a href="https://github.com/Maigre/Retroviseur" target="_blank" rel="noopener">GitHub</a> · {__APP_VERSION__}
+			<br />{t('aboutContact')} <a href="https://github.com/Maigre/Retroviseur/issues" target="_blank" rel="noopener">github.com/Maigre/Retroviseur</a>
 		</p>
 	</section>
 {/if}
@@ -687,6 +805,32 @@
 		color: var(--muted);
 		background: none;
 		border: 0;
+	}
+	.sheet progress {
+		width: 100%;
+		accent-color: var(--accent);
+	}
+	.ticket textarea {
+		width: 100%;
+		box-sizing: border-box;
+		font: 0.95rem/1.35 ui-monospace, monospace;
+		background: #0b0d0b;
+		color: var(--fg);
+		border: 1px solid #333;
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+		resize: none;
+		user-select: text;
+		-webkit-user-select: text;
+	}
+	.lab.calling,
+	.lab-tag.calling {
+		background: var(--accent);
+		color: #111;
+		text-decoration: none;
+		padding: 0.3rem 0.6rem;
+		border-radius: 0.35rem;
+		white-space: normal;
 	}
 	.lab.ready,
 	.lab-tag.ready {

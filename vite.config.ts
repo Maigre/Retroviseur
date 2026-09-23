@@ -29,5 +29,5 @@ export default defineConfig({
 			adapter: adapter({ fallback: 'index.html' })
 		})
 	],
-	test: { include: ['src/**/*.test.ts'] }
+	test: { include: ['src/**/*.test.ts', 'deploy/**/*.test.mjs'] }
 });

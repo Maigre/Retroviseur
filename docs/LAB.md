@@ -1,7 +1,7 @@
 # The lab — ticket-based remote developing
 
-Status: **spec, agreed 2026-09-23** (D44). Replaces the "email lab" of the first
-roadmap. Nothing here is built yet; the local time-lock lab stays as the dev lab.
+Status: **built and deployed 2026-09-23** (D44, D45). Replaces the "email lab" of
+the first roadmap; the local time-lock lab stays as the dev lab.
 
 ## The idea in one paragraph
 
@@ -64,7 +64,7 @@ An abandoned upload (no commit) is deleted after 24 h.
 
 | What | Value |
 |---|---|
-| Ready time | drawn uniformly in [commit + 24 h, commit + 72 h], by the **server** |
+| Ready time | drawn uniformly in [creation + 24 h, creation + 72 h], by the **server** (an upload takes minutes) |
 | Window shown on the ticket | the two calendar days bounding that range ("between Thu 25 and Sat 27 Sep") |
 | Grace after collection | 1 h, then deleted |
 | Expiry if never collected | ready + 30 days |
@@ -82,7 +82,7 @@ https://retroviseur.37m.gr/lab/<id>#<key>
   fragment, so it never reaches the server, nginx logs or referrers.
 - Whoever holds the link can collect — like a paper lab receipt.
 
-Shared text (share sheet `text` + `url`; `mailto:` is just one of the targets):
+Shared text (share sheet `text`, the link inside it; any target — mail, messenger, notes):
 
 > **EN** — 🎞 Retroviseur — lab ticket. This is your lab ticket, don't lose it!
 > Your prints will be ready between **{Thu 25}** and **{Sat 27 September}**.
@@ -113,11 +113,11 @@ All bodies are binary or tiny JSON. No cookies. CORS: same origin only.
 
 | Method & path | Auth | Does |
 |---|---|---|
-| `POST /api/lab/rolls` `{frames: n}` (1 ≤ n ≤ 27) | — (rate-limited) | creates the roll; draws `readyAt`; returns `{id, uploadToken, window: {from, to}, expiresAt}` |
+| `POST /api/lab/rolls` `{frames: n}` (1 ≤ n ≤ 27) | — (rate-limited) | creates the roll; draws `readyAt`; returns `{id, uploadToken, window: {from, to}}` — no `expiresAt` yet: it would give `readyAt` away |
 | `PUT /api/lab/rolls/:id/frames/:i` (1…n) | `Bearer uploadToken` | stores one sealed frame (≤ 4 MB); idempotent — safe to resend |
 | `PUT /api/lab/rolls/:id/manifest` | `Bearer uploadToken` | stores the sealed manifest (≤ 64 KB) |
 | `POST /api/lab/rolls/:id/commit` | `Bearer uploadToken` | checks every part is present, burns the token → `developing` |
-| `GET /api/lab/rolls/:id` | — | status: `{state, window, missing?, collectedUntil?, expiresAt}` — never `readyAt` before it has passed |
+| `GET /api/lab/rolls/:id` | — | status: `{state, frames, window, missing? (uploading), expiresAt? (ready), collectedUntil? (collected)}`; unknown or destroyed → `404 {state: "gone"}` |
 | `GET /api/lab/rolls/:id/archive` | — | `425 Too Early` before `readyAt`; `410 Gone` after deletion; else streams the container; a **completely sent** stream sets `collectedAt` (first time only) |
 
 Archive container (`application/octet-stream`): the magic `RTVL1`, then the
@@ -203,12 +203,30 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 - Android app (later): a local notification scheduled at hand-off for the
   "lab called" date — still no server push.
 
+## Implementation notes (D45)
+
+- Server: `deploy/lab.mjs`, mounted by `deploy/server.mjs`; env `LAB_DIR`
+  (gaff: `/srv/apps/retroviseur-data/lab`), `LAB_PROXY_HOPS=2` (kxkm-prod +
+  holden append to `X-Forwarded-For`; the client is the 2nd entry from the end —
+  forged earlier entries are ignored). `LAB_TEST_READY_MS` shortens the wait for
+  end-to-end tests only; never set in production.
+- Client: `src/lib/lab/remote.ts` (`RemoteLab`), `ticket.ts`, `archive.ts`; the
+  camera page keeps a pending upload on the roll (`roll.upload`) to resume, shows
+  the blocking ticket sheet until hand-off (`roll.handedOff`), then
+  `repo.forget()` deletes frames and key. Hand-off = share completed, copy
+  succeeded (clipboard API or the older copy command), or "I saved it
+  somewhere else". Pickup page: `src/routes/lab/[id]/+page.svelte`.
+- Dev mode: a "dev lab" switch drops rolls at the on-phone time-lock instead.
+- Tests: `deploy/lab.test.mjs` (server lifecycle, limits, janitor) and
+  `src/lib/lab/remote.test.ts` (interrupted + resumed upload, hand-off, pickup
+  and decryption with the ticket key alone, then collected → gone).
+
 ## Rollout
 
-1. Server: `/api/lab` in `deploy/server.mjs` (+ janitor), data dir on gaff,
-   limits, tests against a temp dir.
-2. `RemoteLab`, drop-off + ticket screen, status + lab call in the app.
-3. `/lab/[id]` pickup page.
-4. nginx: holden `access_log off` + `client_max_body_size`; kxkm-prod block
-   prepared for Thomas.
-5. About/privacy lines; walk the whole ritual on the Jelly Star.
+1. ✅ Server: `/api/lab` + janitor, data dir on gaff, limits, tests.
+2. ✅ `RemoteLab`, drop-off + ticket screen, status + lab call in the app.
+3. ✅ `/lab/[id]` pickup page.
+4. ✅ holden `access_log off` + `client_max_body_size 5m`; kxkm-prod block
+   prepared in `deploy/kxkm-prod/` — **Thomas applies it**.
+5. ✅ About/privacy lines (hosting contact provisional: the GitHub issues page,
+   Q11). ⏳ Walk the whole ritual on the Jelly Star.

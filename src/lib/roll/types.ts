@@ -28,6 +28,10 @@ export interface Roll {
 	fullAt?: number;
 	/** Set once the roll is dropped off; opaque to everything but its Lab. */
 	ticket?: LabTicket;
+	/** Remote lab: an upload in progress, so an interrupted drop-off resumes. */
+	upload?: { id: string; token: string; window: { from: number; to: number } };
+	/** Remote lab: the ticket was shared or copied; the phone then forgets the roll. */
+	handedOff?: boolean;
 	collectedAt?: number;
 }
 

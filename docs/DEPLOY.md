@@ -41,6 +41,13 @@ git clone https://github.com/Maigre/Retroviseur.git /srv/apps/retroviseur
 /srv/apps/retroviseur/deploy/update.sh
 ```
 
+### The lab's data
+
+Rolls live in `/srv/apps/retroviseur-data/lab` on gaff (`LAB_DIR`), outside the
+checkout: deploys never touch them. One folder per roll; the server's janitor
+deletes them on time (docs/LAB.md). Nothing in there can be read without the
+tickets, which the server never sees.
+
 ### Holden vhost changes
 
 ```sh

@@ -26,6 +26,26 @@ export function setDev(on: boolean): void {
 	}
 }
 
+const LAB_KEY = 'retroviseur-devlab';
+
+/** Dev lab: drop rolls off at the on-phone time-lock lab instead of the real one. */
+export function devLabEnabled(): boolean {
+	try {
+		return localStorage.getItem(LAB_KEY) === '1';
+	} catch {
+		return false;
+	}
+}
+
+export function setDevLab(on: boolean): void {
+	try {
+		if (on) localStorage.setItem(LAB_KEY, '1');
+		else localStorage.removeItem(LAB_KEY);
+	} catch {
+		// private mode
+	}
+}
+
 /** A grey placeholder "exposure" so a roll can be filled without shooting. */
 async function placeholder(n: number): Promise<ArrayBuffer> {
 	const c = document.createElement('canvas');

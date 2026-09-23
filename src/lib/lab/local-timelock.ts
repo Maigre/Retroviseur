@@ -22,7 +22,7 @@ export class LocalTimelockLab implements Lab {
 
 	constructor(private source: FrameSource) {}
 
-	async dropOff(_roll: Roll, _frames: AsyncIterable<SealedFrame>): Promise<LabTicket> {
+	async dropOff(_roll: Roll, _frames: AsyncIterable<SealedFrame>, _onProgress?: (done: number, total: number) => void): Promise<LabTicket> {
 		const droppedAt = Date.now();
 		// Deliberately no `eta`: the user is not told the exact day.
 		return { lab: this.kind, droppedAt, data: { readyAt: drawReadyAt(droppedAt) } };

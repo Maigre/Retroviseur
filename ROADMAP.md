@@ -46,12 +46,14 @@
 
 ## Phase 4 — The lab (ticket-based, [docs/LAB.md](docs/LAB.md))
 - [x] Design agreed — D44
-- [ ] `/api/lab` in the server + janitor, data dir on gaff, limits, tests
-- [ ] RemoteLab: resumable upload, commit, ticket hand-off (share / copy), wipe
-- [ ] At the lab: window, status on open, "the lab called" a week before expiry
-- [ ] `/lab/[id]` pickup page: developing / collect / contact sheet + zip / gone
-- [ ] nginx: holden access_log off + body size; kxkm-prod block for Thomas
-- [ ] About / privacy lines (hosting contact, Q11)
+- [x] `/api/lab` in the server + janitor, data dir on gaff, limits, tests — D45
+- [x] RemoteLab: resumable upload, commit, ticket hand-off (share / copy), wipe
+- [x] At the lab: window, status on open, "the lab called" a week before expiry
+- [x] `/lab/[id]` pickup page: developing / collect / contact sheet + zip / gone
+- [x] nginx: holden access_log off + body size 5m
+- [ ] kxkm-prod `retroviseur.37m.gr` block with access_log off (prepared; Thomas applies)
+- [ ] Hosting contact for the About page (Q11; GitHub issues meanwhile)
+- [ ] Walk the whole ritual on the Jelly Star (real 1–3 day wait)
 
 ## Phase 5 — Native apps
 - [ ] Capacitor wrap (iOS/Android): native camera, haptics, local notifications

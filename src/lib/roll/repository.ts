@@ -8,7 +8,8 @@ import type { FrameMeta, Roll } from './types';
 
 interface RollRecord {
 	roll: Roll;
-	key: CryptoKey;
+	/** null once the roll has left the phone (remote lab, ticket handed off) */
+	key: CryptoKey | null;
 }
 
 interface FrameRecord {
@@ -63,6 +64,7 @@ export class RollRepository {
 		const record = await this.#record(rollId);
 		const next = expose(record.roll, now); // throws if the roll is not loaded
 		const meta: FrameMeta = { index: record.roll.shot, takenAt: now, flash };
+		if (!record.key) throw new RollError('this roll has left the phone');
 		const { iv, data } = await seal(record.key, jpeg); // before the tx: crypto awaits would close it
 
 		const tx = this.db.transaction(['rolls', 'frames'], 'readwrite');
@@ -97,7 +99,23 @@ export class RollRepository {
 	}
 
 	async key(rollId: string): Promise<CryptoKey> {
-		return (await this.#record(rollId)).key;
+		const key = (await this.#record(rollId)).key;
+		if (!key) throw new RollError('this roll has left the phone');
+		return key;
+	}
+
+	/**
+	 * The roll has left for the lab and its ticket was handed off: delete every
+	 * frame and the key. The record stays, holding the backup ticket.
+	 */
+	async forget(rollId: string): Promise<void> {
+		const tx = this.db.transaction(['rolls', 'frames'], 'readwrite');
+		const rolls = tx.objectStore('rolls');
+		const record = await request<RollRecord | undefined>(rolls.get(rollId));
+		if (!record) throw new RollError(`unknown roll ${rollId}`);
+		rolls.put({ ...record, key: null });
+		tx.objectStore('frames').delete(IDBKeyRange.bound([rollId, 0], [rollId, Infinity]));
+		await committed(tx);
 	}
 
 	async *frames(rollId: string): AsyncGenerator<SealedFrame> {

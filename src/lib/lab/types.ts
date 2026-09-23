@@ -6,7 +6,7 @@ import type { FrameMeta, Roll } from '../roll/types';
  * knows which one it talks to — that is what lets the MVP time-lock evolve
  * into an email lab, then a real photo lab, without touching the capture UI.
  */
-export type LabKind = 'local-timelock' | 'email' | 'photolab';
+export type LabKind = 'local-timelock' | 'remote' | 'photolab';
 
 /** Proof of drop-off, persisted on the Roll. `data` is private to the Lab. */
 export interface LabTicket {
@@ -23,7 +23,13 @@ export interface SealedFrame {
 	sealed: Sealed;
 }
 
-export type LabStatus = { state: 'developing' } | { state: 'ready' };
+export type LabStatus =
+	| { state: 'developing' }
+	| { state: 'ready'; expiresAt?: number }
+	/** picked up (by whoever holds the ticket); destroyed at `until` */
+	| { state: 'collected'; until?: number }
+	/** destroyed or unknown to the lab */
+	| { state: 'gone' };
 
 /** How the prints come back to the user. */
 export type Delivery =
@@ -34,7 +40,7 @@ export type Delivery =
 
 export interface Lab {
 	readonly kind: LabKind;
-	dropOff(roll: Roll, frames: AsyncIterable<SealedFrame>): Promise<LabTicket>;
+	dropOff(roll: Roll, frames: AsyncIterable<SealedFrame>, onProgress?: (done: number, total: number) => void): Promise<LabTicket>;
 	status(ticket: LabTicket, now?: number): Promise<LabStatus>;
 	collect(roll: Roll): Promise<Delivery>;
 }
