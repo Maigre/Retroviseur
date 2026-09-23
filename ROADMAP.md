@@ -20,6 +20,8 @@
 - [x] Feedback round 1 (Thomas, Jelly Star): Android install gate, continuous wheel ticks, longer blackout + counter roll, top-bar/thumb-corner layout with rotation, flash switch, header band (VT323) with About/Share, phone frame on desktop, wound state kept on reload, stronger haptics
 - [x] Hidden dev mode (view frames, fill to last frame, skip the wait) — D27
 - [x] Collect early (from phase 3): zip → share/download → confirmed wipe — D26
+- [x] Feedback round 2: layout v3 (finder first, one control deck, vertical wheel off the edges, cq-based sizing, no text-scale), back gesture closes overlays, dev viewer with reachable prev/next/close, 90s Fuji/Kodak palette — D28, D29
+- [ ] Vibration: fails in the Chrome tab on the Jelly Star — retest in the installed PWA
 - [ ] Check on the Jelly Star: vibration (dev panel → test vibration), saved-frame orientation in portrait and landscape (dev panel → view frames)
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
 - [x] Deployed to gaff → https://retroviseur.37m.gr (`deploy/deploy.sh`, D19)

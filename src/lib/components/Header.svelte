@@ -38,38 +38,46 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.5rem;
+		min-width: 0;
 		background: var(--band);
 		color: var(--band-fg);
-		padding: calc(0.35rem + env(safe-area-inset-top)) 0.8rem 0.35rem;
+		border-bottom: 0.2rem solid var(--stripe);
+		padding: calc(0.2rem + env(safe-area-inset-top)) max(0.6rem, env(safe-area-inset-right)) 0.2rem
+			max(0.6rem, env(safe-area-inset-left));
 	}
 	h1 {
 		margin: 0;
-		font: 1.9rem/1 var(--font);
-		letter-spacing: 0.12em;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: clip;
+		white-space: nowrap;
+		font: clamp(1.1rem, 6.5cqw, 1.45rem) / 1 var(--font);
+		letter-spacing: 0.08em;
 	}
 	.actions {
 		display: flex;
-		gap: 0.4rem;
+		flex: none;
+		gap: 0.3rem;
 	}
 	button {
-		width: 2.3rem;
-		height: 2.3rem;
+		width: 1.8rem;
+		height: 1.8rem;
 		display: grid;
 		place-items: center;
 		background: none;
 		color: inherit;
 		border: 2px solid currentColor;
-		border-radius: 0.3rem;
-		font-size: 1.5rem;
+		border-radius: 0.25rem;
+		font-size: 1.2rem;
 		line-height: 1;
 		padding: 0;
 	}
 	svg {
-		width: 1.3rem;
-		height: 1.3rem;
+		width: 1rem;
+		height: 1rem;
 		fill: none;
 		stroke: currentColor;
-		stroke-width: 2.2;
+		stroke-width: 2.4;
 		stroke-linecap: round;
 	}
 </style>

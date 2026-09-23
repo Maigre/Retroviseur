@@ -15,14 +15,18 @@
 		font-display: swap;
 		src: url('/fonts/vt323-latin.woff2') format('woff2');
 	}
+	/* 90s film-box palette: Fujifilm green band, Kodak yellow, a red stripe. */
 	:global(:root) {
-		--bg: #0a0a0a;
-		--body: #1b1b1b;
-		--fg: #eee;
-		--muted: #9a9a9a;
-		--accent: #ff6a13;
-		--band: #ff6a13;
-		--band-fg: #0a0a0a;
+		--bg: #0b0d0b;
+		--body: #1a1c1a;
+		--fg: #efeadb;
+		--muted: #9d9a8c;
+		--accent: #ffc20e; /* Kodak yellow */
+		--accent-fg: #111;
+		--band: #007a3d; /* Fujifilm green */
+		--band-fg: #ffc20e;
+		--stripe: #e4002b; /* film-box red */
+		--window: #e9e3cf; /* frame-counter window */
 		--font: 'VT323', ui-monospace, monospace;
 	}
 	:global(html),

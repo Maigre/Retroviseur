@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Developer-only sheet (English only, never localised — see src/lib/dev.ts).
 	import { onDestroy } from 'svelte';
+	import { onBack } from '$lib/back';
 	import { buzz } from '$lib/camera/sound';
 	import { fillRoll, skipWait, viewFrames, wipeEverything, type DevFrame } from '$lib/dev';
 	import type { RollRepository } from '$lib/roll/repository';
@@ -15,9 +16,24 @@
 
 	let busy = $state(false);
 	let frames = $state<DevFrame[]>([]);
-	let zoom = $state<DevFrame | null>(null);
+	let zoom = $state<number | null>(null); // index into frames
 	let log = $state('');
 	let open = $state(true);
+
+	// Android back closes the viewer, then the panel — never the app.
+	$effect(() => {
+		if (zoom !== null) return onBack(() => (zoom = null));
+	});
+	$effect(() => {
+		if (open) return onBack(() => (open = false));
+	});
+
+	const current = $derived(zoom === null ? null : frames[zoom]);
+	function step(d: number) {
+		if (zoom === null) return;
+		zoom = (zoom + d + frames.length) % frames.length;
+	}
+	let swipeX = 0;
 
 	async function run(label: string, fn: () => Promise<unknown>) {
 		busy = true;
@@ -100,8 +116,8 @@
 
 	{#if frames.length}
 		<div class="grid">
-			{#each frames as f (f.index)}
-				<button class="thumb" onclick={() => (zoom = f)}>
+			{#each frames as f, i (f.index)}
+				<button class="thumb" onclick={() => (zoom = i)}>
 					<img src={f.url} alt="frame {f.index + 1}" />
 					<span>{f.index + 1}</span>
 				</button>
@@ -112,11 +128,27 @@
 </section>
 {/if}
 
-{#if zoom}
-	<button class="zoom" onclick={() => (zoom = null)}>
-		<img src={zoom.url} alt="frame {zoom.index + 1}" />
-		<span>#{zoom.index + 1} · {zoom.width}×{zoom.height} · {Math.round(zoom.bytes / 1024)} KB · {when(zoom.takenAt)}{zoom.flash ? ' · flash' : ''}</span>
-	</button>
+{#if current}
+	<div class="viewer">
+		<div class="bar">
+			<button onclick={() => step(-1)} aria-label="previous">◀</button>
+			<span>#{current.index + 1}/{frames.length}</span>
+			<button onclick={() => step(1)} aria-label="next">▶</button>
+			<button class="close" onclick={() => (zoom = null)} aria-label="close">✕</button>
+		</div>
+		<!-- swipe left/right on the photo to browse -->
+		<div
+			class="photo"
+			role="presentation"
+			onpointerdown={(e) => (swipeX = e.clientX)}
+			onpointerup={(e) => Math.abs(e.clientX - swipeX) > 40 && step(e.clientX < swipeX ? 1 : -1)}
+		>
+			<img src={current.url} alt="frame {current.index + 1}" draggable="false" />
+		</div>
+		<p class="meta">
+			{current.width}×{current.height} · {Math.round(current.bytes / 1024)} KB · {when(current.takenAt)}{current.flash ? ' · flash' : ''}
+		</p>
+	</div>
 {/if}
 
 <style>
@@ -136,7 +168,7 @@
 	.dev {
 		position: absolute;
 		inset: auto 0 0 0;
-		max-height: 70dvh;
+		max-height: 75%;
 		overflow: auto;
 		z-index: 20;
 		background: #0c1a12;
@@ -204,20 +236,52 @@
 		bottom: 0.1rem;
 		color: #3f8;
 	}
-	.zoom {
+	.viewer {
 		position: absolute;
 		inset: 0;
 		z-index: 30;
-		background: #000e;
+		background: #000;
 		display: grid;
-		place-items: center;
-		gap: 0.5rem;
-		padding: 1rem;
+		grid-template-rows: auto minmax(0, 1fr) auto;
 		color: #cfe;
-		border-radius: 0;
+		font: 0.85rem ui-monospace, monospace;
+		padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+			env(safe-area-inset-left);
 	}
-	.zoom img {
-		max-width: 100%;
-		max-height: 85dvh;
+	.bar {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		background: #0c1a12;
+		border-bottom: 2px solid #3f8;
+	}
+	.bar span {
+		flex: 1;
+		text-align: center;
+	}
+	.bar button {
+		min-width: 2.6rem;
+		min-height: 2.4rem;
+		font-size: 1.1rem;
+	}
+	.photo {
+		position: relative;
+		min-height: 0;
+		touch-action: pan-y;
+	}
+	.photo img {
+		/* absolute + contain: a % max-height can't resolve inside an auto grid row */
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		user-select: none;
+	}
+	.meta {
+		margin: 0;
+		padding: 0.5rem;
+		text-align: center;
 	}
 </style>

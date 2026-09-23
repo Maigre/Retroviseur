@@ -46,19 +46,22 @@ camera until the first has been collected.
 
 ## Screens
 
-Every screen sits under a **header band**: RETROVISEUR in VT323 on plain
-orange, with **?** (About) and **Share** (share sheet, or copy the link). On a
-wide screen the app is framed as a phone.
+Every screen sits under a slim **header band**: RETROVISEUR in VT323, Kodak
+yellow on Fujifilm green with a red stripe, **?** (About) and **Share** (share
+sheet, or copy the link). On a wide screen the app is framed as a phone.
+Android's back gesture closes sheets and overlays first, never the app by
+accident.
 
 1. **Install gate** (iOS and Android browsers) — add to Home Screen first
    (Android: the Install button), skippable.
-2. **Camera body** — the only real screen (D24).
-   - Portrait: counter top-left (orange digits, counts *down*, rolls on each
-     shot), horizontal **thumbwheel** top-right; the **tunnel viewfinder**;
-     flash switch bottom-left, **shutter** bottom-right under the right thumb.
-   - Landscape: finder in the middle, wheel top-right, shutter bottom-right.
-   - Flash: a switch with a bolt icon, like a QuickSnap slider — hidden on
-     iOS until the native app (D15).
+2. **Camera body** — the only real screen (D28). The finder gets everything the
+   controls don't need; all controls live in one deck:
+   - Portrait: deck at the bottom — frame counter (cream window, counts *down*,
+     rolls on each shot) and flash switch on the left; the vertical
+     **thumbwheel** and the **shutter** on the right, under the right thumb.
+   - Landscape: deck on the right — counter and flash at the top, wheel and
+     shutter at the bottom right.
+   - Flash: a switch with a bolt icon — hidden on iOS until the native app (D15).
 3. **Roll finished** — "take it to the lab" (drop-off).
 4. **At the lab** — a quiet line at the bottom; no countdown, no date. The next
    roll can be loaded meanwhile (D14). Checked each time the app opens (D16).
@@ -69,7 +72,8 @@ wide screen the app is framed as a phone.
 
 ### Thumbwheel (film advance)
 
-- Horizontal ribbed wheel, top right. **Push it leftward** with the thumb.
+- Vertical ribbed wheel beside the shutter (never on a screen edge, where
+  Android's swipe means "back"). **Flick it upward** with the thumb.
 - While it turns it **ticks continuously** (a ratchet tooth every 7 px).
 - A quick flick counts as one **notch**; ~3 notches (`WIND_CLICKS`) and it
   **locks** with a heavier thunk + a strong haptic, outlined in orange.

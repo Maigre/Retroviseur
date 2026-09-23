@@ -197,6 +197,28 @@ fill a roll to its last frame, skip the lab wait, test vibration and wipe all
 data. It breaks the product rules on purpose, is English-only, and is never
 advertised.
 
+## D28 — Layout v3: one control deck, finder first · 2026-09-23
+
+Supersedes the placement half of D24 after the Jelly Star test (controls cropped
+on the right, tiny finder, the horizontal wheel fighting Android's edge-swipe
+"back"). The **viewfinder takes all the space the controls don't need** (55–63 %
+of a phone screen). All controls sit in **one deck** — bottom row in portrait
+(counter + flash left; wheel + shutter right), right-hand column in landscape
+(shutter bottom-right). The wheel is **vertical again (flick up)** and sits next
+to the shutter, never on a screen edge. Sizes derive from the device (`cq*`
+units, `clamp`) instead of `rem` alone, and the template's `text-scale` meta is
+gone, so the phone's font-size setting can't push controls off-screen. Header
+slimmed. **Android back** closes the open sheet / dev viewer / dev panel before
+it can leave the app (`src/lib/back.ts`). Checked on 9 viewports × 2 font scales
+(280×560 → 915×412, 100 % / 125 %): nothing outside the screen.
+
+## D29 — 90s film-box palette · 2026-09-23
+
+Replaces the orange: **Fujifilm green** header band, **Kodak yellow** wordmark,
+buttons and armed ring, a thin **red stripe** under the band, a **cream frame
+counter window** with black digits (like a real disposable). The icon follows.
+Tokens in `src/routes/+layout.svelte`.
+
 ---
 
 ## Open questions
