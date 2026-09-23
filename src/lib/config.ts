@@ -36,8 +36,11 @@ export const JPEG_QUALITY = 0.9;
 export const FLICK_MIN_PX = 22;
 export const FLICK_MAX_MS = 450;
 
-/** Finder stays dark at least this long after the shutter: "something happened". */
-export const SHUTTER_BLACKOUT_MS = 450;
+/**
+ * The finder blinks dark this long when the shutter fires — a flash, not a wait.
+ * Capture and storage carry on behind it; the counter roll says when it's done.
+ */
+export const SHUTTER_BLACKOUT_MS = 150;
 
 /** Wheel travel (CSS px) between two ratchet ticks while winding. */
 export const WHEEL_TICK_PX = 7;

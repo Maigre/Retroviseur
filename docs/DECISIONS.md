@@ -258,6 +258,13 @@ Header colours swapped: Kodak-yellow band, Fujifilm-green lettering.
   yellow-on-green were both ~3.4:1 contrast; yellow on the dark band is ~11:1.
   Bigger lettering and more padding.
 
+## D33 — Shutter blackout is a blink · 2026-09-23
+
+Supersedes the ~450 ms minimum of D25 (Thomas: "too long"). The finder blinks
+dark for 150 ms (+120 ms fade) when the shutter fires, whatever capture takes;
+capture and storage carry on behind it with the shutter locked, and the counter
+roll marks the moment the frame is stored.
+
 ---
 
 ## Open questions

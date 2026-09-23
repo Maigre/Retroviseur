@@ -169,23 +169,20 @@
 		}
 		busy = true;
 		blackout = true;
+		setTimeout(() => (blackout = false), SHUTTER_BLACKOUT_MS);
 		sounds.shutter();
 		buzz(HAPTIC.shutter);
-		const minBlack = new Promise((r) => setTimeout(r, SHUTTER_BLACKOUT_MS));
 		try {
 			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
 			const jpeg = await captureStill(stream, video, turned ? -90 : 0);
 			await repo.recordFrame(inCamera.id, await jpeg.arrayBuffer(), flash);
 			winder.fire(); // the film is only consumed once the frame is safely stored
 			armed = false;
-			await minBlack;
 			await refresh();
 		} catch (e) {
 			console.error(e);
 			notice = 'captureFailed';
 		} finally {
-			await minBlack;
-			blackout = false;
 			busy = false;
 		}
 	}
@@ -503,7 +500,7 @@
 		background: #000;
 		opacity: 0;
 		z-index: 1;
-		transition: opacity 280ms ease-in;
+		transition: opacity 120ms ease-in;
 	}
 	.blackout.on {
 		opacity: 1;
