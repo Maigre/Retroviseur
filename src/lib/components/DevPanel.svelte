@@ -129,7 +129,7 @@
 	<p class="log">
 		flash: {flashReport || 'camera not opened yet'} · vibrate {'vibrate' in navigator ? 'present' : 'MISSING'} ·
 		{navigator.userAgent.match(/(Chrome|Brave|Firefox|Safari)\/[\d.]+/g)?.join(' ') ?? navigator.userAgent}
-		{matchMedia('(display-mode: standalone)').matches ? ' · installed' : ' · browser tab'}
+		{matchMedia('(display-mode: fullscreen)').matches ? ' · installed (fullscreen)' : matchMedia('(display-mode: standalone)').matches ? ' · installed (standalone)' : ' · browser tab'}
 	</p>
 	{#if log}<p class="log">{log}</p>{/if}
 

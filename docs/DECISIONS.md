@@ -396,6 +396,16 @@ still not logged. The promise becomes: "visits are not logged; an address is onl
 recorded when it is blocked for abuse." Volumetric DDoS stays out of scope (only an
 upstream shield would help, at the cost of a third party in the path).
 
+## D47 — Fullscreen when installed · 2026-09-23
+
+The installed app asks for `display: fullscreen` (with `display_override:
+["fullscreen", "standalone"]`): Android hides its status and navigation bars; where
+fullscreen isn't supported (iOS, some browsers) it falls back to standalone.
+"Installed" now means display-mode fullscreen **or** standalone, so the install gate
+doesn't reappear. Safe-area insets were already honoured (`viewport-fit=cover`).
+Existing installs pick the change up when reinstalled (or when Chrome refreshes its
+WebAPK).
+
 ---
 
 ## Open questions

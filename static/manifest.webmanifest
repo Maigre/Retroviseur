@@ -4,7 +4,7 @@
 	"description": "A disposable film camera: 27 shots, no preview, develop to discover.",
 	"start_url": "./",
 	"scope": "./",
-	"display": "standalone",
+	"display": "fullscreen",
 	"background_color": "#0b0d0b",
 	"theme_color": "#0b0d0b",
 	"icons": [
@@ -34,5 +34,9 @@
 		}
 	],
 	"id": "/",
-	"orientation": "portrait"
+	"orientation": "portrait",
+	"display_override": [
+		"fullscreen",
+		"standalone"
+	]
 }

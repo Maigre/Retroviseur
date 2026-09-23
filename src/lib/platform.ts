@@ -8,9 +8,13 @@ export function isAndroid(nav: Pick<Navigator, 'userAgent'> | undefined = global
 	return !!nav && /Android/.test(nav.userAgent);
 }
 
-/** Launched from the home screen (installed PWA) rather than a browser tab. */
+/**
+ * Launched from the home screen (installed PWA) rather than a browser tab —
+ * in fullscreen (D47, hides Android's bars) or standalone (the fallback).
+ */
 export function isStandalone(): boolean {
 	return (
+		globalThis.matchMedia?.('(display-mode: fullscreen)').matches === true ||
 		globalThis.matchMedia?.('(display-mode: standalone)').matches === true ||
 		(globalThis.navigator as { standalone?: boolean } | undefined)?.standalone === true
 	);
