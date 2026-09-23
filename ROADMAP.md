@@ -51,7 +51,7 @@
 - [x] At the lab: window, status on open, "the lab called" a week before expiry
 - [x] `/lab/[id]` pickup page: developing / collect / contact sheet + zip / gone
 - [x] nginx: holden access_log off + body size 5m
-- [ ] kxkm-prod `retroviseur.37m.gr` block with access_log off (prepared; Thomas applies)
+- [x] kxkm-prod `retroviseur.37m.gr` block with access_log off (applied 2026-09-23)
 - [ ] Hosting contact for the About page (Q11; GitHub issues meanwhile)
 - [ ] Walk the whole ritual on the Jelly Star (real 1–3 day wait)
 

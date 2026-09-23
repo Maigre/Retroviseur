@@ -156,10 +156,11 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 
 - The Node service logs no IPs, no ids — only counts and errors.
 - **holden**: the `retroviseur.37m.gr` vhost gets `access_log off`.
-- **kxkm-prod**: today the `*.37m.gr` catch-all logs every request to
-  `holden-edge-access.log`. A dedicated `retroviseur.37m.gr` server block with
-  `access_log off` (same TLS + proxy as the catch-all) is **prepared in
-  `deploy/kxkm-prod/`, applied by Thomas** — it is a shared gateway.
+- **kxkm-prod**: the `*.37m.gr` catch-all logs every request to
+  `holden-edge-access.log`; a dedicated `retroviseur.37m.gr` server block with
+  `access_log off` (same TLS + proxy as the catch-all, mirrored in
+  `deploy/kxkm-prod/`) overrides it for this host — applied 2026-09-23. Lines
+  logged before that (the first tests) age out with log rotation.
 - About page (FR/EN): "The lab stores your rolls encrypted with a key only your
   ticket holds. We cannot see your photos or know whose they are. Rolls are
   destroyed one hour after pickup, or 30 days after they are ready. Hosting
@@ -226,7 +227,7 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 1. ✅ Server: `/api/lab` + janitor, data dir on gaff, limits, tests.
 2. ✅ `RemoteLab`, drop-off + ticket screen, status + lab call in the app.
 3. ✅ `/lab/[id]` pickup page.
-4. ✅ holden `access_log off` + `client_max_body_size 5m`; kxkm-prod block
-   prepared in `deploy/kxkm-prod/` — **Thomas applies it**.
+4. ✅ holden `access_log off` + `client_max_body_size 5m`; ✅ kxkm-prod
+   exact-name block (`deploy/kxkm-prod/`) applied 2026-09-23 at Thomas's request.
 5. ✅ About/privacy lines (hosting contact provisional: the GitHub issues page,
    Q11). ⏳ Walk the whole ritual on the Jelly Star.
