@@ -10,9 +10,9 @@ pictures once they are developed.
 
 ## Status
 
-🟡 **Bootstrap (phase 0).** Project skeleton, domain model and docs are in place;
-the placeholder screen lets you feel the wind → shoot ritual, but there is no
-camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
+🟢 **Phase 2 (film look).** Real camera, sealed rolls, the wind → shoot ritual,
+collect as a zip, and the Fujifilm look developed on the phone at capture;
+the stock is being picked on the hidden `/bench`. See [ROADMAP.md](ROADMAP.md).
 
 **Live:** https://retroviseur.37m.gr · deploy = push to `main`, then `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
 

@@ -327,6 +327,17 @@ painted label (green along the body's edge, red as the seam to the rest), and it
 right end is the rounded grip behind the shutter. The header has no band of its
 own any more.
 
+## D40 — The film look, on the GPU at capture · 2026-09-23
+
+Phase 2. Every frame is developed by a WebGL2 pipeline (soft copy + one develop
+pass: softness, halation, tone-curve LUT, split toning, saturation, vignette,
+light leak, date stamp, grain) after crop/rotation and before sealing — details
+in FILM-LOOK.md. Curves in display space; grain on an integer hash; the date
+stamp is `'26 9 23` for now (Q8). No WebGL2 → undeveloped frame, reported in the
+dev panel. The simulated flash look planned in FILM-LOOK is dropped: the flash
+is real. `/bench` lets Thomas compare Superia 400 and C200 on his own photos,
+tune them and export the numbers; the pick of `FILM_STOCK` stays his (#t-004).
+
 ---
 
 ## Open questions

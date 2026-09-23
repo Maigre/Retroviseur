@@ -8,7 +8,10 @@
 	import FlashToggle from '$lib/components/FlashToggle.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Thumbwheel from '$lib/components/Thumbwheel.svelte';
-	import { FILM_STOCK, SHUTTER_BLACKOUT_MS } from '$lib/config';
+	import { DATE_STAMP, FILM_STOCK, SHUTTER_BLACKOUT_MS } from '$lib/config';
+	import { leakFor } from '$lib/film/leak';
+	import { formatStamp } from '$lib/film/stamp';
+	import { STOCKS } from '$lib/film/stocks';
 	import { devEnabled, setDev } from '$lib/dev';
 	import { t, type MessageKey } from '$lib/i18n';
 	import { onBack } from '$lib/back';
@@ -183,11 +186,17 @@
 		const t0 = performance.now();
 		try {
 			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
-			const still = await captureStill(stream, video, turned ? -90 : 0, flash ? flashCaps : null);
+			const film = {
+				stock: STOCKS[inCamera.stock],
+				seed: `${inCamera.id}:${inCamera.shot}`,
+				stamp: DATE_STAMP ? formatStamp(Date.now()) : null,
+				leak: leakFor(inCamera.shot, inCamera.exposures, inCamera.id)
+			};
+			const still = await captureStill(stream, video, turned ? -90 : 0, flash ? flashCaps : null, film);
 			const tCapture = performance.now();
 			await repo.recordFrame(inCamera.id, await still.jpeg.arrayBuffer(), flash);
 			const track = stream.getVideoTracks()[0]?.getSettings();
-			lastCapture = `${still.method} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track?.width}×${track?.height}`;
+			lastCapture = `${still.method}${still.developed ? ' +film' : ' (no film look)'} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track?.width}×${track?.height}`;
 			winder.fire(); // the film is only consumed once the frame is safely stored
 			armed = false;
 			await minBlack;

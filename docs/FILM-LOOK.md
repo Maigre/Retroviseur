@@ -17,25 +17,39 @@ developer picks one with `FILM_STOCK` in `config.ts` after bench tests (D4).
 
 Numbers are starting points, to tune by eye against reference scans.
 
-## Pass order
+## How it runs (D40)
 
-1. **Linearise** input (sRGB → linear).
-2. **Flash look** (if flash on): lift the foreground, crush the background,
-   harden the falloff — the "deer in headlights" disposable flash.
-3. **Tone curves** per channel (monotone cubic through the control points).
-4. **Split toning**: shadow tint / highlight tint.
-5. **Saturation**.
-6. **Halation**: blur of the brightest areas, tinted red-orange, added back.
-7. **Plastic lens**: radial softness (blur mixed by distance from centre) + vignette.
-8. **Grain**: luminance-dependent noise (strongest in mid-tones), seeded per
-   frame, sized so it survives JPEG q ≈ 0.9.
-9. **Light leak** on head/tail frames (`LEAK_HEAD_FRAMES`, `LEAK_TAIL_FRAMES`):
-   warm orange-red gradient bleeding in from one edge, random shape per roll.
-10. **Date stamp**: orange 7-segment digits, bottom-right, slight glow, drawn
-    *before* grain so it gets grain like a real imprint.
-11. **Encode** back to sRGB, crop 3:2.
+`src/lib/film/develop.ts`, WebGL2, on every frame at capture — after the 3:2
+crop/rotation, before JPEG encoding and sealing:
 
-## Bench method (phase 2)
+1. **Soft copy**: the frame downscaled ¼ and blurred (separable gaussian, twice).
+   Feeds both the lens softness and the halation.
+2. **Develop pass** (one fragment shader), in this order:
+   1. **Plastic lens softness**: mix towards the soft copy by distance from centre.
+   2. **Halation**: the soft copy's highlights added back as a red-orange glow.
+   3. **Tone curves**: per channel, monotone cubic through the stock's control
+      points (`curve.ts`), baked into a 256-entry LUT texture. Display (sRGB)
+      values — where the curves were drawn.
+   4. **Split toning**: shadow tint × (1−L)², highlight tint × L².
+   5. **Saturation** around luminance.
+   6. **Vignette**.
+   7. **Light leak** (first/last frame, `leak.ts`): warm fog screened in from
+      one edge, wobbly front; edge and reach fixed per roll.
+   8. **Date stamp** (`stamp.ts`): orange 7-segment `'26 9 23` with a glow,
+      screened in bottom-right *before* grain, like an imprint.
+   9. **Grain**: two octaves of value noise on an integer hash (pcg2d — a float
+      hash left visible stripes), sized from 12 MP, strongest in the mid-tones,
+      faintly coloured.
+3. The canvas is encoded to JPEG q 0.9 by the caller.
 
-A hidden `/bench` route that runs the pipeline on a set of reference photos
-with both stocks side by side, so the choice in D4 is made on real images.
+No WebGL2 (or a frame bigger than the GPU's max texture) → the frame is kept
+undeveloped; the dev panel says so. There is no simulated flash look: the flash
+is real (D35/D36).
+
+## Bench
+
+`/bench` (hidden; linked from the dev panel): load your own photos — they never
+leave the browser — or use the built-in test card; see original / Superia 400 /
+C200 side by side, toggle the date stamp and a head/tail light leak, reseed the
+grain, tune each stock with sliders, and copy its parameters as JSON into
+`src/lib/film/stocks.ts`. Then set `FILM_STOCK` in `config.ts`.

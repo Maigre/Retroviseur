@@ -1,11 +1,18 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	let { children } = $props();
+	// the developer bench uses the whole window
+	const bare = $derived(page.url.pathname.startsWith('/bench'));
 </script>
 
 <!-- Full screen on phones; a phone-sized "device" in the middle of wide screens. -->
-<div class="device">
+{#if bare}
 	{@render children()}
-</div>
+{:else}
+	<div class="device">
+		{@render children()}
+	</div>
+{/if}
 
 <style>
 	@font-face {

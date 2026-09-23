@@ -31,11 +31,12 @@
 - [x] Deployed to gaff → https://retroviseur.37m.gr (`deploy/deploy.sh`, D19)
 
 ## Phase 2 — Film look
-- [ ] WebGL2 pipeline (FILM-LOOK.md pass order)
-- [ ] `/bench` route: both stocks on reference photos
+- [x] WebGL2 pipeline (FILM-LOOK.md) — D40
+- [x] `/bench` route: both stocks on your own photos, live sliders, export params
 - [x] Flash switch: real flash / torch, shown only when supported (D35)
-- [ ] Date stamp, light leaks
-- [ ] Pick `FILM_STOCK`
+- [x] Date stamp (`'26 9 23`), light leaks on first/last frame
+- [ ] Tune on real photos with `/bench`, pick `FILM_STOCK` (Thomas)
+- [ ] Check develop time on the Jelly Star (dev panel "last shot")
 
 ## Phase 3 — Develop & collect (local lab)
 - [ ] Drop-off screen, developing state, ready check on open (D16)

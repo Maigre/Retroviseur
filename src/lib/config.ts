@@ -21,6 +21,9 @@ export const DEVELOP_MAX_HOURS = 72;
  */
 export const FILM_STOCK: FilmStockId = 'superia400';
 
+/** Orange date imprint on every frame (format: Q8, provisional `'26 9 23`). */
+export const DATE_STAMP = true;
+
 /** Frames fogged by light leaks at the head and tail of the roll. */
 export const LEAK_HEAD_FRAMES = 1;
 export const LEAK_TAIL_FRAMES = 1;

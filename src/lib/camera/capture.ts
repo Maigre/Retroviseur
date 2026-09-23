@@ -1,5 +1,6 @@
 import { CAPTURE_MAX_LONG_SIDE, JPEG_QUALITY, TORCH_SETTLE_MS } from '../config';
 import { crop3x2 } from './crop';
+import { develop, type DevelopOptions } from '../film/develop';
 
 export type CameraErrorKind = 'denied' | 'unavailable' | 'insecure';
 
@@ -73,7 +74,7 @@ export function closeCamera(stream: MediaStream | undefined): void {
 /**
  * Grab one full-resolution still. Chrome/Android: ImageCapture.takePhoto()
  * (real sensor still). Elsewhere (iOS Safari): the current video frame.
- * Returns a 3:2 JPEG. The film look will be applied here in phase 2.
+ * Returns a 3:2 JPEG with the film look applied when `film` is given.
  */
 export interface Still {
 	jpeg: Blob;
@@ -81,13 +82,16 @@ export interface Still {
 	method: 'takePhoto' | 'takePhoto+flash' | 'video' | 'video+torch';
 	sourceWidth: number;
 	sourceHeight: number;
+	/** the film look was applied (false: no WebGL2, or no film options) */
+	developed: boolean;
 }
 
 export async function captureStill(
 	stream: MediaStream,
 	video: HTMLVideoElement,
 	rotate: 0 | -90 = 0,
-	flash: FlashSupport | null = null
+	flash: FlashSupport | null = null,
+	film: DevelopOptions | null = null
 ): Promise<Still> {
 	const { bitmap, method } = await withFlash(stream, video, flash);
 	try {
@@ -104,10 +108,12 @@ export async function captureStill(
 			ctx.rotate(-Math.PI / 2);
 		}
 		ctx.drawImage(bitmap, c.sx, c.sy, c.sw, c.sh, 0, 0, c.dw, c.dh);
+		// the film look, baked in before the frame is sealed (D40)
+		const out = film ? develop(canvas, film) : canvas;
 		const jpeg = await new Promise<Blob>((resolve, reject) =>
-			canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('JPEG encoding failed'))), 'image/jpeg', JPEG_QUALITY)
+			out.toBlob((b) => (b ? resolve(b) : reject(new Error('JPEG encoding failed'))), 'image/jpeg', JPEG_QUALITY)
 		);
-		return { jpeg, method, sourceWidth: bitmap.width, sourceHeight: bitmap.height };
+		return { jpeg, method, sourceWidth: bitmap.width, sourceHeight: bitmap.height, developed: !!film && out !== canvas };
 	} finally {
 		bitmap.close();
 	}

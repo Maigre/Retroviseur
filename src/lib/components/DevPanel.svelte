@@ -4,6 +4,8 @@
 	import { onBack } from '$lib/back';
 	import { buzz } from '$lib/camera/sound';
 	import { fillRoll, skipWait, viewFrames, wipeEverything, type DevFrame } from '$lib/dev';
+	import { FILM_STOCK } from '$lib/config';
+	import { filmSupported } from '$lib/film/develop';
 	import type { RollRepository } from '$lib/roll/repository';
 	import type { Roll } from '$lib/roll/types';
 
@@ -106,7 +108,9 @@
 		<p>no rolls</p>
 	{/each}
 
+	<p class="log">film look: {filmSupported() ? `WebGL2 ok · stock ${FILM_STOCK}` : 'NO WebGL2 — frames are not developed'}</p>
 	<div class="actions">
+		<a class="btn" href="/bench" target="_blank" rel="noopener">film bench ↗</a>
 		<button onclick={vibrate}>test vibration</button>
 		<button
 			disabled={busy}
@@ -199,8 +203,10 @@
 	header {
 		justify-content: space-between;
 	}
-	button {
+	button,
+	.btn {
 		font: inherit;
+		text-decoration: none;
 		color: #0c1a12;
 		background: #3f8;
 		border: 0;
