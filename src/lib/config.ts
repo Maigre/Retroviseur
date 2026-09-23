@@ -16,12 +16,13 @@ export const DEVELOP_MIN_HOURS = 24;
 export const DEVELOP_MAX_HOURS = 72;
 
 /**
- * The one film stock baked into every frame. Chosen by the developer after
- * testing (candidates: 'superia400', 'c200'); never selectable in the UI.
+ * The one film stock baked into every frame: Fujicolor Superia 400, the
+ * QuickSnap film (Thomas, D41). C200 stays in stocks.ts for the bench.
+ * Never selectable in the UI.
  */
 export const FILM_STOCK: FilmStockId = 'superia400';
 
-/** Orange date imprint on every frame (format: Q8, provisional `'26 9 23`). */
+/** Orange date imprint on every frame, `23 9 '26` (D41). */
 export const DATE_STAMP = true;
 
 /** Frames fogged by light leaks at the head and tail of the roll. */

@@ -34,8 +34,8 @@
 - [x] WebGL2 pipeline (FILM-LOOK.md) — D40
 - [x] `/bench` route: both stocks on your own photos, live sliders, export params
 - [x] Flash switch: real flash / torch, shown only when supported (D35)
-- [x] Date stamp (`'26 9 23`), light leaks on first/last frame
-- [ ] Tune on real photos with `/bench`, pick `FILM_STOCK` (Thomas)
+- [x] Date stamp (`23 9 '26`, small), light leaks on first/last frame
+- [x] Pick `FILM_STOCK`: Superia 400 (Thomas, D41)
 - [ ] Check develop time on the Jelly Star (dev panel "last shot")
 
 ## Phase 3 — Develop & collect (local lab)

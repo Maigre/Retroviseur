@@ -26,8 +26,8 @@ it('bakes each stock into a 256-entry RGBA table', () => {
 });
 
 it('stamps the date the 90s way', () => {
-	expect(formatStamp(new Date(2026, 8, 23))).toBe("'26 9 23");
-	expect(formatStamp(new Date(2030, 11, 1))).toBe("'30 12 1");
+	expect(formatStamp(new Date(2026, 8, 23))).toBe("23 9 '26");
+	expect(formatStamp(new Date(2030, 11, 1))).toBe("1 12 '30");
 	expect(SEGMENTS['8']).toBe('abcdefg');
 });
 

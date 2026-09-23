@@ -338,6 +338,13 @@ dev panel. The simulated flash look planned in FILM-LOOK is dropped: the flash
 is real. `/bench` lets Thomas compare Superia 400 and C200 on his own photos,
 tune them and export the numbers; the pick of `FILM_STOCK` stays his (#t-004).
 
+## D41 — Superia 400 it is; a smaller European date stamp · 2026-09-23
+
+Thomas's pick (closes D4 / #t-004): **Fujicolor Superia 400** is the film, with
+the starting parameters as they are. C200 stays in `stocks.ts` for the bench.
+The date imprint (answers Q8) is European, year last — `23 9 '26` — and smaller:
+digits ~2.6 % of the frame's short side tall (was 4.5 %), squatter (width 0.68 × height).
+
 ---
 
 ## Open questions
@@ -351,6 +358,6 @@ tune them and export the numbers; the pick of `FILM_STOCK` stays his (#t-004).
 - ~~Q6 — Ready notification~~ → D16.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
-- **Q8 — Date stamp format**: `'26 9 23` (classic Japanese compact) or `23 9 '26`?
+- ~~Q8 — Date stamp format~~ → `23 9 '26` (D41).
 - **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
 - **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19).

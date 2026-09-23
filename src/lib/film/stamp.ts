@@ -1,10 +1,10 @@
 /**
- * The orange date imprint of a 90s compact: 7-segment digits, year first with
- * an apostrophe — `'26 9 23` (Q8, provisional).
+ * The orange date imprint of a 90s compact: 7-segment digits, European order
+ * with the year last — `23 9 '26` (D41).
  */
 export function formatStamp(t: number | Date): string {
 	const d = new Date(t);
-	return `'${String(d.getFullYear() % 100).padStart(2, '0')} ${d.getMonth() + 1} ${d.getDate()}`;
+	return `${d.getDate()} ${d.getMonth() + 1} '${String(d.getFullYear() % 100).padStart(2, '0')}`;
 }
 
 /** Segments a–g lit for each digit (a top, clockwise, g middle). */
@@ -27,7 +27,7 @@ export const SEGMENTS: Record<string, string> = {
  */
 export function drawStamp(text: string, height: number): HTMLCanvasElement {
 	const h = Math.max(8, Math.round(height));
-	const w7 = h * 0.52; // digit width
+	const w7 = h * 0.68; // digit width — squat digits, low profile (D41)
 	const gap = h * 0.2;
 	const th = Math.max(1.5, h * 0.11); // segment thickness
 	const glyph = (ch: string) => (ch === ' ' ? w7 * 0.55 : ch === "'" ? th * 2.2 : w7);
