@@ -407,9 +407,6 @@
 		min-height: 0;
 		min-width: 0;
 		box-sizing: border-box;
-		/* the red hairline frame continues from the header down both sides and along the bottom */
-		border: 1px solid var(--stripe);
-		border-top: 0;
 		padding: 0.6rem max(0.6rem, env(safe-area-inset-right)) max(0.6rem, env(safe-area-inset-bottom))
 			max(0.6rem, env(safe-area-inset-left));
 	}
@@ -446,8 +443,38 @@
 		padding: 0.6rem 0;
 		box-sizing: border-box;
 	}
+	/* The camera body, drawn behind the controls in stage (landscape) terms: a
+	   thin grey edge along the top and bottom, open towards the header, and a
+	   larger rounded grip on the right behind the shutter — like a compact's
+	   ergonomic hand grip, with a faint leatherette grain. */
+	.stage::before,
+	.stage::after {
+		content: '';
+		position: absolute;
+		pointer-events: none;
+	}
+	.stage::before {
+		inset: 0.3rem 0.3rem 0.3rem 0;
+		border: 2px solid var(--shell);
+		border-left: 0;
+		border-radius: 0 2.2rem 2.2rem 0;
+		background: linear-gradient(var(--shell-in), var(--bg) 70%);
+	}
+	.stage::after {
+		top: 0.3rem;
+		bottom: 0.3rem;
+		right: 0.3rem;
+		width: calc(var(--shutter) + 1.2 * var(--side));
+		border: 2px solid var(--shell);
+		border-radius: 1.2rem 2.2rem 2.2rem 1.2rem;
+		background:
+			radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.035) 0.6px, transparent 1.2px) 0 0 / 5px 5px,
+			linear-gradient(90deg, #181a18, #121412);
+		box-shadow: inset 0.35rem 0 0.6rem rgb(0 0 0 / 0.45);
+	}
 	.block {
 		position: relative;
+		z-index: 1;
 		margin-left: var(--side);
 		display: flex;
 		flex-direction: column;
@@ -568,6 +595,7 @@
 	}
 	.shutter {
 		position: absolute;
+		z-index: 1;
 		left: calc(100% + var(--side));
 		top: 0;
 		width: var(--shutter);

@@ -309,6 +309,15 @@ roll marks the moment the frame is stored.
 Thick red line on top of the header, thick Fujifilm-green line under it; a 1 px red
 hairline frames the whole screen — header sides included — joining the red top line.
 
+## D38 — A camera-body shell instead of the red frame · 2026-09-23
+
+Supersedes D37 (Thomas: the red frame was visually too hard). The header keeps only
+its own lines — Fujifilm green on top, red at the bottom. The camera area gets a
+discreet grey shell drawn in stage (landscape) terms: a thin edge along the top and
+bottom, open towards the header, and a larger rounded grip at the right end behind
+the shutter with a faint leatherette grain — the ergonomic right hand of a compact.
+Upright on screen: thin edges down both sides, the grip at the bottom.
+
 ---
 
 ## Open questions
