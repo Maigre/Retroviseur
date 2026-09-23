@@ -22,6 +22,9 @@
 - [x] Collect early (from phase 3): zip → share/download → confirmed wipe — D26
 - [x] Feedback round 2: layout v3 (finder first, one control deck, vertical wheel off the edges, cq-based sizing, no text-scale), back gesture closes overlays, dev viewer with reachable prev/next/close, 90s Fuji/Kodak palette — D28, D29
 - [x] Layout v4: landscape camera body on a portrait-locked screen, yellow header — D31
+- [x] Real flash: fillLightMode 'flash' or torch around the capture; switch only when supported — D35
+- [ ] Vibration + flash on the Jelly Star (installed via Brave): read the dev panel's device report
+- [ ] Chrome install fails on the Jelly Star — collect symptoms (Q10)
 - [ ] Vibration: fails in the Chrome tab on the Jelly Star — retest in the installed PWA
 - [ ] Check on the Jelly Star: vibration (dev panel → test vibration), saved-frame orientation in portrait and landscape (dev panel → view frames)
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
@@ -30,7 +33,7 @@
 ## Phase 2 — Film look
 - [ ] WebGL2 pipeline (FILM-LOOK.md pass order)
 - [ ] `/bench` route: both stocks on reference photos
-- [ ] Flash switch: Android torch; hidden on iOS (D15)
+- [x] Flash switch: real flash / torch, shown only when supported (D35)
 - [ ] Date stamp, light leaks
 - [ ] Pick `FILM_STOCK`
 

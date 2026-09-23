@@ -23,7 +23,7 @@
 		--muted: #9d9a8c;
 		--accent: #ffc20e; /* Kodak yellow */
 		--accent-fg: #111;
-		--band: #1c1f1c; /* a shade above the body, so it reads as a band */
+		--band: var(--bg); /* same black as the camera body */
 		--band-fg: #ffc20e; /* Kodak yellow on dark: ~11:1 */
 		--stripe: #e4002b; /* film-box red, under the band */
 		--stripe-2: #007a3d; /* Fujifilm green, over the band */
@@ -54,7 +54,7 @@
 		overflow: hidden;
 		container-type: size;
 		container-name: device;
-		background: radial-gradient(circle at 50% 45%, var(--body), var(--bg) 75%);
+		background: var(--bg);
 	}
 	/* Wide screens: a fake smartphone in the middle of the page. */
 	@media (min-width: 700px) and (min-height: 560px) {

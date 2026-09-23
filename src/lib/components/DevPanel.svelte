@@ -11,9 +11,10 @@
 		repo,
 		rolls,
 		lastCapture = '',
+		flashReport = '',
 		onchange,
 		onexit
-	}: { repo: RollRepository; rolls: Roll[]; lastCapture?: string; onchange: () => Promise<void>; onexit: () => void } = $props();
+	}: { repo: RollRepository; rolls: Roll[]; lastCapture?: string; flashReport?: string; onchange: () => Promise<void>; onexit: () => void } = $props();
 
 	let busy = $state(false);
 	let frames = $state<DevFrame[]>([]);
@@ -114,6 +115,11 @@
 		>
 	</div>
 	{#if lastCapture}<p class="log">last shot: {lastCapture}</p>{/if}
+	<p class="log">
+		flash: {flashReport || 'camera not opened yet'} · vibrate {'vibrate' in navigator ? 'present' : 'MISSING'} ·
+		{navigator.userAgent.match(/(Chrome|Brave|Firefox|Safari)\/[\d.]+/g)?.join(' ') ?? navigator.userAgent}
+		{matchMedia('(display-mode: standalone)').matches ? ' · installed' : ' · browser tab'}
+	</p>
 	{#if log}<p class="log">{log}</p>{/if}
 
 	{#if frames.length}

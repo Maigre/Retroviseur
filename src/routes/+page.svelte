@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { CameraError, captureStill, closeCamera, openCamera } from '$lib/camera/capture';
+	import { CameraError, captureStill, closeCamera, flashSupport, openCamera, type FlashSupport } from '$lib/camera/capture';
 	import { buzz, HAPTIC, Sounds } from '$lib/camera/sound';
 	import { Winder } from '$lib/camera/winder';
 	import DevPanel from '$lib/components/DevPanel.svelte';
@@ -14,7 +14,7 @@
 	import { onBack } from '$lib/back';
 	import { install, promptInstall } from '$lib/install.svelte';
 	import { LocalTimelockLab } from '$lib/lab/local-timelock';
-	import { hasFlash, isAndroid, isIOS, isStandalone, persistStorage } from '$lib/platform';
+	import { isAndroid, isIOS, isStandalone, persistStorage } from '$lib/platform';
 	import { RollRepository } from '$lib/roll/repository';
 	import { dropOff, framesLeft, markReady } from '$lib/roll/roll';
 	import { canDropOff } from '$lib/roll/rules';
@@ -52,6 +52,9 @@
 
 	let dev = $state(false);
 	let lastCapture = $state('');
+	// what the opened camera can do for the flash switch (D35); null = nothing
+	let flashCaps = $state<FlashSupport | null>(null);
+	let flashReport = $state('');
 	let devTaps: number[] = [];
 
 	const inCamera = $derived(rolls.find((r) => r.state === 'loaded' || r.state === 'full'));
@@ -119,6 +122,10 @@
 			video.srcObject = stream;
 			await video.play();
 			camera = 'live';
+			const f = await flashSupport(stream).catch(() => null);
+			flashCaps = f && (f.fill || f.torch) ? f : null;
+			flashReport = f?.report ?? 'unknown';
+			if (!flashCaps) flash = false;
 			if (!visible) stopCamera(); // hidden while the permission prompt was up
 		} catch (e) {
 			closeCamera(stream);
@@ -176,7 +183,7 @@
 		const t0 = performance.now();
 		try {
 			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
-			const still = await captureStill(stream, video, turned ? -90 : 0);
+			const still = await captureStill(stream, video, turned ? -90 : 0, flash ? flashCaps : null);
 			const tCapture = performance.now();
 			await repo.recordFrame(inCamera.id, await still.jpeg.arrayBuffer(), flash);
 			const track = stream.getVideoTracks()[0]?.getSettings();
@@ -298,7 +305,7 @@
 								<span class="digits" in:fly={{ y: -18, duration: 320 }}>{String(framesLeft(inCamera)).padStart(2, '0')}</span>
 							{/key}
 						</button>
-						{#if hasFlash()}<FlashToggle bind:on={flash} label={t('flash')} />{/if}
+						{#if flashCaps}<FlashToggle bind:on={flash} label={t('flash')} />{/if}
 					</div>
 					<div class="winder">
 						<Thumbwheel {armed} {turned} label={t('wind')} onflick={flick} ontick={tick} />
@@ -387,7 +394,7 @@
 {/if}
 
 {#if dev && repo}
-	<DevPanel {repo} {rolls} {lastCapture} onchange={refresh} onexit={() => ((dev = false), setDev(false))} />
+	<DevPanel {repo} {rolls} {lastCapture} {flashReport} onchange={refresh} onexit={() => ((dev = false), setDev(false))} />
 {/if}
 
 <style>
@@ -400,6 +407,9 @@
 		min-height: 0;
 		min-width: 0;
 		box-sizing: border-box;
+		/* the header's red line continues down both sides and along the bottom */
+		border: 0.22rem solid var(--stripe);
+		border-top: 0;
 		padding: 0.6rem max(0.6rem, env(safe-area-inset-right)) max(0.6rem, env(safe-area-inset-bottom))
 			max(0.6rem, env(safe-area-inset-left));
 	}
@@ -418,12 +428,12 @@
 	   against the device instead. */
 	.stage {
 		--gap: 0.6rem;
-		/* the block sits this far from the header edge, and the shutter this far
-		   from the block — equal breathing room on both sides */
-		--side: calc((100cqw - var(--fw) + 2 * var(--gap)) / 4);
+		/* header → block, block → shutter and shutter → edge are all this wide,
+		   so the shutter sits centred in the free space on the right */
+		--side: calc((100cqw - var(--fw) - var(--shutter)) / 3);
 		--shutter: clamp(2.5rem, 17cqh, 4.2rem);
 		--fw: min(
-			calc(100cqw - 2 * (var(--shutter) + var(--gap)) - 1.6rem),
+			calc(100cqw - var(--shutter) - 3 * max(var(--gap), 1.2rem)),
 			calc((100cqh - var(--shutter) - var(--gap) - 0.9rem) * 3 / 2)
 		);
 		position: absolute;

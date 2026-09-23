@@ -48,13 +48,16 @@
 		padding: calc(0.85rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.85rem
 			max(0.6rem, env(safe-area-inset-left));
 	}
+	/* centred between the band's left edge and the first button */
 	h1 {
+		flex: 1;
+		text-align: center;
 		margin: 0;
 		min-width: 0;
 		overflow: hidden;
 		text-overflow: clip;
 		white-space: nowrap;
-		font: clamp(1.35rem, 8cqw, 1.8rem) / 1 var(--font);
+		font: italic clamp(1.35rem, 8cqw, 1.8rem) / 1 var(--font); /* VT323 has no italic: slanted by the browser */
 		letter-spacing: 0.08em;
 	}
 	.actions {

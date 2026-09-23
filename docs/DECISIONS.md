@@ -277,6 +277,22 @@ roll marks the moment the frame is stored.
   as it is from the shutter (`--side`); the shutter keeps its place.
 - Taller header (more padding, same lettering).
 
+## D35 — A flash switch that really fires; frame and header polish · 2026-09-23
+
+- Supersedes D15. Until now the switch only recorded "flash on" in the frame's
+  metadata. It now fires: `takePhoto({ fillLightMode: 'flash' })` where the
+  camera reports it, otherwise the torch is lit around the capture. The switch is
+  shown **only when the opened camera reports a flash or a torch** — hidden
+  anywhere else (iOS included) instead of a switch that does nothing. The dev
+  panel reports what the device exposes (fill-light modes, torch, vibrate,
+  browser, installed or tab).
+- Held sideways, header → block, block → shutter and shutter → edge are equal:
+  the shutter sits centred in the free space on the right.
+- Header: same black as the camera body, green line on top; RETROVISEUR centred
+  between the band's left edge and the first button, slanted (VT323 has no
+  italic — the browser obliques it). The header's red bottom line continues
+  around the camera area (sides and bottom).
+
 ---
 
 ## Open questions
@@ -291,4 +307,5 @@ roll marks the moment the frame is stored.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - **Q8 — Date stamp format**: `'26 9 23` (classic Japanese compact) or `23 9 '26`?
+- **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
 - **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19).

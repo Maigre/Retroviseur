@@ -8,15 +8,6 @@ export function isAndroid(nav: Pick<Navigator, 'userAgent'> | undefined = global
 	return !!nav && /Android/.test(nav.userAgent);
 }
 
-/**
- * Flash switch availability (D14). The browser can't reliably drive the
- * torch on iOS, so the switch is hidden there until the native (Capacitor)
- * app can use the real flash.
- */
-export function hasFlash(): boolean {
-	return !isIOS();
-}
-
 /** Launched from the home screen (installed PWA) rather than a browser tab. */
 export function isStandalone(): boolean {
 	return (
