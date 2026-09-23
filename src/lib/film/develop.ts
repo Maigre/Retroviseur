@@ -267,13 +267,13 @@ export function develop(src: HTMLCanvasElement, opts: DevelopOptions): HTMLCanva
 		L.pass('blur', a.fb, sw, sh, [['src', b.tex]], (u) => gl.uniform2f(u('dir'), 0, spread / sh));
 	}
 
-	// the stamp sits bottom-right, digits ~2.6 % of the short side tall (D41)
+	// the stamp sits bottom-right, digits ~2.1 % of the short side tall (D43)
 	let stampTex: WebGLTexture | null = null;
 	let rect: [number, number, number, number] = [0, 0, 0, 0];
 	if (opts.stamp) {
-		const stamp = drawStamp(opts.stamp, Math.min(w, h) * 0.026);
+		const stamp = drawStamp(opts.stamp, Math.min(w, h) * 0.021);
 		stampTex = L.texture(stamp);
-		const margin = Math.min(w, h) * 0.045;
+		const margin = Math.min(w, h) * 0.045 - Math.min(w, h) * 0.021 * 0.7;
 		const x1 = (w - margin) / w;
 		const x0 = x1 - stamp.width / w;
 		const y0 = margin / h; // uv y is bottom-up

@@ -31,16 +31,17 @@ export function drawStamp(text: string, height: number): HTMLCanvasElement {
 	const gap = h * 0.2;
 	const th = Math.max(1.5, h * 0.11); // segment thickness
 	const glyph = (ch: string) => (ch === ' ' ? w7 * 0.55 : ch === "'" ? th * 2.2 : w7);
-	const width = Math.ceil([...text].reduce((a, ch) => a + glyph(ch) + gap, gap * 2));
+	const pad = h * 0.7; // room for the glow on every side
+	const width = Math.ceil([...text].reduce((a, ch) => a + glyph(ch) + gap, 0) - gap + pad * 2);
 	const c = document.createElement('canvas');
 	c.width = width;
-	c.height = Math.ceil(h * 1.5);
+	c.height = Math.ceil(h + pad * 2);
 	const g = c.getContext('2d')!;
 	g.lineCap = 'round';
 	g.lineWidth = th;
 	const draw = () => {
-		let x = gap * 1.5;
-		const y0 = h * 0.25;
+		let x = pad;
+		const y0 = pad;
 		const mid = y0 + h / 2;
 		const bot = y0 + h;
 		for (const ch of text) {
@@ -77,12 +78,17 @@ export function drawStamp(text: string, height: number): HTMLCanvasElement {
 			x += glyph(ch) + gap;
 		}
 	};
-	g.strokeStyle = 'rgba(255, 110, 20, 0.55)';
-	g.shadowColor = 'rgba(255, 90, 10, 0.9)';
-	g.shadowBlur = h * 0.35;
+	// wide halo first, then the digits themselves, slightly out of focus —
+	// light exposed into the emulsion rather than ink on top (D43)
+	g.strokeStyle = 'rgba(255, 110, 20, 0.5)';
+	g.shadowColor = 'rgba(255, 90, 10, 0.95)';
+	g.shadowBlur = h * 0.65;
+	draw();
 	draw();
 	g.shadowBlur = 0;
-	g.strokeStyle = 'rgba(255, 150, 40, 0.92)';
+	g.filter = `blur(${Math.max(0.5, h * 0.05)}px)`; // ignored where unsupported
+	g.strokeStyle = 'rgba(255, 150, 40, 0.9)';
 	draw();
+	g.filter = 'none';
 	return c;
 }

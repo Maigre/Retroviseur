@@ -35,7 +35,7 @@ crop/rotation, before JPEG encoding and sealing:
    6. **Vignette**.
    7. **Light leak** (first/last frame, `leak.ts`): warm fog screened in from
       one edge, wobbly front; edge and reach fixed per roll.
-   8. **Date stamp** (`stamp.ts`): orange 7-segment `23 9 '26`, small and squat, with a glow, at 65 % (`STAMP_OPACITY`),
+   8. **Date stamp** (`stamp.ts`): orange 7-segment `23 9 '26`, small and squat (~2.1 % of the short side), wide halo, slightly blurred digits, at 50 % (`STAMP_OPACITY`),
       screened in bottom-right *before* grain, like an imprint.
    9. **Grain**: two octaves of value noise on an integer hash (pcg2d — a float
       hash left visible stripes), sized from 12 MP, strongest in the mid-tones,

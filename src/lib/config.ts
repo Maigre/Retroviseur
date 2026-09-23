@@ -24,8 +24,8 @@ export const FILM_STOCK: FilmStockId = 'superia400';
 
 /** Orange date imprint on every frame, `23 9 '26` (D41). */
 export const DATE_STAMP = true;
-/** How strongly the imprint shows (1 = full); lower blends it into the picture (D42). */
-export const STAMP_OPACITY = 0.65;
+/** How strongly the imprint shows (1 = full); lower blends it into the picture (D42, D43). */
+export const STAMP_OPACITY = 0.5;
 
 /** Frames fogged by light leaks at the head and tail of the roll. */
 export const LEAK_HEAD_FRAMES = 1;

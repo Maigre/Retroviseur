@@ -350,6 +350,12 @@ digits ~2.6 % of the frame's short side tall (was 4.5 %), squatter (width 0.68 �
 The imprint is screened in at 65 % (`STAMP_OPACITY`), so the picture shows through
 the digits and their glow, closer to a real imprint on the emulsion.
 
+## D43 — Softer, smaller imprint · 2026-09-23
+
+Refines D41/D42 (Thomas: blend more, a bit smaller, more glow/blur). Opacity 50 %,
+digits ~2.1 % of the short side tall, a wider halo (two passes) and the digits
+themselves slightly blurred — light exposed into the emulsion, not ink on top.
+
 ---
 
 ## Open questions
