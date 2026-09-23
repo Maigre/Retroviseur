@@ -356,6 +356,22 @@ Refines D41/D42 (Thomas: blend more, a bit smaller, more glow/blur). Opacity 50 
 digits ~2.1 % of the short side tall, a wider halo (two passes) and the digits
 themselves slightly blurred — light exposed into the emulsion, not ink on top.
 
+## D44 — The lab: encrypted upload + a lab ticket, no email · 2026-09-23
+
+Replaces the "email lab" (D2's second step). The phone uploads the roll already
+encrypted to a small service on gaff; the key travels only in a **lab ticket**
+link (key after the `#`, never sent to the server) that the user hands to
+themselves or a friend through the share sheet ("this is your lab ticket, don't
+lose it — ready between Thu 25 and Sat 27"). The server draws the ready time
+(1–3 days), refuses pickup before it, destroys the roll 1 h after a complete
+pickup or 30 days after ready. The app keeps a backup ticket and shows "the lab
+called" a week before destruction (a phone-scheduled notification comes with the
+Android app — no server push). No emails, no accounts, no addresses, no
+proof-of-work for now; abuse is held by roll-shaped uploads, the time-lock, one
+pickup, expiry, a global cap and an in-memory per-IP limit. Access logs off for
+this host (holden; kxkm-prod block prepared for Thomas). Full spec:
+[LAB.md](LAB.md).
+
 ---
 
 ## Open questions
@@ -370,5 +386,6 @@ themselves slightly blurred — light exposed into the emulsion, not ink on top.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - ~~Q8 — Date stamp format~~ → `23 9 '26` (D41).
+- **Q11 — Hosting contact** to publish on the About page (LCEN), LAB.md.
 - **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
 - **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19).

@@ -44,13 +44,18 @@
 - [x] Collect: unseal → zip (fflate) → share sheet / download → confirmed wipe
 - [ ] Settle Q4 (contact sheet / roll.json in the archive?)
 
-## Phase 4 — Remote lab (email)
-- [ ] Small lab backend: upload sealed roll + wrapped key, develop, email a link
-- [ ] Key leaves the phone at drop-off (true lock)
-- [ ] Web Push "your prints are ready"
+## Phase 4 — The lab (ticket-based, [docs/LAB.md](docs/LAB.md))
+- [x] Design agreed — D44
+- [ ] `/api/lab` in the server + janitor, data dir on gaff, limits, tests
+- [ ] RemoteLab: resumable upload, commit, ticket hand-off (share / copy), wipe
+- [ ] At the lab: window, status on open, "the lab called" a week before expiry
+- [ ] `/lab/[id]` pickup page: developing / collect / contact sheet + zip / gone
+- [ ] nginx: holden access_log off + body size; kxkm-prod block for Thomas
+- [ ] About / privacy lines (hosting contact, Q11)
 
 ## Phase 5 — Native apps
 - [ ] Capacitor wrap (iOS/Android): native camera, haptics, local notifications
+- [ ] "The lab called" as a phone-scheduled local notification (no server push)
 - [ ] Flash switch back on iOS with the native flash
 - [ ] Store listings as **Retroviseur**
 

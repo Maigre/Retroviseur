@@ -22,8 +22,9 @@ the stock is being picked on the hidden `/bench`. See [ROADMAP.md](ROADMAP.md).
 2. **Wind** the thumbwheel (a few flicks, ratchet clicks + haptics) to arm the shutter.
 3. **Shoot** through a small tunnel viewfinder. The frame is gone: you can't see it or delete it.
 4. **Finish** the roll → **drop it at the lab**.
-5. **Wait** 1–3 days (you're not told exactly when).
-6. **Collect** the roll as an archive and discover it. The photos then leave the app.
+5. **Keep your lab ticket** — a link you send yourself; the roll leaves the phone.
+6. **Wait** 1–3 days (the ticket says between which days).
+7. **Collect** your prints from the ticket — the lab destroys the roll an hour later.
 
 ## Docs
 
@@ -33,6 +34,7 @@ the stock is being picked on the hidden `/bench`. See [ROADMAP.md](ROADMAP.md).
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Every key product/tech decision, with the why — and open questions |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, roll state machine, sealing, the pluggable *Lab*, platform limits |
 | [docs/FILM-LOOK.md](docs/FILM-LOOK.md) | The on-device Fujifilm look: pipeline and stock parameters |
+| [docs/LAB.md](docs/LAB.md) | The lab: encrypted upload, lab ticket, pickup, abuse and privacy model |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Production path (kxkm-prod → holden → gaff), deploy, LAN testing |
 | [ROADMAP.md](ROADMAP.md) | Phases from bench to app stores |
 
