@@ -407,7 +407,7 @@
 		min-height: 0;
 		min-width: 0;
 		box-sizing: border-box;
-		/* a hairline of the header's red runs down both sides and along the bottom */
+		/* the red hairline frame continues from the header down both sides and along the bottom */
 		border: 1px solid var(--stripe);
 		border-top: 0;
 		padding: 0.6rem max(0.6rem, env(safe-area-inset-right)) max(0.6rem, env(safe-area-inset-bottom))

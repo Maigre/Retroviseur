@@ -304,6 +304,11 @@ roll marks the moment the frame is stored.
 - The red line around the camera area is a 1 px hairline; the header keeps its
   thicker red bottom line.
 
+## D37 — Header stripes swapped, red hairline frame · 2026-09-23
+
+Thick red line on top of the header, thick Fujifilm-green line under it; a 1 px red
+hairline frames the whole screen — header sides included — joining the red top line.
+
 ---
 
 ## Open questions

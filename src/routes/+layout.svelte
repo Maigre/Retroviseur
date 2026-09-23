@@ -25,8 +25,8 @@
 		--accent-fg: #111;
 		--band: var(--bg); /* same black as the camera body */
 		--band-fg: #ffc20e; /* Kodak yellow on dark: ~11:1 */
-		--stripe: #e4002b; /* film-box red, under the band */
-		--stripe-2: #007a3d; /* Fujifilm green, over the band */
+		--stripe: #e4002b; /* film-box red: header top line + hairline frame */
+		--stripe-2: #007a3d; /* Fujifilm green: under the header */
 		--window: #e9e3cf; /* frame-counter window */
 		--font: 'VT323', ui-monospace, monospace;
 	}

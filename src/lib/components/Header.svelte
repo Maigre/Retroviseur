@@ -39,12 +39,15 @@
 		justify-content: space-between;
 		gap: 0.5rem;
 		min-width: 0;
-		/* film-box stripes: Fujifilm green on top (below the status bar), Kodak red under */
+		/* film-box stripes: red on top (below the status bar), Fujifilm green under;
+		   hairline red sides meet the top line and run on around the camera area */
 		background:
-			linear-gradient(var(--stripe-2), var(--stripe-2)) 0 env(safe-area-inset-top) / 100% 0.22rem no-repeat,
+			linear-gradient(var(--stripe), var(--stripe)) 0 env(safe-area-inset-top) / 100% 0.22rem no-repeat,
 			var(--band);
 		color: var(--band-fg);
-		border-bottom: 0.22rem solid var(--stripe);
+		border-bottom: 0.22rem solid var(--stripe-2);
+		border-left: 1px solid var(--stripe);
+		border-right: 1px solid var(--stripe);
 		padding: calc(0.85rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.85rem
 			max(0.6rem, env(safe-area-inset-left));
 	}
