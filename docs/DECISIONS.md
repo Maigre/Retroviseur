@@ -129,6 +129,14 @@ is validated from the laptop over the LAN (`npm run preview:lan`, DEPLOY.md).
 
 Tooling pinned to the active LTS line (`.nvmrc` = 24, `engines.node >= 24`).
 
+## D19 — Served from gaff at retroviseur.37m.gr · 2026-09-23
+
+Implements D17. Until a dedicated domain exists, the PWA lives at
+**https://retroviseur.37m.gr**: kxkm-prod (TLS) → holden (nginx vhost) → gaff
+(VM on Rachael, pm2, port 3001). A zero-dependency Node static server rather
+than nginx on gaff, since gaff hosts Node apps and has no local nginx.
+Details in [DEPLOY.md](DEPLOY.md).
+
 ---
 
 ## Open questions
@@ -144,4 +152,4 @@ Tooling pinned to the active LTS line (`.nvmrc` = 24, `engines.node >= 24`).
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - **Q8 — Date stamp format**: `'26 9 23` (classic Japanese compact) or `23 9 '26`?
-- **Q9 — Domain name** for the Rachael-hosted PWA.
+- **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19).

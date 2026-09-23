@@ -14,6 +14,8 @@ pictures once they are developed.
 the placeholder screen lets you feel the wind → shoot ritual, but there is no
 camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
 
+**Live:** https://retroviseur.37m.gr · deploy with `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
+
 ## The ritual
 
 1. **Load** a roll — 27 frames. One roll in the camera, one at the lab.
@@ -31,7 +33,7 @@ camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Every key product/tech decision, with the why — and open questions |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, roll state machine, sealing, the pluggable *Lab*, platform limits |
 | [docs/FILM-LOOK.md](docs/FILM-LOOK.md) | The on-device Fujifilm look: pipeline and stock parameters |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Self-hosting the PWA |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Production path (kxkm-prod → holden → gaff), deploy, LAN testing |
 | [ROADMAP.md](ROADMAP.md) | Phases from bench to app stores |
 
 ## Develop

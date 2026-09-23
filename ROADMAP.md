@@ -16,7 +16,7 @@
 - [ ] Shutter sound, finder blackout
 - [ ] PWA: service worker (offline), icons, iOS "Add to Home Screen" onboarding
 - [x] LAN validation from the laptop (`npm run preview:lan`, self-signed HTTPS)
-- [ ] Deploy to the Node VM on Rachael (D17, details pending)
+- [x] Deployed to gaff → https://retroviseur.37m.gr (`deploy/deploy.sh`, D19)
 
 ## Phase 2 — Film look
 - [ ] WebGL2 pipeline (FILM-LOOK.md pass order)
