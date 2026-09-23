@@ -318,6 +318,15 @@ bottom, open towards the header, and a larger rounded grip at the right end behi
 the shutter with a faint leatherette grain — the ergonomic right hand of a compact.
 Upright on screen: thin edges down both sides, the grip at the bottom.
 
+## D39 — One camera body: the header is its left end · 2026-09-23
+
+Refines D38 (Thomas: the header felt on top of the camera, not part of it). A single
+grey shell with a slim black margin now wraps the whole screen. Held sideways its
+left end — tighter corners — carries the header, sitting on the body plate like a
+painted label (green along the body's edge, red as the seam to the rest), and its
+right end is the rounded grip behind the shutter. The header has no band of its
+own any more.
+
 ---
 
 ## Open questions

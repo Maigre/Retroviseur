@@ -33,20 +33,19 @@
 </header>
 
 <style>
+	/* The header is the camera body's left end (held sideways): no band of its
+	   own, it sits on the body plate like a painted label. Green along the
+	   body's edge, red as the seam to the rest of the camera. */
 	header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.5rem;
 		min-width: 0;
-		/* film-box stripes: Fujifilm green on top (below the status bar), red under */
-		background:
-			linear-gradient(var(--stripe-2), var(--stripe-2)) 0 env(safe-area-inset-top) / 100% 0.22rem no-repeat,
-			var(--band);
 		color: var(--band-fg);
+		border-top: 0.22rem solid var(--stripe-2);
 		border-bottom: 0.22rem solid var(--stripe);
-		padding: calc(0.85rem + 0.22rem + env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) 0.85rem
-			max(0.6rem, env(safe-area-inset-left));
+		padding: 0.75rem 0.7rem;
 	}
 	/* centred between the band's left edge and the first button */
 	h1 {

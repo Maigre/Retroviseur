@@ -268,6 +268,8 @@
 </script>
 
 <div class="app">
+<!-- one camera body: the header is its left end (held sideways), the grip its right end -->
+<div class="shell">
 	<Header onabout={() => (about = true)} onnotice={(m) => (notice = m)} />
 
 	{#if !booted}
@@ -353,6 +355,7 @@
 		</main>
 	{/if}
 </div>
+</div>
 
 {#if booted && !installGate && shooting && atLab && !collecting}
 	<!-- while shooting, the lab status is a small tag over the finder, never over the controls -->
@@ -398,17 +401,36 @@
 {/if}
 
 <style>
+	/* The whole screen is one camera body (D39): a grey shell with a slim black
+	   margin. Held sideways, its left end carries the header, its right end the
+	   rounded grip — so the tighter corners are on the header side (the screen's
+	   top) and the fuller ones on the grip side (the screen's bottom). */
 	.app {
 		height: 100%;
+		box-sizing: border-box;
+		padding: calc(env(safe-area-inset-top) + 0.3rem) calc(env(safe-area-inset-right) + 0.3rem)
+			calc(env(safe-area-inset-bottom) + 0.3rem) calc(env(safe-area-inset-left) + 0.3rem);
+	}
+	.shell {
+		height: 100%;
+		box-sizing: border-box;
 		display: grid;
 		grid-template-rows: auto minmax(0, 1fr);
+		border: 2px solid var(--shell);
+		border-radius: 1.3rem 1.3rem 2.2rem 2.2rem;
+		overflow: hidden;
+		background: linear-gradient(90deg, var(--shell-in), var(--bg) 45%, var(--bg) 55%, var(--shell-in));
+	}
+	@container device (orientation: landscape) {
+		.shell {
+			border-radius: 1.3rem 2.2rem 2.2rem 1.3rem;
+		}
 	}
 	main {
 		min-height: 0;
 		min-width: 0;
 		box-sizing: border-box;
-		padding: 0.6rem max(0.6rem, env(safe-area-inset-right)) max(0.6rem, env(safe-area-inset-bottom))
-			max(0.6rem, env(safe-area-inset-left));
+		padding: 0.6rem;
 	}
 	/* Camera stage, laid out in landscape. Sizes come from the stage container
 	   (cq* units), never from rem alone. */
@@ -443,30 +465,18 @@
 		padding: 0.6rem 0;
 		box-sizing: border-box;
 	}
-	/* The camera body, drawn behind the controls in stage (landscape) terms: a
-	   thin grey edge along the top and bottom, open towards the header, and a
-	   larger rounded grip on the right behind the shutter — like a compact's
-	   ergonomic hand grip, with a faint leatherette grain. */
-	.stage::before,
+	/* The grip, drawn behind the shutter at the stage's right end (the shell's
+	   grip end): a rounded, faintly grained pad like a compact's hand grip. */
 	.stage::after {
 		content: '';
 		position: absolute;
 		pointer-events: none;
-	}
-	.stage::before {
-		inset: 0.3rem 0.3rem 0.3rem 0;
-		border: 2px solid var(--shell);
-		border-left: 0;
-		border-radius: 0 2.2rem 2.2rem 0;
-		background: linear-gradient(var(--shell-in), var(--bg) 70%);
-	}
-	.stage::after {
-		top: 0.3rem;
-		bottom: 0.3rem;
-		right: 0.3rem;
+		top: 0;
+		bottom: 0;
+		right: 0;
 		width: calc(var(--shutter) + 1.2 * var(--side));
-		border: 2px solid var(--shell);
-		border-radius: 1.2rem 2.2rem 2.2rem 1.2rem;
+		border-left: 2px solid var(--shell);
+		border-radius: 1.2rem 0 0 1.2rem;
 		background:
 			radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.035) 0.6px, transparent 1.2px) 0 0 / 5px 5px,
 			linear-gradient(90deg, #181a18, #121412);
