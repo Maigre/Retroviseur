@@ -38,5 +38,11 @@
 	"display_override": [
 		"fullscreen",
 		"standalone"
+	],
+	"related_applications": [
+		{
+			"platform": "webapp",
+			"url": "https://retroviseur.37m.gr/manifest.webmanifest"
+		}
 	]
 }

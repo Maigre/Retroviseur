@@ -416,6 +416,18 @@ only reachable through an explicit, remembered choice ("Use it in the browser
 instead", on the welcome screen or after a failed install); the About sheet offers
 "Install the app" to change one's mind.
 
+## D49 — "Installed" only when it really is · 2026-09-23
+
+Watched on Thomas's Jelly Star over adb: Chrome builds the app on Google's servers
+and hands it to the **Play Store's install queue**, which runs it after pending app
+updates (about 20 that evening) — minutes of waiting, during which Chrome already
+fires `appinstalled` and its "Installing…" notification can be dismissed; every
+retry queued another app, so several could land later. The page now says Android
+is finishing through the Play Store and not to tap Install again, and declares
+itself in `related_applications` so `getInstalledRelatedApps` can confirm the real
+install (polled every 5 s) before showing "Installed"; a later visit in the browser
+sees the installed app instead of an Install offer.
+
 ---
 
 ## Open questions

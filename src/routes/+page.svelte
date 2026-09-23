@@ -15,7 +15,7 @@
 	import { devEnabled, devLabEnabled, setDev } from '$lib/dev';
 	import { detectLang, t, tf, type MessageKey } from '$lib/i18n';
 	import { onBack } from '$lib/back';
-	import { install, promptInstall } from '$lib/install.svelte';
+	import { install, promptInstall, reallyInstalled } from '$lib/install.svelte';
 	import { LocalTimelockLab } from '$lib/lab/local-timelock';
 	import { LabClosedError, RemoteLab, type RemoteTicketData } from '$lib/lab/remote';
 	import { formatDay, formatWindow, ticketMessage } from '$lib/lab/ticket';
@@ -86,7 +86,11 @@
 
 	onMount(() => {
 		dev = devEnabled();
-		if (!isStandalone() && !browserMode()) installGate = platformGate();
+		if (!isStandalone() && !browserMode()) {
+			installGate = platformGate();
+			// already installed (e.g. a second visit in the browser): say so, don't offer again
+			void reallyInstalled().then((yes) => yes && (install.installed = true));
+		}
 		void (async () => {
 			repo = await RollRepository.open();
 			local = new LocalTimelockLab(repo);
@@ -340,8 +344,15 @@
 	async function installNow() {
 		installStage = 'installing';
 		const accepted = await promptInstall();
-		// accepted: Chrome builds the app in the background; stay here until it's done
-		if (!accepted) installStage = 'failed';
+		if (!accepted) return void (installStage = 'failed');
+		// Chrome builds the app, then the Play Store installs it from its queue:
+		// wait for the real thing (up to ~20 min), checking every few seconds
+		for (let i = 0; i < 240 && installGate; i++) {
+			const yes = await reallyInstalled();
+			if (yes) return void (install.installed = true);
+			if (yes === null) return; // can't tell here: the "installing" text stays
+			await new Promise((r) => setTimeout(r, 5000));
+		}
 	}
 
 	function useInBrowser() {
