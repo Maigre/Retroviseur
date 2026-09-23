@@ -2,9 +2,13 @@ import { zipSync } from 'fflate';
 import type { Roll } from '../roll/types';
 import { unseal } from '../roll/seal';
 import { drawReadyAt } from './develop-time';
+import { contactSheet, rollJson } from './extras';
+import type { Manifest } from './archive';
 import type { Delivery, Lab, LabStatus, LabTicket, SealedFrame } from './types';
 
 /** Where the local lab reads a roll back from (the RollRepository). */
+const VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';
+
 export interface FrameSource {
 	key(rollId: string): Promise<CryptoKey>;
 	frames(rollId: string): AsyncIterable<SealedFrame>;
@@ -37,12 +41,22 @@ export class LocalTimelockLab implements Lab {
 		if (roll.state !== 'ready') throw new Error(`a ${roll.state} roll cannot be collected`);
 		const key = await this.source.key(roll.id);
 		const entries: Record<string, [Uint8Array, { level: 0; mtime: Date }]> = {};
+		const manifest: Manifest = { v: 1, stock: roll.stock, loadedAt: roll.loadedAt, exposures: roll.exposures, frames: [] };
+		const jpegs: Blob[] = [];
 		for await (const f of this.source.frames(roll.id)) {
 			const bytes = new Uint8Array(await unseal(key, f.sealed));
+			manifest.frames.push(f.meta);
+			jpegs.push(new Blob([bytes], { type: 'image/jpeg' }));
 			entries[`${archiveName(roll)}/${String(f.meta.index + 1).padStart(2, '0')}.jpg`] = [
 				bytes,
 				{ level: 0, mtime: new Date(f.meta.takenAt) }
 			];
+		}
+		// the extras (D53): roll.json always; the contact sheet where a canvas exists
+		entries[`${archiveName(roll)}/roll.json`] = [new TextEncoder().encode(rollJson(manifest, VERSION)), { level: 0, mtime: new Date() }];
+		if (typeof document !== 'undefined') {
+			const sheet = new Uint8Array(await (await contactSheet(jpegs, manifest)).arrayBuffer());
+			entries[`${archiveName(roll)}/contact-sheet.jpg`] = [sheet, { level: 0, mtime: new Date() }];
 		}
 		const zip = zipSync(entries);
 		return {

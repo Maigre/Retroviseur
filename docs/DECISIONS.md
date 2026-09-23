@@ -428,6 +428,32 @@ itself in `related_applications` so `getInstalledRelatedApps` can confirm the re
 install (polled every 5 s) before showing "Installed"; a later visit in the browser
 sees the installed app instead of an Install offer.
 
+## D50 — First-launch explanation · 2026-09-23
+
+Four cards before the first roll — a disposable camera (27, no preview, no delete) →
+hold it sideways → wind, then shoot → take it to the lab (1–3 days, keep the
+ticket) — with small line drawings in the camera's palette, swipe or Next, Skip.
+Shown once (`retroviseur-intro-seen`), and again from About → "How it works".
+
+## D51 — Storage safety · 2026-09-23
+
+A roll is only loaded when about 108 MB are free (27 × a 4 MB per-frame budget); a
+frame is only shot when 4 MB are free — the film stays wound, nothing is lost. A
+quota error while storing says "this phone is full — that frame was not taken"
+instead of the generic failure. Where the browser won't estimate, nothing blocks.
+
+## D52 — "A new version is ready" · 2026-09-23
+
+When a new build's service worker takes over an open page, a bar offers "tap to
+reload" — never an automatic reload mid-shot or mid-upload. An app left open checks
+for updates when it comes back to the foreground and every 30 minutes.
+
+## D53 — Extras with the prints (answers Q4) · 2026-09-23
+
+Every zip — lab pickup page and dev lab — holds the frames plus `contact-sheet.jpg`
+(all prints numbered like film edge marks, flash marked, film and date in the
+header) and `roll.json` (app version, film, load date, per-frame time and flash).
+
 ---
 
 ## Open questions
@@ -435,13 +461,12 @@ sees the installed app instead of an Install offer.
 - ~~Q1 — Which box / domain~~ → D17 (VM on Rachael; domain still to set).
 - ~~Q2 — Flash on iOS~~ → D15.
 - ~~Q3 — Next roll while developing?~~ → D14.
-- **Q4 — Archive contents**: JPEGs only for now (D26); add a contact sheet or
-  a `roll.json`?
+- ~~Q4 — Archive contents~~ → frames + contact sheet + roll.json (D53).
 - ~~Q5 — Archive timing~~ → built at collection (D26).
 - ~~Q6 — Ready notification~~ → D16.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - ~~Q8 — Date stamp format~~ → `23 9 '26` (D41).
-- **Q11 — Hosting contact** to publish on the About page (LCEN), LAB.md.
+- **Q11 — Hosting contact** (LCEN) — once the dedicated domain is chosen (Q9).
 - **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
-- **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19).
+- **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19) — Thomas is thinking about it.

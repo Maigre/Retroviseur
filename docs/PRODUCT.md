@@ -52,6 +52,8 @@ sheet, or copy the link). On a wide screen the app is framed as a phone.
 Android's back gesture closes sheets and overlays first, never the app by
 accident.
 
+0. **First launch** — four cards: a disposable camera → hold it sideways → wind,
+   then shoot → take it to the lab (D50); replayable from About.
 1. **Install gate** (iOS and Android browsers) — add to Home Screen first
    (Android: the Install button), skippable.
 2. **Camera body** — the only real screen (D31): a **landscape camera on a

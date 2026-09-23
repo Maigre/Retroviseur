@@ -8,6 +8,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import { detectLang, t, tf, type MessageKey } from '$lib/i18n';
 	import { parseArchive, unpackSealed, type Manifest } from '$lib/lab/archive';
+	import { contactSheet, rollJson } from '$lib/lab/extras';
 	import { formatWindow, ID_RE, importKey, KEY_RE } from '$lib/lab/ticket';
 	import { unseal } from '$lib/roll/seal';
 
@@ -22,6 +23,7 @@
 	let progress = $state(0);
 	let prints = $state<{ n: number; url: string; blob: Blob; takenAt: number }[]>([]);
 	let rollName = $state('retroviseur');
+	let rollManifest: Manifest | null = null;
 	let zoom = $state<number | null>(null);
 	let now = $state(Date.now());
 	let notice = $state<MessageKey | null>(null);
@@ -93,6 +95,7 @@
 			const k = await importKey(key);
 			const { manifest, frames } = parseArchive(buf);
 			const m: Manifest = JSON.parse(new TextDecoder().decode(await unseal(k, unpackSealed(manifest))));
+			rollManifest = m;
 			const d = new Date(m.loadedAt);
 			rollName = `retroviseur-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 			const out = [];
@@ -120,6 +123,13 @@
 		const files: Record<string, [Uint8Array, { level: 0; mtime: Date }]> = {};
 		for (const p of prints) {
 			files[`${rollName}/${String(p.n).padStart(2, '0')}.jpg`] = [new Uint8Array(await p.blob.arrayBuffer()), { level: 0, mtime: new Date(p.takenAt || Date.now()) }];
+		}
+		// the extras (D53): a contact sheet and roll.json alongside the frames
+		if (rollManifest) {
+			const opts = { level: 0 as const, mtime: new Date() };
+			files[`${rollName}/roll.json`] = [new TextEncoder().encode(rollJson(rollManifest, __APP_VERSION__)), opts];
+			const sheet = await contactSheet(prints.map((p) => p.blob), rollManifest);
+			files[`${rollName}/contact-sheet.jpg`] = [new Uint8Array(await sheet.arrayBuffer()), opts];
 		}
 		const zip = zipSync(files);
 		download(new Blob([zip as Uint8Array<ArrayBuffer>], { type: 'application/zip' }), `${rollName}.zip`);

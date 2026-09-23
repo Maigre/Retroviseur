@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { t } from '$lib/i18n';
+	import { update } from '$lib/update.svelte';
 	let { children } = $props();
 	// the developer bench uses the whole window
 	const bare = $derived(page.url.pathname.startsWith('/bench'));
@@ -11,6 +13,10 @@
 {:else}
 	<div class="device">
 		{@render children()}
+		{#if update.ready}
+			<!-- a new build took over: offer the reload, never force it mid-shot (D52) -->
+			<button class="update" onclick={() => location.reload()}>{t('updateReady')}</button>
+		{/if}
 	</div>
 {/if}
 
@@ -64,6 +70,20 @@
 		container-type: size;
 		container-name: device;
 		background: var(--bg);
+	}
+	.update {
+		position: absolute;
+		left: 0.8rem;
+		right: 0.8rem;
+		bottom: calc(env(safe-area-inset-bottom) + 0.8rem);
+		z-index: 50;
+		padding: 0.7rem;
+		border: 0;
+		border-radius: 0.6rem;
+		background: var(--accent);
+		color: var(--accent-fg);
+		font: 1.1rem var(--font);
+		box-shadow: 0 0.3rem 1rem rgb(0 0 0 / 0.6);
 	}
 	/* Wide screens: a fake smartphone in the middle of the page. */
 	@media (min-width: 700px) and (min-height: 560px) {

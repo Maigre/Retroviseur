@@ -23,7 +23,8 @@ it('develops a full roll into a zip of its frames, then the roll can be removed'
 	expect(delivery.file.name).toBe('retroviseur-2026-09-23.zip');
 	const files = unzipSync(new Uint8Array(await delivery.file.arrayBuffer()));
 	const names = Object.keys(files).sort();
-	expect(names).toHaveLength(EXPOSURES);
+	expect(names).toHaveLength(EXPOSURES + 1); // + roll.json (the contact sheet needs a canvas)
+	expect(JSON.parse(new TextDecoder().decode(files['retroviseur-2026-09-23/roll.json'])).frames).toHaveLength(EXPOSURES);
 	expect(names[0]).toBe('retroviseur-2026-09-23/01.jpg');
 	expect(new TextDecoder().decode(files['retroviseur-2026-09-23/27.jpg'])).toBe('jpeg-26');
 

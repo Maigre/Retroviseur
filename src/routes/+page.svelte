@@ -7,6 +7,8 @@
 	import DevPanel from '$lib/components/DevPanel.svelte';
 	import FlashToggle from '$lib/components/FlashToggle.svelte';
 	import Header from '$lib/components/Header.svelte';
+	import Intro from '$lib/components/Intro.svelte';
+	import { freeBytes, FRAME_BYTES, isQuotaError, ROLL_BYTES } from '$lib/storage/space';
 	import Thumbwheel from '$lib/components/Thumbwheel.svelte';
 	import { DATE_STAMP, FILM_STOCK, SHUTTER_BLACKOUT_MS } from '$lib/config';
 	import { leakFor } from '$lib/film/leak';
@@ -49,6 +51,10 @@
 	let busy = $state(false);
 	let blackout = $state(false);
 	let notice = $state<MessageKey | null>(null);
+	let noticeVars = $state<Record<string, string | number>>({});
+	// first-launch explanation (D50): shown once, and again from About
+	let intro = $state(false);
+	const INTRO_KEY = 'retroviseur-intro-seen';
 
 	let video = $state<HTMLVideoElement>();
 	let stream: MediaStream | undefined;
@@ -92,6 +98,11 @@
 			void reallyInstalled().then((yes) => yes && (install.installed = true));
 		}
 		void (async () => {
+			try {
+				intro = localStorage.getItem(INTRO_KEY) !== '1';
+			} catch {
+				intro = true;
+			}
 			repo = await RollRepository.open();
 			local = new LocalTimelockLab(repo);
 			remote = new RemoteLab(repo);
@@ -186,6 +197,12 @@
 
 	async function loadRoll() {
 		sounds.unlock();
+		const free = await freeBytes();
+		if (free !== null && free < ROLL_BYTES) {
+			noticeVars = { mb: Math.ceil(ROLL_BYTES / 1024 / 1024) };
+			notice = 'storageLow';
+			return;
+		}
 		await persistStorage();
 		await repo?.load(FILM_STOCK);
 		winder.fire();
@@ -218,6 +235,11 @@
 			buzz(HAPTIC.dry);
 			return;
 		}
+		const free = await freeBytes();
+		if (free !== null && free < FRAME_BYTES) {
+			notice = 'storageFull'; // the film stays wound: nothing is lost
+			return;
+		}
 		busy = true;
 		blackout = true; // dark until the counter rolls, never shorter than a blink (D34)
 		const minBlack = new Promise((r) => setTimeout(r, SHUTTER_BLACKOUT_MS));
@@ -243,7 +265,7 @@
 			await refresh();
 		} catch (e) {
 			console.error(e);
-			notice = 'captureFailed';
+			notice = isQuotaError(e) ? 'storageFull' : 'captureFailed';
 		} finally {
 			await minBlack;
 			blackout = false;
@@ -360,6 +382,15 @@
 		installGate = null;
 	}
 
+	function introDone() {
+		try {
+			localStorage.setItem(INTRO_KEY, '1');
+		} catch {
+			// private mode: shown again next time
+		}
+		intro = false;
+	}
+
 	function offerInstall() {
 		setBrowserMode(false);
 		installStage = 'offer';
@@ -422,6 +453,8 @@
 				{/if}
 			</section>
 		</main>
+	{:else if intro}
+		<main class="intro-main"><Intro ondone={introDone} startLabel={rolls.length ? 'introNext' : 'introStart'} /></main>
 	{:else if shooting && inCamera}
 		<!-- A landscape camera on a portrait-locked screen (D31). The stage is laid
 		     out in landscape — tools along the top (counter + flash left, wheel +
@@ -547,6 +580,7 @@
 		<h2>RETROVISEUR</h2>
 		<p>{t('aboutBody')}</p>
 		<p class="small">{t('aboutHow')}</p>
+		<button class="link" onclick={() => ((about = false), (intro = true))}>{t('introHow')}</button>
 		<p class="small">{t('aboutPrivacy')}</p>
 		{#if !isStandalone() && platformGate()}
 			<button class="link" onclick={offerInstall}>{t('installAgain')}</button>
@@ -559,7 +593,7 @@
 {/if}
 
 {#if notice}
-	<button class="notice" onclick={() => (notice = null)}>{t(notice)}</button>
+	<button class="notice" onclick={() => ((notice = null), (noticeVars = {}))}>{tf(notice, noticeVars)}</button>
 {/if}
 
 {#if dev && repo}
@@ -832,6 +866,9 @@
 		text-decoration: underline;
 		font: inherit;
 		font-size: 1rem;
+	}
+	.intro-main {
+		padding: 0;
 	}
 	.dots {
 		letter-spacing: 0.4em;

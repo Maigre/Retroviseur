@@ -42,7 +42,8 @@
 - [ ] Drop-off screen, developing state, ready check on open (D16)
 - [ ] Next roll loadable while one is at the lab (D14)
 - [x] Collect: unseal → zip (fflate) → share sheet / download → confirmed wipe
-- [ ] Settle Q4 (contact sheet / roll.json in the archive?)
+- [x] Contact sheet + roll.json in every zip (Q4, D53)
+- [x] First-launch explanation (D50), storage safety (D51), update prompt (D52)
 
 ## Phase 4 — The lab (ticket-based, [docs/LAB.md](docs/LAB.md))
 - [x] Design agreed — D44
