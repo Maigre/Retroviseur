@@ -15,21 +15,31 @@ phone ──HTTPS──▶ kxkm-prod ──HTTP──▶ holden ──HTTP──
 | DNS | `retroviseur.37m.gr A 80.14.246.218` (Gandi) | Thomas |
 | kxkm-prod | wildcard `*.37m.gr` cert + catch-all → holden | nothing specific to add |
 | holden | vhost → `10.2.37.103:3001` | [`deploy/holden/retroviseur.37m.gr.conf`](../deploy/holden/retroviseur.37m.gr.conf) (mirror — change both sides) |
-| gaff | pm2 app `retroviseur`, `/srv/apps/retroviseur` | [`deploy/ecosystem.config.cjs`](../deploy/ecosystem.config.cjs), [`deploy/server.mjs`](../deploy/server.mjs) |
+| gaff | git checkout of this repo at `/srv/apps/retroviseur`, pm2 app `retroviseur` serving `dist/` | [`deploy/ecosystem.config.cjs`](../deploy/ecosystem.config.cjs), [`deploy/server.mjs`](../deploy/server.mjs), [`deploy/update.sh`](../deploy/update.sh) |
 
 `deploy/server.mjs` is a zero-dependency static server: SPA fallback to
 `index.html`, `immutable` caching for `/_app/immutable/*`, `no-cache` for the
 rest, `Permissions-Policy: camera=(self)`.
 
-### Deploy
+### Deploy / upgrade
+
+Push to `main`, then from the laptop:
 
 ```sh
-deploy/deploy.sh
+deploy/deploy.sh          # = ssh -J rachael mgr@10.2.37.103 /srv/apps/retroviseur/deploy/update.sh
 ```
 
-Runs `npm ci`, tests and the build locally, rsyncs `build/` + the server to
-gaff over `ssh -J rachael`, then `pm2 startOrReload` + `pm2 save`. Needs `ssh rachael` to work
-from the machine you deploy from.
+On gaff, `deploy/update.sh` does `git fetch` + `reset --hard origin/main` (the
+checkout is deploy-only — never edit there), `npm ci`, tests, build, then
+`rsync build/ → dist/` so the live site keeps serving the old version until the
+new one is complete, `pm2 startOrReload` + `pm2 save`, and a local health check.
+
+### First install on a fresh VM
+
+```sh
+git clone https://github.com/Maigre/Retroviseur.git /srv/apps/retroviseur
+/srv/apps/retroviseur/deploy/update.sh
+```
 
 ### Holden vhost changes
 

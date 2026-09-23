@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = process.env.ROOT ?? fileURLToPath(new URL('./build', import.meta.url));
+const ROOT = process.env.ROOT ?? fileURLToPath(new URL('../build', import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? '0.0.0.0';
 

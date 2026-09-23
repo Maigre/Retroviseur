@@ -14,7 +14,7 @@ pictures once they are developed.
 the placeholder screen lets you feel the wind → shoot ritual, but there is no
 camera feed or film look yet. See [ROADMAP.md](ROADMAP.md).
 
-**Live:** https://retroviseur.37m.gr · deploy with `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
+**Live:** https://retroviseur.37m.gr · deploy = push to `main`, then `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
 
 ## The ritual
 
