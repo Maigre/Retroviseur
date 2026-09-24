@@ -1,9 +1,9 @@
 <script lang="ts">
 	// Horizontal ribbed film-advance wheel beside the shutter, like the one on a
-	// disposable. Roll it leftward with the thumb: it ticks continuously while it
+	// disposable. Roll it rightward with the thumb: it ticks continuously while it
 	// turns, each quick flick is one advance notch; the parent's Winder decides
 	// when the film is wound. On a turned stage (portrait screen, phone held
-	// sideways) "leftward" is screen-upward — a vertical swipe mid-screen, clear
+	// sideways) "rightward" is screen-downward — a vertical swipe mid-screen, clear
 	// of Android's edge-swipe back gesture.
 	import { FlickDetector } from '$lib/camera/flick';
 	import { WHEEL_TICK_PX } from '$lib/config';
@@ -16,8 +16,9 @@
 		ontick
 	}: { armed: boolean; turned?: boolean; label: string; onflick: () => void; ontick: () => void } = $props();
 
-	// position along the wheel's travel axis, decreasing as it rolls "left"
-	const along = (e: PointerEvent) => (turned ? e.clientY : e.clientX);
+	// position along the wheel's travel axis, decreasing as it rolls "right" (D54):
+	// on a turned stage (portrait screen) that is a swipe down, mid-screen
+	const along = (e: PointerEvent) => (turned ? -e.clientY : -e.clientX);
 
 	const detector = new FlickDetector();
 	let offset = $state(0); // texture scroll in px, follows the thumb
@@ -33,10 +34,10 @@
 	function move(e: PointerEvent) {
 		const travel = detector.travel(along(e));
 		if (armed) {
-			offset = rest - Math.min(travel, 3); // wound: the wheel is blocked
+			offset = rest + Math.min(travel, 3); // wound: the wheel is blocked
 			return;
 		}
-		offset = rest - travel;
+		offset = rest + travel; // the ribs follow the thumb
 		while (travel - lastTick >= WHEEL_TICK_PX) {
 			lastTick += WHEEL_TICK_PX;
 			ontick();
@@ -64,7 +65,7 @@
 	onpointermove={move}
 	onpointerup={up}
 	onpointercancel={up}
-	onkeydown={(e) => (e.key === 'ArrowLeft' || e.key === ' ') && !armed && onflick()}
+	onkeydown={(e) => (e.key === 'ArrowRight' || e.key === ' ') && !armed && onflick()}
 ></div>
 
 <style>

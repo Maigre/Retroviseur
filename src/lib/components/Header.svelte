@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
 
-	let { onabout, onnotice }: { onabout?: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
+	let { onabout, onclose, onnotice }: { onabout?: () => void; onclose?: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
 
 	async function share() {
 		const data = { title: 'Retroviseur', text: t('shareText'), url: location.origin };
@@ -29,6 +29,12 @@
 				<line x1="8.6" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.6" y2="10.5" />
 			</svg>
 		</button>
+		{#if onclose}
+			<button aria-label={t('closeApp')} onclick={onclose}>
+				<!-- power symbol -->
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 6.5a7.5 7.5 0 1 0 9 0" /><line x1="12" y1="3" x2="12" y2="11" /></svg>
+			</button>
+		{/if}
 	</div>
 </header>
 

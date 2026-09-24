@@ -70,6 +70,8 @@
 	let saved = $state(false);
 
 	let about = $state(false);
+	// lens cap on (D55): the camera is off until tapped open again
+	let capped = $state(false);
 
 	let dev = $state(false);
 	let lastCapture = $state('');
@@ -131,7 +133,7 @@
 
 	// Camera runs only while a roll is loaded and the finder is on screen.
 	$effect(() => {
-		const wanted = shooting && visible && !installGate && !!video;
+		const wanted = shooting && visible && !installGate && !capped && !!video;
 		if (wanted && camera === 'off') void startCamera();
 		if (!wanted && (camera === 'live' || camera === 'starting')) stopCamera();
 	});
@@ -382,6 +384,21 @@
 		installGate = null;
 	}
 
+	/**
+	 * "Close the camera" (D55). A web page may not close itself unless a script
+	 * opened it, so: try, and if it's still here, put the lens cap on instead —
+	 * camera off, a tap to reopen. The Android app will truly exit here.
+	 */
+	function closeApp() {
+		stopCamera();
+		capped = true;
+		try {
+			window.close();
+		} catch {
+			// refused: the lens cap stays on
+		}
+	}
+
 	function introDone() {
 		try {
 			localStorage.setItem(INTRO_KEY, '1');
@@ -420,7 +437,7 @@
 <div class="app">
 <!-- one camera body: the header is its left end (held sideways), the grip its right end -->
 <div class="shell">
-	<Header onabout={() => (about = true)} onnotice={(m) => (notice = m)} />
+	<Header onabout={() => (about = true)} onclose={closeApp} onnotice={(m) => (notice = m)} />
 
 	{#if !booted}
 		<main class="center"></main>
@@ -451,6 +468,20 @@
 				{#if !install.installed}
 					<button class="link" onclick={useInBrowser}>{t('installSkip')}</button>
 				{/if}
+			</section>
+		</main>
+	{:else if capped}
+		<main class="center capped">
+			<button class="cap" onclick={() => (capped = false)} aria-label={t('closedTitle')}>
+				<svg viewBox="0 0 100 100" aria-hidden="true">
+					<circle cx="50" cy="50" r="44" class="cap-rim" />
+					<circle cx="50" cy="50" r="34" class="cap-face" />
+					<text x="50" y="55" class="cap-text">RETRO</text>
+				</svg>
+			</button>
+			<section class="card">
+				<h1>{t('closedTitle')}</h1>
+				<p class="small">{t('closedBody')}</p>
 			</section>
 		</main>
 	{:else if intro}
@@ -866,6 +897,33 @@
 		text-decoration: underline;
 		font: inherit;
 		font-size: 1rem;
+	}
+	.cap {
+		background: none;
+		border: 0;
+		padding: 0;
+		width: min(12rem, 50cqw);
+	}
+	.cap svg {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+	.cap-rim {
+		fill: #1a1c1a;
+		stroke: #000;
+		stroke-width: 2;
+	}
+	.cap-face {
+		fill: #111311;
+		stroke: #2c2f2c;
+		stroke-width: 3;
+	}
+	.cap-text {
+		font: italic 13px var(--font);
+		fill: #3a3d3a;
+		text-anchor: middle;
+		letter-spacing: 2px;
 	}
 	.intro-main {
 		padding: 0;

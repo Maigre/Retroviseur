@@ -53,8 +53,8 @@
 				{:else if cards[i].art === 'wind'}
 					<rect x="28" y="30" width="64" height="20" rx="8" class="body" />
 					{#each Array(12) as _, k (k)}<rect x={33 + k * 5} y="32" width="2" height="16" class="rib" />{/each}
-					<path d="M84 62 H36" class="arrow" />
-					<path d="M41 57 L36 62 L41 67" class="arrow" />
+					<path d="M36 62 H84" class="arrow" />
+					<path d="M79 57 L84 62 L79 67" class="arrow" />
 					<text x="60" y="22" class="hint">× 3</text>
 				{:else}
 					<rect x="10" y="26" width="34" height="28" rx="4" class="body" />

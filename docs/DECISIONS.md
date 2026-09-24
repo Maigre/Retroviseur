@@ -454,6 +454,20 @@ Every zip — lab pickup page and dev lab — holds the frames plus `contact-she
 (all prints numbered like film edge marks, flash marked, film and date in the
 header) and `roll.json` (app version, film, load date, per-frame time and flash).
 
+## D54 — The wheel rolls the other way · 2026-09-24
+
+Thomas: invert the winding direction. Held sideways the wheel now rolls to the
+right (on the upright screen, a swipe down, still mid-screen and clear of Android's
+edge gestures); the ribs follow the thumb. Intro card, About text and product doc
+follow.
+
+## D55 — A "close" button that puts the lens cap on · 2026-09-24
+
+A power button after About and Share. A web page may not close itself unless a
+script opened it, so it tries `window.close()` and otherwise puts the lens cap on:
+camera off (no battery, no camera light), a "Camera closed — tap to open" screen
+that suggests swiping the app away to leave. The Android app will truly exit.
+
 ---
 
 ## Open questions

@@ -75,8 +75,8 @@ accident.
 ### Thumbwheel (film advance)
 
 - Horizontal ribbed wheel beside the shutter. With the phone held sideways,
-  **roll it to the left** with the thumb (on the upright screen that is a swipe
-  up, mid-screen — never Android's edge-swipe "back").
+  **roll it to the right** with the thumb (on the upright screen that is a swipe
+  down, mid-screen — never Android's edge-swipe "back").
 - While it turns it **ticks continuously** (a ratchet tooth every 7 px).
 - A quick flick counts as one **notch**; ~3 notches (`WIND_CLICKS`) and it
   **locks** with a heavier thunk + a strong haptic, outlined in orange.
