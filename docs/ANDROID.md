@@ -1,6 +1,6 @@
 # Android app (Phase 5) — proposal, not started
 
-Status: **v1 built 2026-09-26 (D57, D60)** — signed APK, awaiting the phone test.
+Status: **v1 + v2 built 2026-09-26 (D57, D60, D61)** — signed APK, awaiting the phone test.
 
 ## Shape
 
@@ -89,3 +89,27 @@ fullscreen, install; **v2** = native camera (D57).
   build with `/android/version.json` on open and offers the download; the web
   install screen on Android links the APK. GitHub Releases would need a tag —
   Thomas's call.
+
+## v2: the native camera (D61)
+
+`RetroCameraPlugin` (Java, in the app module — no third-party camera plugin),
+driven by `src/lib/camera/native-camera.ts`:
+
+- **Preview**: a CameraX `PreviewView` (TextureView mode) added *behind* the
+  WebView, sized and placed on the finder's on-screen box (its
+  `getBoundingClientRect` × devicePixelRatio, re-sent when the page lays out
+  again), clipped to the finder's corner radius, softened like the web finder
+  (`saturate 0.85 · brightness 0.95 · blur 0.6px`, Android 12+). In the app build
+  `html`, `body`, `.device` and `.finder` are transparent and the native window
+  paints `--bg` behind them, so only the finder shows the camera; the vignette,
+  the blackout and every control stay web, on top. The activity is portrait-locked,
+  so the preview is a true window onto the scene — no counter-rotation needed.
+- **Still**: `ImageCapture`, minimise-latency mode, the 4:3 size closest to
+  4096 × 3072 (a 48–50 MP sensor gives its ~12 MP output, not 20 MB files), real
+  flash with CameraX's pre-flash metering (`FLASH_MODE_ON`) — the late flash of
+  the web path (D36) is gone. JPEG 95 to a private cache file → read by the page
+  through `Capacitor.convertFileSrc` → released (deleted) at once; the folder is
+  wiped on load, stop and destroy. Then the usual path: `developStill` (crop 3:2,
+  4096 px, upright, film look) → seal → storage.
+- The dev panel's last-shot line reads `native` / `native+flash` with the source
+  size; the device report gives the still size CameraX chose and the flash unit.

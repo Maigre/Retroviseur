@@ -58,7 +58,7 @@
 
 ## Phase 5 — Native apps ([docs/ANDROID.md](docs/ANDROID.md), decisions taken — D57)
 - [x] Android v1: Capacitor wrap, haptics, local notifications, App Links, signed APK (D60)
-- [ ] Android v2: native camera
+- [x] Android v2: native camera — CameraX preview under the finder, real flash (D61)
 - [ ] iOS app
 - [x] "The lab called" as a phone-scheduled local notification (no server push) — Android app (D60)
 - [ ] Flash switch back on iOS with the native flash

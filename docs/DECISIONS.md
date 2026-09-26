@@ -525,6 +525,15 @@ lab allows exactly that origin (CORS). Signed APK served from
 `/android/retroviseur.apk` with a `version.json` the app checks. Details in
 docs/ANDROID.md.
 
+## D61 — The native camera (Android v2) · 2026-09-26
+
+Thomas: go v2. Our own small CameraX plugin rather than a community one (those
+pull in barcode scanning and Play-services models): a preview behind the
+transparent page, placed under the finder, and full-resolution stills with the
+real, pre-metered flash. The camera body, finder vignette and blackout stay web;
+frames still go capture → film look → seal → storage, the unsealed file living
+only until the page has read it. Details in docs/ANDROID.md.
+
 ---
 
 ## Open questions

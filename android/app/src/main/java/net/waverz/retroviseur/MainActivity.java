@@ -15,6 +15,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(RetroCameraPlugin.class); // the native camera (v2)
         super.onCreate(savedInstanceState);
         immersive();
     }

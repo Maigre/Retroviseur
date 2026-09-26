@@ -2,7 +2,9 @@
 	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { update } from '$lib/update.svelte';
-	import { APK_URL, onTicketLink } from '$lib/native';
+	import { APK_URL, NATIVE, onTicketLink } from '$lib/native';
+	// the app: the page is transparent so the native camera can show through the finder
+	if (NATIVE && typeof document !== 'undefined') document.documentElement.classList.add('native');
 	// the app: a ticket link tapped anywhere on the phone opens its pickup page here (D57)
 	onTicketLink((path) => location.assign(path));
 	let { children } = $props();
@@ -56,6 +58,11 @@
 		margin: 0;
 		height: 100%;
 		background: var(--bg);
+	}
+	:global(html.native),
+	:global(html.native body),
+	:global(html.native) .device {
+		background: transparent;
 	}
 	:global(body) {
 		color: var(--fg);

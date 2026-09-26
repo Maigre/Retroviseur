@@ -79,7 +79,7 @@ export function closeCamera(stream: MediaStream | undefined): void {
 export interface Still {
 	jpeg: Blob;
 	/** how the pixels were obtained, for the dev panel */
-	method: 'takePhoto' | 'takePhoto+flash' | 'video' | 'video+torch';
+	method: 'takePhoto' | 'takePhoto+flash' | 'video' | 'video+torch' | 'native' | 'native+flash';
 	sourceWidth: number;
 	sourceHeight: number;
 	/** the film look was applied (false: no WebGL2, or no film options) */
@@ -94,6 +94,20 @@ export async function captureStill(
 	film: DevelopOptions | null = null
 ): Promise<Still> {
 	const { bitmap, method } = await withFlash(stream, video, flash);
+	return developStill(bitmap, method, rotate, film);
+}
+
+/**
+ * The darkroom half of a shot, whatever took it (web camera or the app's native
+ * one): crop to 3:2 at most CAPTURE_MAX_LONG_SIDE, turn upright, bake the film
+ * look in, encode. Closes the bitmap.
+ */
+export async function developStill(
+	bitmap: ImageBitmap,
+	method: Still['method'],
+	rotate: 0 | -90,
+	film: DevelopOptions | null
+): Promise<Still> {
 	try {
 		const c = crop3x2(bitmap.width, bitmap.height, CAPTURE_MAX_LONG_SIDE);
 		const canvas = document.createElement('canvas');

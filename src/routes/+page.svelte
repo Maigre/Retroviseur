@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { CameraError, captureStill, closeCamera, flashSupport, openCamera, type FlashSupport } from '$lib/camera/capture';
+	import { captureNative, closeNative, openNative, placeNative } from '$lib/camera/native-camera';
 	import { buzz, HAPTIC, Sounds } from '$lib/camera/sound';
 	import { Winder } from '$lib/camera/winder';
 	import DevPanel from '$lib/components/DevPanel.svelte';
@@ -59,6 +60,8 @@
 	const INTRO_KEY = 'retroviseur-intro-seen';
 
 	let video = $state<HTMLVideoElement>();
+	// the app's native camera (v2, D61) draws under this box
+	let finderEl = $state<HTMLDivElement>();
 	let stream: MediaStream | undefined;
 	let camera = $state<'off' | 'starting' | 'live' | 'denied' | 'unavailable' | 'insecure'>('off');
 	let visible = $state(true);
@@ -141,7 +144,7 @@
 
 	// Camera runs only while a roll is loaded and the finder is on screen.
 	$effect(() => {
-		const wanted = shooting && visible && !installGate && !capped && !!video;
+		const wanted = shooting && visible && !installGate && !capped && (NATIVE ? !!finderEl : !!video);
 		if (wanted && camera === 'off') void startCamera();
 		if (!wanted && (camera === 'live' || camera === 'starting')) stopCamera();
 	});
@@ -185,7 +188,32 @@
 		armed = winder.armed;
 	}
 
+	// the native preview follows the finder whenever the page lays out again
+	$effect(() => {
+		if (!NATIVE || camera !== 'live' || !finderEl) return;
+		void [bodyW, bodyH, turned];
+		const el = finderEl;
+		requestAnimationFrame(() => void placeNative(el));
+	});
+
+	async function startNative() {
+		if (!finderEl || camera === 'starting' || camera === 'live') return;
+		camera = 'starting';
+		try {
+			const o = await openNative(finderEl);
+			camera = 'live';
+			flashCaps = o.hasFlash ? { fill: true, torch: false, report: o.report } : null;
+			flashReport = o.report;
+			if (!flashCaps) flash = false;
+			if (!visible) stopCamera();
+		} catch (e) {
+			void closeNative();
+			camera = e instanceof CameraError ? e.kind : 'unavailable';
+		}
+	}
+
 	async function startCamera() {
+		if (NATIVE) return startNative();
 		if (!video || camera === 'starting' || camera === 'live') return;
 		camera = 'starting';
 		try {
@@ -206,6 +234,7 @@
 	}
 
 	function stopCamera() {
+		if (NATIVE && camera !== 'off') void closeNative();
 		closeCamera(stream);
 		stream = undefined;
 		if (video) video.srcObject = null;
@@ -247,7 +276,7 @@
 	async function shoot() {
 		sounds.unlock();
 		if (!repo || !inCamera || busy) return;
-		if (!winder.armed || camera !== 'live' || !stream || !video) {
+		if (!winder.armed || camera !== 'live' || (!NATIVE && (!stream || !video))) {
 			sounds.dry();
 			buzz(HAPTIC.dry);
 			return;
@@ -271,11 +300,14 @@
 				stamp: DATE_STAMP ? formatStamp(Date.now()) : null,
 				leak: leakFor(inCamera.shot, inCamera.exposures, inCamera.id)
 			};
-			const still = await captureStill(stream, video, turned ? -90 : 0, flash ? flashCaps : null, film);
+			const rotate = turned ? -90 : 0;
+			const still = NATIVE
+				? await captureNative(flash && !!flashCaps, rotate, film)
+				: await captureStill(stream!, video!, rotate, flash ? flashCaps : null, film);
 			const tCapture = performance.now();
 			await repo.recordFrame(inCamera.id, await still.jpeg.arrayBuffer(), flash);
-			const track = stream.getVideoTracks()[0]?.getSettings();
-			lastCapture = `${still.method}${still.developed ? ' +film' : ' (no film look)'} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track?.width}×${track?.height}`;
+			const track = stream?.getVideoTracks()[0]?.getSettings();
+			lastCapture = `${still.method}${still.developed ? ' +film' : ' (no film look)'} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track ? `${track.width}×${track.height}` : 'native'}`;
 			winder.fire(); // the film is only consumed once the frame is safely stored
 			armed = false;
 			await minBlack;
@@ -534,7 +566,7 @@
 					<!-- hangs past the finder's right edge, as far from it as the block is from the header -->
 					<button class="shutter" class:armed class:busy onclick={shoot} aria-label={t('shutter')}></button>
 				</div>
-				<div class="finder">
+				<div class="finder" bind:this={finderEl}>
 						<video bind:this={video} playsinline muted autoplay></video>
 						<div class="blackout" class:on={blackout}></div>
 						{#if cameraMessage[camera]}
@@ -810,6 +842,13 @@
 	}
 	/* On a turned stage the finder is a window onto the scene: undo the stage's
 	   quarter-turn for the video itself. */
+	/* the app (v2): the native preview shows through the finder from behind the page */
+	:global(html.native) .finder {
+		background: transparent;
+	}
+	:global(html.native) .finder video {
+		display: none;
+	}
 	.turned .finder video {
 		width: 100cqh;
 		height: 100cqw;

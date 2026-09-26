@@ -13,3 +13,13 @@ rsync -e "ssh -J rachael" dist-android/retroviseur.apk "mgr@10.2.37.103:$DEST/re
 $SSH "mv $DEST/retroviseur.apk.new $DEST/retroviseur.apk"
 rsync -e "ssh -J rachael" dist-android/version.json "mgr@10.2.37.103:$DEST/version.json"
 echo "published: $(cat dist-android/version.json)"
+
+# …and a GitHub Release carrying the same APK (Thomas, 2026-09-26)
+CODE=$(sed -n 's/.*"versionCode": \([0-9]*\).*/\1/p' dist-android/version.json)
+NAME=$(sed -n 's/.*"versionName": "\([^"]*\)".*/\1/p' dist-android/version.json)
+SHA=$(sed -n 's/.*(\(.*\)).*/\1/p' <<<"$NAME")
+gh release create "android-1.$CODE" dist-android/retroviseur.apk \
+	--target "$(git rev-parse "$SHA")" \
+	--title "Retroviseur for Android $NAME" \
+	--notes "Signed APK (net.waverz.retroviseur). Install: open it on the phone and allow installs from your browser. Also at https://retroviseur.waverz.net/android/retroviseur.apk — installed apps offer updates by themselves."
+echo "released android-1.$CODE"
