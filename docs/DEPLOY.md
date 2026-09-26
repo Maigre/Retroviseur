@@ -2,19 +2,19 @@
 
 The app is a static SPA. `npm run build` writes everything to `build/`.
 
-## Production: https://retroviseur.37m.gr
+## Production: https://retroviseur.waverz.net
 
 ```
 phone ──HTTPS──▶ kxkm-prod ──HTTP──▶ holden ──HTTP──▶ gaff:3001
-                 (TLS, *.37m.gr     (nginx vhost,     (pm2 → deploy/server.mjs
-                  catch-all)         LXC on rachael)   → build/, VM on rachael)
+                 (TLS *.waverz.net, (nginx vhost,     (pm2 → deploy/server.mjs
+                  no access log)     LXC on rachael)   → build/, VM on rachael)
 ```
 
 | Hop | What | Where it's defined |
 |---|---|---|
-| DNS | `retroviseur.37m.gr A 80.14.246.218` (Gandi) | Thomas |
-| kxkm-prod | wildcard `*.37m.gr` cert + catch-all → holden | nothing specific to add |
-| holden | vhost → `10.2.37.103:3001` | [`deploy/holden/retroviseur.37m.gr.conf`](../deploy/holden/retroviseur.37m.gr.conf) (mirror — change both sides) |
+| DNS | `retroviseur.waverz.net A 80.14.246.218`, `camera.waverz.net CNAME retroviseur.waverz.net` (Infomaniak); old `retroviseur.37m.gr A 80.14.246.218` (Gandi) | Infomaniak API / Thomas |
+| kxkm-prod | `*.waverz.net` cert (acme.sh, DNS-01 `dns_infomaniak`, cron-renewed, installed in `/etc/nginx/ssl/wildcard.waverz.net/`); `retroviseur.waverz.net` block + `camera.waverz.net` 301; the old `retroviseur.37m.gr` block | [`deploy/kxkm-prod/`](../deploy/kxkm-prod/) (mirrors — change both sides) |
+| holden | vhost for both names → `10.2.37.103:3001` | [`deploy/holden/retroviseur.conf`](../deploy/holden/retroviseur.conf) (mirror — change both sides) |
 | gaff | git checkout of this repo at `/srv/apps/retroviseur`, pm2 app `retroviseur` serving `dist/` | [`deploy/ecosystem.config.cjs`](../deploy/ecosystem.config.cjs), [`deploy/server.mjs`](../deploy/server.mjs), [`deploy/update.sh`](../deploy/update.sh) |
 
 `deploy/server.mjs` is a zero-dependency static server: SPA fallback to
@@ -51,9 +51,32 @@ tickets, which the server never sees.
 ### Holden vhost changes
 
 ```sh
-ssh rachael 'pct exec 100 -- sh -c "cat > /etc/nginx/sites-available/retroviseur.37m.gr.conf && nginx -t && systemctl reload nginx"' \
-  < deploy/holden/retroviseur.37m.gr.conf
+ssh rachael 'pct exec 100 -- sh -c "cat > /etc/nginx/sites-available/retroviseur.conf && nginx -t && systemctl reload nginx"' \
+  < deploy/holden/retroviseur.conf
 ```
+
+### kxkm-prod vhost changes
+
+```sh
+ssh kxkm-prod 'cat > /etc/nginx/sites-enabled/retroviseur.waverz.net.conf && nginx -t && systemctl reload nginx' \
+  < deploy/kxkm-prod/retroviseur.waverz.net.conf
+```
+
+### The old address: soft move, then 301 (D56)
+
+Until about **2026-10-10**, `retroviseur.37m.gr` still serves the app, which moves
+each phone over as soon as it holds no roll of its own (`src/lib/move.ts`). Then
+replace the body of `deploy/kxkm-prod/retroviseur.37m.gr.conf`'s server block
+(keep TLS, `access_log off` and the limits) with:
+
+```nginx
+    # uploads already under way on an old page may still finish
+    location /api/lab/ { limit_req zone=retro_lab burst=30 nodelay; proxy_pass http://100.67.173.80; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
+    location / { return 301 https://retroviseur.waverz.net$request_uri; }
+```
+
+and apply it like the block above. The app code for the old host can go a release
+or two later.
 
 ## Validating on a phone from the laptop (LAN)
 

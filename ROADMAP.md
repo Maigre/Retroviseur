@@ -56,7 +56,7 @@
 - [ ] Hosting contact for the About page (Q11; GitHub issues meanwhile)
 - [ ] Walk the whole ritual on the Jelly Star (real 1–3 day wait)
 
-## Phase 5 — Native apps ([docs/ANDROID.md](docs/ANDROID.md), proposal — decisions pending)
+## Phase 5 — Native apps ([docs/ANDROID.md](docs/ANDROID.md), decisions taken — D57)
 - [ ] Capacitor wrap (iOS/Android): native camera, haptics, local notifications
 - [ ] "The lab called" as a phone-scheduled local notification (no server push)
 - [ ] Flash switch back on iOS with the native flash

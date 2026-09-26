@@ -7,6 +7,7 @@ import type { RollRepository } from '../roll/repository';
 import { seal } from '../roll/seal';
 import type { Roll } from '../roll/types';
 import { packSealed, type Manifest } from './archive';
+import { publicOrigin } from '../move';
 import { exportKey, ticketUrl } from './ticket';
 import type { Delivery, Lab, LabStatus, LabTicket, SealedFrame } from './types';
 
@@ -31,7 +32,7 @@ export class RemoteLab implements Lab {
 	constructor(
 		private repo: RollRepository,
 		private base = '/api/lab',
-		private origin = globalThis.location?.origin ?? ''
+		private origin = publicOrigin() // tickets carry the new address (D56)
 	) {}
 
 	async #fetch(path: string, init?: RequestInit): Promise<Response> {

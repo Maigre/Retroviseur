@@ -468,6 +468,35 @@ script opened it, so it tries `window.close()` and otherwise puts the lens cap o
 camera off (no battery, no camera light), a "Camera closed — tap to open" screen
 that suggests swiping the app away to leave. The Android app will truly exit.
 
+## D56 — A home of its own: retroviseur.waverz.net (answers Q9) · 2026-09-26
+
+Thomas: the app moves to **https://retroviseur.waverz.net**; `camera.waverz.net` is a
+second door (a DNS CNAME that kxkm-prod 301s to the main name: one origin, so rolls
+never split between two storages). TLS is a `*.waverz.net` wildcard from acme.sh on
+kxkm-prod (DNS-01, Infomaniak — the same token as `*.kxkm.net`). Same privacy as
+before: no access log, per-client limits, fail2ban.
+
+The old address can't simply 301 on day one: rolls live in the browser's storage,
+which belongs to one origin, so a tester mid-roll would find an empty camera at the
+new address. **Soft move** instead (Thomas): on `retroviseur.37m.gr` the app sends
+anyone on at once *unless* that phone holds something only its storage has — frames
+on a roll, or a drop-off whose ticket isn't handed over yet (`src/lib/move.ts`).
+Those see "Retroviseur has moved — finish this roll here, take it to the lab, then
+carry on (and install again) at the new address"; the next open after the hand-off
+sends them on. Ticket links and the share button always carry the new address; old
+tickets keep working (the pickup page moves on with its `#key`). **Around
+2026-10-10** the old name becomes a plain 301 on kxkm-prod (docs/DEPLOY.md).
+
+## D57 — The Android app: decisions (ANDROID.md) · 2026-09-26
+
+Thomas, on the six pending points: (1) two steps — v1 keeps the web camera and adds
+native haptics, notifications, fullscreen; v2 brings a native camera; (2) a signed
+APK first, sideloaded, stores later; (3) app id **`net.waverz.retroviseur`**; (4) the
+signing key is backed up in the password manager **and** the hub's `secrets/`;
+(5) ticket links open the app (Android App Links) — the app must then route an
+incoming `/lab/<id>#key` to its own pickup page; (6) JDK 21 + Android platform 36
+installed user-level on the laptop.
+
 ---
 
 ## Open questions
@@ -481,6 +510,6 @@ that suggests swiping the app away to leave. The Android app will truly exit.
 - **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
   sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
 - ~~Q8 — Date stamp format~~ → `23 9 '26` (D41).
-- **Q11 — Hosting contact** (LCEN) — once the dedicated domain is chosen (Q9).
+- **Q11 — Hosting contact** (LCEN) — the domain is settled (D56); the contact is still to give.
 - **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
-- **Q9 — Dedicated domain** (retroviseur.37m.gr meanwhile, D19) — Thomas is thinking about it.
+- ~~Q9 — Dedicated domain~~ → retroviseur.waverz.net (D56).

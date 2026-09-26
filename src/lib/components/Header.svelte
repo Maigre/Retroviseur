@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import { publicOrigin } from '$lib/move';
 
 	let { onabout, onclose, onnotice }: { onabout?: () => void; onclose?: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
 
 	async function share() {
-		const data = { title: 'Retroviseur', text: t('shareText'), url: location.origin };
+		const data = { title: 'Retroviseur', text: t('shareText'), url: publicOrigin() };
 		try {
 			if (navigator.share) return await navigator.share(data);
 		} catch (e) {

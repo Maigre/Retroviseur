@@ -14,7 +14,7 @@ pictures once they are developed.
 collect as a zip, and the Fujifilm look developed on the phone at capture;
 the stock is being picked on the hidden `/bench`. See [ROADMAP.md](ROADMAP.md).
 
-**Live:** https://retroviseur.37m.gr · deploy = push to `main`, then `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
+**Live:** https://retroviseur.waverz.net (also camera.waverz.net; the old retroviseur.37m.gr moves people over, D56) · deploy = push to `main`, then `deploy/deploy.sh` ([docs/DEPLOY.md](docs/DEPLOY.md))
 
 ## The ritual
 

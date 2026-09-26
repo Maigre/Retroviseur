@@ -10,6 +10,7 @@
 	import { parseArchive, unpackSealed, type Manifest } from '$lib/lab/archive';
 	import { contactSheet, rollJson } from '$lib/lab/extras';
 	import { formatWindow, ID_RE, importKey, KEY_RE } from '$lib/lab/ticket';
+	import { newHomeUrl, onOldHost } from '$lib/move';
 	import { unseal } from '$lib/roll/seal';
 
 	type View = 'loading' | 'bad' | 'developing' | 'ready' | 'collected' | 'collecting' | 'open' | 'gone' | 'error' | 'wrongkey';
@@ -51,6 +52,8 @@
 	}
 
 	onMount(() => {
+		// the old address (D56): a ticket holds nothing locally, so it simply moves on
+		if (onOldHost()) return location.replace(newHomeUrl(location));
 		key = location.hash.slice(1);
 		if (!ID_RE.test(id) || !KEY_RE.test(key)) view = 'bad';
 		else void status();

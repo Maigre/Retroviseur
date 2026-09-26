@@ -74,7 +74,7 @@ An abandoned upload (no commit) is deleted after 24 h.
 ## The ticket
 
 ```
-https://retroviseur.37m.gr/lab/<id>#<key>
+https://retroviseur.waverz.net/lab/<id>#<key>
 ```
 
 - `<id>`: 128 random bits, base64url (22 chars), chosen by the server. Unguessable.
@@ -155,11 +155,12 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 ## Logs and privacy
 
 - The Node service logs no IPs, no ids — only counts and errors.
-- **holden**: the `retroviseur.37m.gr` vhost gets `access_log off`.
-- **kxkm-prod**: the `*.37m.gr` catch-all logs every request to
-  `holden-edge-access.log`; a dedicated `retroviseur.37m.gr` server block
-  (mirrored in `deploy/kxkm-prod/`) overrides it for this host with
-  `access_log off`. Abuse is held there without watching everyone (D46):
+- **holden**: the `retroviseur` vhost gets `access_log off`.
+- **kxkm-prod**: the `retroviseur.waverz.net` block (and `camera.waverz.net`,
+  its 301) keeps no access log; the old `retroviseur.37m.gr` has its own
+  exact-name block overriding the `*.37m.gr` catch-all (which logs every request
+  to `holden-edge-access.log`) with `access_log off` too — all mirrored in
+  `deploy/kxkm-prod/`. Abuse is held there without watching everyone (D46):
   per-client limits kept in memory (`retro_all` 30 r/s burst 60,
   `retro_lab` 5 r/s burst 30 on `/api/lab/`, 20 connections), rejections answered
   `429`; **only rejected requests** are written, with their address, to

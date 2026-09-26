@@ -20,6 +20,7 @@
 	import { install, promptInstall, reallyInstalled } from '$lib/install.svelte';
 	import { LocalTimelockLab } from '$lib/lab/local-timelock';
 	import { LabClosedError, RemoteLab, type RemoteTicketData } from '$lib/lab/remote';
+	import { holdsSomething, newHomeUrl, onOldHost } from '$lib/move';
 	import { formatDay, formatWindow, ticketMessage } from '$lib/lab/ticket';
 	import type { Lab } from '$lib/lab/types';
 	import { browserMode, isAndroid, isIOS, isStandalone, persistStorage, setBrowserMode } from '$lib/platform';
@@ -72,6 +73,8 @@
 	let about = $state(false);
 	// lens cap on (D55): the camera is off until tapped open again
 	let capped = $state(false);
+	// the old address (D56): only a phone with a roll it alone holds stays here
+	let moved = $state(false);
 
 	let dev = $state(false);
 	let lastCapture = $state('');
@@ -109,6 +112,10 @@
 			local = new LocalTimelockLab(repo);
 			remote = new RemoteLab(repo);
 			await refresh();
+			if (onOldHost()) {
+				if (!holdsSomething(rolls)) return location.replace(newHomeUrl(location));
+				moved = true;
+			}
 			booted = true;
 		})();
 		const onVisibility = () => {
@@ -602,6 +609,14 @@
 		{:else}
 			<button class="big" onclick={saveRoll}>{t('collectSave')}</button>
 		{/if}
+	</section>
+{/if}
+
+{#if moved && !pendingTicket && !uploading}
+	<section class="sheet">
+		<h2>{t('movedTitle')}</h2>
+		<p class="small">{t('movedBody')}</p>
+		<button class="big" onclick={() => (moved = false)}>{t('movedOk')}</button>
 	</section>
 {/if}
 
