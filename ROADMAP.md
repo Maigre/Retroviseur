@@ -16,7 +16,7 @@
 - [x] Shutter sound, finder blackout, dry fire when not wound
 - [x] PWA: service worker (offline shell), icons, iOS "Add to Home Screen" gate
 - [x] Minimal drop-off to the local lab (so a full roll doesn't block testing)
-- [ ] **Validate on real phones** (Android Chrome + installed iOS PWA): orientation of saved frames, capture latency, sounds/haptics feel
+- [x] **Validate on real phones — Android** (Thomas, 2026-09-26: works); iOS installed PWA later
 - [x] Feedback round 1 (Thomas, Jelly Star): Android install gate, continuous wheel ticks, longer blackout + counter roll, top-bar/thumb-corner layout with rotation, flash switch, header band (VT323) with About/Share, phone frame on desktop, wound state kept on reload, stronger haptics
 - [x] Hidden dev mode (view frames, fill to last frame, skip the wait) — D27
 - [x] Collect early (from phase 3): zip → share/download → confirmed wipe — D26
@@ -53,7 +53,7 @@
 - [x] `/lab/[id]` pickup page: developing / collect / contact sheet + zip / gone
 - [x] nginx: holden access_log off + body size 5m
 - [x] kxkm-prod `retroviseur.37m.gr` block with access_log off (applied 2026-09-23)
-- [ ] Hosting contact for the About page (Q11; GitHub issues meanwhile)
+- [x] Hosting contact for the About page: contact@waverz.net (D59)
 - [ ] Walk the whole ritual on the Jelly Star (real 1–3 day wait)
 
 ## Phase 5 — Native apps ([docs/ANDROID.md](docs/ANDROID.md), decisions taken — D57)

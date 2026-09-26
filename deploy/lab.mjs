@@ -16,9 +16,9 @@ const DAY = 24 * HOUR;
 
 export const DEFAULTS = {
 	maxFrames: 27,
-	maxFrameBytes: 4 * 1024 * 1024,
+	maxFrameBytes: 8 * 1024 * 1024,
 	maxManifestBytes: 64 * 1024,
-	maxRollBytes: 100 * 1024 * 1024,
+	maxRollBytes: 200 * 1024 * 1024,
 	maxStoreBytes: 20 * 1024 * 1024 * 1024,
 	rollsPerIpPerDay: 10,
 	readyMin: 24 * HOUR,

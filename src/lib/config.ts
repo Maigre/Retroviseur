@@ -33,9 +33,10 @@ export const LEAK_TAIL_FRAMES = 1;
 
 /**
  * Capture: frames are cropped to 3:2 (35 mm) and scaled so the long side is at
- * most this many pixels (~6 MP). Provisional until Q7 is settled.
+ * most this many pixels: 4096 × 2731, ~11 MP — a 300 dpi print up to ~23 × 35 cm
+ * at a pro lab, and a size every phone's GPU can give the film look (D58).
  */
-export const CAPTURE_MAX_LONG_SIDE = 3000;
+export const CAPTURE_MAX_LONG_SIDE = 4096;
 export const JPEG_QUALITY = 0.9;
 
 /** Thumbwheel flick: upward travel (CSS px) within a short stroke counts as one click. */

@@ -114,7 +114,7 @@ All bodies are binary or tiny JSON. No cookies. CORS: same origin only.
 | Method & path | Auth | Does |
 |---|---|---|
 | `POST /api/lab/rolls` `{frames: n}` (1 ≤ n ≤ 27) | — (rate-limited) | creates the roll; draws `readyAt`; returns `{id, uploadToken, window: {from, to}}` — no `expiresAt` yet: it would give `readyAt` away |
-| `PUT /api/lab/rolls/:id/frames/:i` (1…n) | `Bearer uploadToken` | stores one sealed frame (≤ 4 MB); idempotent — safe to resend |
+| `PUT /api/lab/rolls/:id/frames/:i` (1…n) | `Bearer uploadToken` | stores one sealed frame (≤ 8 MB); idempotent — safe to resend |
 | `PUT /api/lab/rolls/:id/manifest` | `Bearer uploadToken` | stores the sealed manifest (≤ 64 KB) |
 | `POST /api/lab/rolls/:id/commit` | `Bearer uploadToken` | checks every part is present, burns the token → `developing` |
 | `GET /api/lab/rolls/:id` | — | status: `{state, frames, window, missing? (uploading), expiresAt? (ready), collectedUntil? (collected)}`; unknown or destroyed → `404 {state: "gone"}` |
@@ -141,7 +141,7 @@ uncommitted + 24 h, and recomputes the total size.
 
 | Lever | Setting | Stops |
 |---|---|---|
-| Roll-shaped uploads | ≤ 27 frames, ≤ 4 MB each, manifest ≤ 64 KB, ≤ 100 MB per roll; nginx `client_max_body_size 5m` | using the lab as a file host |
+| Roll-shaped uploads | ≤ 27 frames, ≤ 8 MB each, manifest ≤ 64 KB, ≤ 200 MB per roll; nginx `client_max_body_size 9m` (D58) | using the lab as a file host |
 | Time-lock | nothing downloadable for 24–72 h | instant sharing |
 | One pickup | collected → deleted 1 h later | distributing to many |
 | Expiry | ready + 30 d | long-term storage |
@@ -235,5 +235,4 @@ operator deletes `<id>` by hand. The link is the only way to find content.
 3. ✅ `/lab/[id]` pickup page.
 4. ✅ holden `access_log off` + `client_max_body_size 5m`; ✅ kxkm-prod
    exact-name block (`deploy/kxkm-prod/`) applied 2026-09-23 at Thomas's request.
-5. ✅ About/privacy lines (hosting contact provisional: the GitHub issues page,
-   Q11). ⏳ Walk the whole ritual on the Jelly Star.
+5. ✅ About/privacy lines; hosting contact contact@waverz.net (D59). ⏳ Walk the whole ritual on the Jelly Star.

@@ -633,7 +633,7 @@
 		{/if}
 		<p class="small">
 			{t('aboutCredits')} · <a href="https://github.com/Maigre/Retroviseur" target="_blank" rel="noopener">GitHub</a> · {__APP_VERSION__}
-			<br />{t('aboutContact')} <a href="https://github.com/Maigre/Retroviseur/issues" target="_blank" rel="noopener">github.com/Maigre/Retroviseur</a>
+			<br />{t('aboutContact')} <a href="mailto:contact@waverz.net">contact@waverz.net</a>
 		</p>
 	</section>
 {/if}

@@ -497,6 +497,24 @@ signing key is backed up in the password manager **and** the hub's `secrets/`;
 incoming `/lab/<id>#key` to its own pickup page; (6) JDK 21 + Android platform 36
 installed user-level on the laptop.
 
+## D58 — Print-ready frames: 4096 px, ~11 MP (answers Q7) · 2026-09-26
+
+Thomas: the prints end up on real photo paper through a pro lab, so take the best
+the camera gives. Frames stay 3:2 but the long side goes from 3000 to **4096 px**
+(4096 × 2731, ~11 MP): at 300 dpi that prints up to ~23 × 35 cm, far past the
+10 × 15 of a disposable. Not "full sensor": 48–50 MP phone sensors bin down to
+~12 MP of real detail, grain and the soft disposable look set the detail anyway,
+and a frame larger than the GPU's texture limit silently skips the film look —
+4096 is safe on every phone. Measured on real 12 MP photos, developed at q 0.9:
+3.3–3.7 MB per frame. Limits follow with headroom: lab 8 MB per frame and 200 MB
+per roll, nginx 9 MB bodies on both hops, on-phone budget 6 MB per frame
+(~162 MB free to load a roll).
+
+## D59 — Hosting contact: contact@waverz.net (answers Q11) · 2026-09-26
+
+The About page's hosting contact (LCEN) is **contact@waverz.net**, replacing the
+GitHub issues page that stood in. Takedown reports go there (docs/LAB.md).
+
 ---
 
 ## Open questions
@@ -507,9 +525,8 @@ installed user-level on the laptop.
 - ~~Q4 — Archive contents~~ → frames + contact sheet + roll.json (D53).
 - ~~Q5 — Archive timing~~ → built at collection (D26).
 - ~~Q6 — Ready notification~~ → D16.
-- **Q7 — Capture resolution/aspect**: 3:2 like 35 mm (crop from the 4:3
-  sensor) at ~12 MP, or smaller to keep a roll light (~27 × 3 MB)?
+- ~~Q7 — Capture resolution/aspect~~ → 3:2 at 4096 px, ~11 MP (D58).
 - ~~Q8 — Date stamp format~~ → `23 9 '26` (D41).
-- **Q11 — Hosting contact** (LCEN) — the domain is settled (D56); the contact is still to give.
+- ~~Q11 — Hosting contact~~ → contact@waverz.net (D59).
 - **Q10 — Chrome install fails on the Jelly Star** (Brave installs); symptoms to collect.
 - ~~Q9 — Dedicated domain~~ → retroviseur.waverz.net (D56).
