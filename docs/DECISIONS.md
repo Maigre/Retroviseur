@@ -515,6 +515,16 @@ per roll, nginx 9 MB bodies on both hops, on-phone budget 6 MB per frame
 The About page's hosting contact (LCEN) is **contact@waverz.net**, replacing the
 GitHub issues page that stood in. Takedown reports go there (docs/LAB.md).
 
+## D60 — Android app v1, as built · 2026-09-26
+
+The v1 of D57 exists: Capacitor 8 around the same build (`ANDROID=1`, own folder,
+no service worker), native haptics, share sheet, exit, on-phone notifications for
+"ready" and "the lab called", App Links for tickets, immersive portrait shell,
+backups off. The app calls the lab cross-origin from `https://localhost`, so the
+lab allows exactly that origin (CORS). Signed APK served from
+`/android/retroviseur.apk` with a `version.json` the app checks. Details in
+docs/ANDROID.md.
+
 ---
 
 ## Open questions

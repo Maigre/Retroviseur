@@ -2,6 +2,8 @@
  * Mechanical sounds, synthesized (no audio files): filtered noise bursts.
  * Browsers only allow audio after a user gesture — call unlock() from one.
  */
+import { nativeBuzz } from '../native';
+
 export class Sounds {
 	#ctx: AudioContext | undefined;
 	#noise: AudioBuffer | undefined;
@@ -70,6 +72,7 @@ export class Sounds {
  * Returns what the browser answered (false = refused or unsupported).
  */
 export function buzz(pattern: number | number[]): boolean {
+	if (nativeBuzz(pattern)) return true; // the Android app (D57)
 	try {
 		return navigator.vibrate?.(pattern) ?? false;
 	} catch {

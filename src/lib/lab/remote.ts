@@ -8,6 +8,7 @@ import { seal } from '../roll/seal';
 import type { Roll } from '../roll/types';
 import { packSealed, type Manifest } from './archive';
 import { publicOrigin } from '../move';
+import { LAB_API } from '../native';
 import { exportKey, ticketUrl } from './ticket';
 import type { Delivery, Lab, LabStatus, LabTicket, SealedFrame } from './types';
 
@@ -31,7 +32,7 @@ export class RemoteLab implements Lab {
 
 	constructor(
 		private repo: RollRepository,
-		private base = '/api/lab',
+		private base = LAB_API,
 		private origin = publicOrigin() // tickets carry the new address (D56)
 	) {}
 

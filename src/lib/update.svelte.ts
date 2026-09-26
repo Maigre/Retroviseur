@@ -3,8 +3,12 @@
  * build is installed; pages opened under the old one learn it from
  * `controllerchange` and offer a reload — never forced, so a shot or an upload
  * is never cut. An app left open checks again whenever it comes back.
+ * The Android app has no service worker: it compares its build with the
+ * published APK's and offers the download instead.
  */
-export const update = $state({ ready: false });
+import { appUpdateAvailable, NATIVE } from './native';
+
+export const update = $state({ ready: false, app: false });
 
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 	const hadController = !!navigator.serviceWorker.controller; // first install: nothing to announce
@@ -18,4 +22,10 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 			.catch(() => {});
 	document.addEventListener('visibilitychange', () => !document.hidden && check());
 	setInterval(check, 30 * 60_000);
+}
+
+if (NATIVE) {
+	const check = () => void appUpdateAvailable().then((yes) => (update.app = yes));
+	check();
+	document.addEventListener('visibilitychange', () => !document.hidden && check());
 }

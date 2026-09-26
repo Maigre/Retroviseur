@@ -1,6 +1,6 @@
 # Android app (Phase 5) — proposal, not started
 
-Status: **decisions taken 2026-09-26 (D57)**, not built yet.
+Status: **v1 built 2026-09-26 (D57, D60)** — signed APK, awaiting the phone test.
 
 ## Shape
 
@@ -52,3 +52,40 @@ fullscreen, install; **v2** = native camera (D57).
 4. Signing key backup: password manager **and** hub `secrets/`.
 5. Ticket links open the app (App Links), handled in-app.
 6. JDK 21 + Android platform 36 installed user-level on the laptop.
+
+## v1 as built (D60)
+
+- **Build**: `npm run android` (`scripts/android.sh`) → `ANDROID=1 vite build` into
+  `build-android/` (no service worker, native hooks compiled in; the web build
+  never contains Capacitor code) → `cap sync` → `gradlew assembleRelease` →
+  `dist-android/retroviseur.apk` + `version.json`. versionCode = git commit count,
+  versionName `1.<count> (<sha>)`.
+- **JDK**: Temurin 21 user-level in `~/.local/share/jdk-21` (the distro only has the
+  21 JRE); the script sets `JAVA_HOME` itself, the shell keeps 17.
+- **Signing key**: `~/.android-keys/retroviseur.jks` + `retroviseur.properties`
+  (passwords), chmod 600, never in git. SHA-256
+  `B6:5B:B1:7B:0D:87:57:9A:3D:65:93:5D:D9:89:05:F7:C4:2F:AB:E4:03:6D:6D:94:C9:27:97:65:5F:0B:62:AA`
+  — also in `static/.well-known/assetlinks.json`. **Back both files up** (password
+  manager + hub `secrets/`): without them no update can ever be installed over v1.
+- **Native side** (`src/lib/native.ts`, inert on the web): haptics through
+  `@capacitor/haptics`; the close button exits (`App.exitApp`); ticket and app
+  sharing through the Android share sheet (the WebView has no Web Share API); the
+  lab at `https://retroviseur.waverz.net/api/lab` (CORS for `https://localhost`
+  in `deploy/lab.mjs`); tickets and shares carry the public address.
+- **Notifications** (`@capacitor/local-notifications`, scheduled on the phone, no
+  push): at hand-off, "your prints are ready" at the end of the developing window;
+  once the lab gives the expiry, "the lab called" a week before. Cancelled when the
+  roll is collected or gone. Permission asked at the first hand-off. No exact-alarm
+  permission (removed from the merged manifest).
+- **App Links**: intent filter `https://retroviseur.waverz.net/lab/*` with
+  autoVerify; `appUrlOpen` / launch URL → `/lab/<id>#<key>` in the app (a launch
+  URL is taken once per launch, not after every reload).
+- **Shell**: portrait locked, immersive (bars hidden, swipe shows them), backups
+  off (sealed rolls and their keys stay on the phone), icons generated from the
+  pixel-art source by `scripts/icons.mjs` (launcher, adaptive, notification).
+- **Distribution**: `npm run android:publish` → gaff
+  `/srv/apps/retroviseur-data/android/` served at
+  `https://retroviseur.waverz.net/android/retroviseur.apk`; the app compares its
+  build with `/android/version.json` on open and offers the download; the web
+  install screen on Android links the APK. GitHub Releases would need a tag —
+  Thomas's call.

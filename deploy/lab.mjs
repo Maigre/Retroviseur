@@ -14,6 +14,9 @@ import { join } from 'node:path';
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
+/** The Android app's WebView origin (Capacitor, androidScheme https). */
+const APP_ORIGIN = 'https://localhost';
+
 export const DEFAULTS = {
 	maxFrames: 27,
 	maxFrameBytes: 8 * 1024 * 1024,
@@ -277,6 +280,19 @@ export async function createLab({ dir, now = Date.now, limits = {} }) {
 	/** Handle /api/lab/* — returns false for any other path. */
 	async function handle(req, res, pathname) {
 		if (!pathname.startsWith('/api/lab/')) return false;
+		// the Android app runs at https://localhost and calls the lab cross-origin (docs/ANDROID.md)
+		if (req.headers.origin === APP_ORIGIN) {
+			res.setHeader('Access-Control-Allow-Origin', APP_ORIGIN);
+			res.setHeader('Vary', 'Origin');
+			if (req.method === 'OPTIONS') {
+				res.writeHead(204, {
+					'Access-Control-Allow-Methods': 'GET, POST, PUT',
+					'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+					'Access-Control-Max-Age': '86400'
+				}).end();
+				return true;
+			}
+		}
 		const seg = pathname.slice('/api/lab/'.length).split('/');
 		try {
 			if (seg[0] !== 'rolls') return send(res, 404, { error: 'not found' }), true;

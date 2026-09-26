@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Retroviseur</string>
+    <string name="title_activity_main">Retroviseur</string>
+    <string name="package_name">net.waverz.retroviseur</string>
+    <string name="custom_url_scheme">net.waverz.retroviseur</string>
+</resources>

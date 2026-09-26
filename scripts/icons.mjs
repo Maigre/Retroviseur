@@ -3,7 +3,7 @@
 // central safe zone so Android's round / squircle masks never cut into it.
 // Run `node scripts/icons.mjs` after editing; outputs are committed.
 import { Resvg } from '@resvg/resvg-js';
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const ART = [
 	'...............KYYK.....',
@@ -58,3 +58,36 @@ for (const [name, size] of [
 	writeFileSync(`${out}/${name}`, new Resvg(svg, { fitTo: { mode: 'width', value: size } }).render().asPng());
 }
 console.log('icons written to', out);
+
+// Android app (docs/ANDROID.md): launcher icons, the adaptive foreground (art in
+// the 66 dp circle of the 108 dp canvas, charcoal background layer), and the notification
+// icon — a white silhouette with the lens cut out, as Android wants.
+const RES = 'android/app/src/main/res';
+if (existsSync(RES)) {
+	const art = (fill, bg) => {
+		let r = bg ? `<rect width="32" height="32" fill="${bg}"/>` : '';
+		ART.forEach((row, y) =>
+			[...row].forEach((c, x) => {
+				const f = fill(c);
+				if (f) r += `<rect x="${x + LEFT}" y="${y + TOP}" width="1" height="1" fill="${f}"/>`;
+			})
+		);
+		return r;
+	};
+	const png = (svg, size) => new Resvg(svg, { fitTo: { mode: 'width', value: size } }).render().asPng();
+	const colour = (c) => (c === '.' ? null : PALETTE[c]);
+	const foreground = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 40 40" shape-rendering="crispEdges">${art(colour)}</svg>`;
+	const silhouette = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 5 24 24" shape-rendering="crispEdges">${art((c) => (c === '.' || 'lgw'.includes(c) ? null : '#ffffff'))}</svg>`;
+	for (const [d, k] of [['mdpi', 1], ['hdpi', 1.5], ['xhdpi', 2], ['xxhdpi', 3], ['xxxhdpi', 4]]) {
+		writeFileSync(`${RES}/mipmap-${d}/ic_launcher.png`, png(svg, 48 * k));
+		writeFileSync(`${RES}/mipmap-${d}/ic_launcher_round.png`, png(svg, 48 * k));
+		writeFileSync(`${RES}/mipmap-${d}/ic_launcher_foreground.png`, png(foreground, 108 * k));
+		mkdirSync(`${RES}/drawable-${d}`, { recursive: true });
+		writeFileSync(`${RES}/drawable-${d}/ic_stat_retroviseur.png`, png(silhouette, 24 * k));
+	}
+	writeFileSync(
+		`${RES}/values/ic_launcher_background.xml`,
+		`<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">${PALETTE['.']}</color>\n</resources>\n`
+	);
+	console.log('android icons written to', RES);
+}

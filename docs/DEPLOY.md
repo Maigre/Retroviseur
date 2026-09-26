@@ -34,6 +34,13 @@ checkout is deploy-only — never edit there), `npm ci`, tests, build, then
 `rsync build/ → dist/` so the live site keeps serving the old version until the
 new one is complete, `pm2 startOrReload` + `pm2 save`, and a local health check.
 
+### The Android APK
+
+```sh
+npm run android           # signed APK + version.json in dist-android/ (docs/ANDROID.md)
+npm run android:publish   # → gaff /srv/apps/retroviseur-data/android/, served at /android/
+```
+
 ### First install on a fresh VM
 
 ```sh

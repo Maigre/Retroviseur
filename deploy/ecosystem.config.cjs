@@ -12,6 +12,8 @@ module.exports = {
 				ROOT: '/srv/apps/retroviseur/dist',
 				// the lab's rolls: outside the checkout, never touched by deploys (docs/LAB.md)
 				LAB_DIR: '/srv/apps/retroviseur-data/lab',
+				// the Android APK + version.json (scripts/android-publish.sh)
+				ANDROID_DIR: '/srv/apps/retroviseur-data/android',
 				// kxkm-prod and holden each append to X-Forwarded-For
 				LAB_PROXY_HOPS: 2
 			},

@@ -12,9 +12,9 @@ export const OLD_HOST = 'retroviseur.37m.gr';
 
 export const onOldHost = (host = globalThis.location?.host): boolean => host === OLD_HOST;
 
-/** The address to give out: the new home on the old host, else wherever we are (dev, LAN). */
+/** The address to give out: the new home from the app or the old host, else wherever we are (dev, LAN). */
 export const publicOrigin = (loc: Pick<Location, 'host' | 'origin'> | undefined = globalThis.location): string =>
-	!loc ? '' : onOldHost(loc.host) ? HOME : loc.origin;
+	__ANDROID_APP__ || (loc && onOldHost(loc.host)) ? HOME : (loc?.origin ?? '');
 
 /** Something only this origin's storage holds: frames shot, or a drop-off not yet handed over. */
 export const holdsSomething = (rolls: Roll[]): boolean =>

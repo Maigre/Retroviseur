@@ -13,8 +13,12 @@ const version = (() => {
 	}
 })();
 
+// ANDROID=1: the build Capacitor bundles into the app (docs/ANDROID.md) — its own
+// folder, no service worker (the app ships its files), native hooks compiled in.
+const android = !!process.env.ANDROID;
+
 export default defineConfig({
-	define: { __APP_VERSION__: JSON.stringify(version) },
+	define: { __APP_VERSION__: JSON.stringify(version), __ANDROID_APP__: JSON.stringify(android) },
 	plugins: [
 		// HTTPS=1 → self-signed cert, so a phone on the LAN gets a secure context (camera).
 		...(process.env.HTTPS ? [basicSsl()] : []),
@@ -26,7 +30,8 @@ export default defineConfig({
 			},
 
 			// Static SPA build: served as-is by any HTTPS host, and wrapped by Capacitor later.
-			adapter: adapter({ fallback: 'index.html' })
+			adapter: adapter(android ? { pages: 'build-android', assets: 'build-android', fallback: 'index.html' } : { fallback: 'index.html' }),
+			serviceWorker: { register: !android }
 		})
 	],
 	test: { include: ['src/**/*.test.ts', 'deploy/**/*.test.mjs'] }

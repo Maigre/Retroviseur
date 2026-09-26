@@ -12,9 +12,12 @@
 		"test": "vitest run",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"dev:lan": "HTTPS=1 vite dev --host",
-		"preview:lan": "vite build && HTTPS=1 vite preview --host"
+		"preview:lan": "vite build && HTTPS=1 vite preview --host",
+		"android": "scripts/android.sh",
+		"android:publish": "scripts/android-publish.sh"
 	},
 	"devDependencies": {
+		"@capacitor/cli": "^8.5.2",
 		"@resvg/resvg-js": "^2.6.2",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.63.0",
@@ -34,6 +37,12 @@
 		"node": ">=24"
 	},
 	"dependencies": {
+		"@capacitor/android": "^8.5.2",
+		"@capacitor/app": "^8.1.1",
+		"@capacitor/core": "^8.5.2",
+		"@capacitor/haptics": "^8.0.2",
+		"@capacitor/local-notifications": "^8.3.1",
+		"@capacitor/share": "^8.0.2",
 		"fflate": "^0.8.3"
 	}
 }

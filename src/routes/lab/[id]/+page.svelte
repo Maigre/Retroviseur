@@ -11,6 +11,7 @@
 	import { contactSheet, rollJson } from '$lib/lab/extras';
 	import { formatWindow, ID_RE, importKey, KEY_RE } from '$lib/lab/ticket';
 	import { newHomeUrl, onOldHost } from '$lib/move';
+	import { LAB_API } from '$lib/native';
 	import { unseal } from '$lib/roll/seal';
 
 	type View = 'loading' | 'bad' | 'developing' | 'ready' | 'collected' | 'collecting' | 'open' | 'gone' | 'error' | 'wrongkey';
@@ -30,7 +31,7 @@
 	let notice = $state<MessageKey | null>(null);
 	const tick = setInterval(() => (now = Date.now()), 15_000);
 
-	const api = `/api/lab/rolls/${id}`;
+	const api = `${LAB_API}/rolls/${id}`;
 
 	async function status() {
 		try {

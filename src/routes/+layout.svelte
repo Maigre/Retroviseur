@@ -2,6 +2,9 @@
 	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { update } from '$lib/update.svelte';
+	import { APK_URL, onTicketLink } from '$lib/native';
+	// the app: a ticket link tapped anywhere on the phone opens its pickup page here (D57)
+	onTicketLink((path) => location.assign(path));
 	let { children } = $props();
 	// the developer bench uses the whole window
 	const bare = $derived(page.url.pathname.startsWith('/bench'));
@@ -16,6 +19,9 @@
 		{#if update.ready}
 			<!-- a new build took over: offer the reload, never force it mid-shot (D52) -->
 			<button class="update" onclick={() => location.reload()}>{t('updateReady')}</button>
+		{:else if update.app}
+			<!-- the Android app: a newer APK is out; the link leaves for the browser, which downloads it -->
+			<a class="update" href={APK_URL}>{t('appUpdateReady')}</a>
 		{/if}
 	</div>
 {/if}
@@ -84,6 +90,8 @@
 		color: var(--accent-fg);
 		font: 1.1rem var(--font);
 		box-shadow: 0 0.3rem 1rem rgb(0 0 0 / 0.6);
+		text-align: center;
+		text-decoration: none;
 	}
 	/* Wide screens: a fake smartphone in the middle of the page. */
 	@media (min-width: 700px) and (min-height: 560px) {

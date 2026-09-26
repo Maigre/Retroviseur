@@ -13,6 +13,8 @@ const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? '0.0.0.0';
 // rolls live outside the git checkout so deploys never touch them
 const LAB_DIR = process.env.LAB_DIR ?? fileURLToPath(new URL('../.lab-data', import.meta.url));
+// the Android app's APK + version.json, served at /android/ (scripts/android-publish.sh)
+const ANDROID_DIR = process.env.ANDROID_DIR ?? fileURLToPath(new URL('../dist-android', import.meta.url));
 
 const lab = await createLab({
 	dir: LAB_DIR,
@@ -37,7 +39,8 @@ const TYPES = {
 	'.jpg': 'image/jpeg',
 	'.ico': 'image/x-icon',
 	'.woff2': 'font/woff2',
-	'.txt': 'text/plain; charset=utf-8'
+	'.txt': 'text/plain; charset=utf-8',
+	'.apk': 'application/vnd.android.package-archive'
 };
 
 const HEADERS = {
@@ -46,10 +49,10 @@ const HEADERS = {
 	'Permissions-Policy': 'camera=(self), microphone=(), geolocation=()'
 };
 
-async function resolve(urlPath) {
+async function resolve(urlPath, root = ROOT) {
 	const rel = normalize(decodeURIComponent(urlPath)).replace(/^([/\\])+/, '');
-	const file = join(ROOT, rel);
-	if (file !== ROOT && !file.startsWith(ROOT + sep)) return null; // path traversal
+	const file = join(root, rel);
+	if (file !== root && !file.startsWith(root + sep)) return null; // path traversal
 	try {
 		const s = await stat(file);
 		if (s.isFile()) return { file, size: s.size };
@@ -77,8 +80,9 @@ createServer(async (req, res) => {
 		return;
 	}
 	// Real file, else SPA fallback (client-side routes) — but never for asset-looking paths.
-	let hit = await resolve(path);
-	if (!hit && !extname(path)) hit = await resolve('index.html');
+	const android = path.startsWith('/android/');
+	let hit = android ? await resolve(path.slice('/android/'.length), ANDROID_DIR) : await resolve(path);
+	if (!hit && !android && !extname(path)) hit = await resolve('index.html');
 	if (!hit) {
 		res.writeHead(404, { 'Content-Type': 'text/plain', ...HEADERS }).end('not found');
 		return;
@@ -88,6 +92,7 @@ createServer(async (req, res) => {
 		'Content-Type': TYPES[extname(hit.file)] ?? 'application/octet-stream',
 		'Content-Length': hit.size,
 		'Cache-Control': immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
+		...(android ? { 'Access-Control-Allow-Origin': '*' } : {}), // the app reads version.json
 		...HEADERS
 	});
 	if (req.method === 'HEAD') res.end();

@@ -1,0 +1,10 @@
+[
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "net.waverz.retroviseur",
+			"sha256_cert_fingerprints": ["B6:5B:B1:7B:0D:87:57:9A:3D:65:93:5D:D9:89:05:F7:C4:2F:AB:E4:03:6D:6D:94:C9:27:97:65:5F:0B:62:AA"]
+		}
+	}
+]

@@ -140,3 +140,15 @@ it('the janitor clears abandoned uploads and uncollected rolls', async () => {
 	expect(lab.storeBytes).toBe(0);
 	expect(abandoned.id).toBeTruthy();
 });
+
+it('lets the Android app (https://localhost) in, and nobody else cross-origin', async () => {
+	const pre = await fetch(`${base}/rolls`, { method: 'OPTIONS', headers: { origin: 'https://localhost', 'access-control-request-method': 'PUT' } });
+	expect(pre.status).toBe(204);
+	expect(pre.headers.get('access-control-allow-origin')).toBe('https://localhost');
+	expect(pre.headers.get('access-control-allow-headers')).toContain('Authorization');
+	const roll = await createRoll();
+	const s = await fetch(`${base}/rolls/${roll.id}`, { headers: { origin: 'https://localhost' } });
+	expect(s.headers.get('access-control-allow-origin')).toBe('https://localhost');
+	const other = await fetch(`${base}/rolls/${roll.id}`, { headers: { origin: 'https://evil.example' } });
+	expect(other.headers.get('access-control-allow-origin')).toBeNull();
+});

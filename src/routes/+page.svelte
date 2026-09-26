@@ -21,6 +21,7 @@
 	import { LocalTimelockLab } from '$lib/lab/local-timelock';
 	import { LabClosedError, RemoteLab, type RemoteTicketData } from '$lib/lab/remote';
 	import { holdsSomething, newHomeUrl, onOldHost } from '$lib/move';
+	import { APK_URL, cancelNotify, exitApp, nativeShare, NATIVE, notifyAt, notifyId } from '$lib/native';
 	import { formatDay, formatWindow, ticketMessage } from '$lib/lab/ticket';
 	import type { Lab } from '$lib/lab/types';
 	import { browserMode, isAndroid, isIOS, isStandalone, persistStorage, setBrowserMode } from '$lib/platform';
@@ -159,6 +160,11 @@
 			} catch {
 				continue; // offline: try again next time
 			}
+			if (s.state === 'ready' && s.expiresAt && NATIVE && remoteData(r)?.expiresAt !== s.expiresAt) {
+				// the lab calls a week before it destroys the prints (D16) — from the phone itself
+				const until = formatDay(s.expiresAt, lang);
+				void notifyAt(notifyId(r.id, 'call'), Math.max(Date.now() + 60_000, s.expiresAt - WEEK), t('ready'), tf('labCalled', { until }));
+			}
 			if (s.state === 'ready' && r.state === 'developing') {
 				const ticket = s.expiresAt ? { ...r.ticket, data: { ...r.ticket.data, expiresAt: s.expiresAt } } : r.ticket;
 				await repo.save({ ...markReady(r), ticket });
@@ -167,6 +173,8 @@
 			} else if (s.state === 'collected' || s.state === 'gone') {
 				// picked up — by whoever held the ticket — or destroyed: the backup goes too
 				await repo.remove(r.id);
+				void cancelNotify(notifyId(r.id, 'ready'));
+				void cancelNotify(notifyId(r.id, 'call'));
 				notice = s.state === 'collected' ? 'pickedUp' : 'labGone';
 			}
 		}
@@ -309,13 +317,17 @@
 		const r = $state.snapshot(proxy) as Roll; // IndexedDB can't store reactive proxies
 		await repo.save({ ...r, handedOff: true });
 		await repo.forget(r.id); // frames and key gone; the backup ticket stays
+		// the app: the phone itself says when the prints should be back (no server push)
+		const d = remoteData(r);
+		if (d?.windowTo) void notifyAt(notifyId(r.id, 'ready'), d.windowTo, t('ready'), t('labReady'));
 		await refresh();
 	}
 
 	async function shareTicket(r: Roll) {
-		if (!navigator.share) return copyTicket(r);
+		if (!navigator.share && !NATIVE) return copyTicket(r);
 		try {
-			await navigator.share({ title: 'Retroviseur', text: ticketText(r) });
+			const data = { title: 'Retroviseur', text: ticketText(r) };
+			if (!(await nativeShare(data))) await navigator.share(data);
 			await handOff(r);
 		} catch (e) {
 			if ((e as DOMException).name !== 'AbortError') await copyTicket(r);
@@ -399,6 +411,7 @@
 	function closeApp() {
 		stopCamera();
 		capped = true;
+		if (NATIVE) return void exitApp(); // the app truly exits (D55)
 		try {
 			window.close();
 		} catch {
@@ -474,6 +487,10 @@
 				{/if}
 				{#if !install.installed}
 					<button class="link" onclick={useInBrowser}>{t('installSkip')}</button>
+				{/if}
+				{#if installGate === 'android'}
+					<!-- the real app (D57): sideloaded APK for now -->
+					<a class="link" href={APK_URL}>{t('getApk')}</a>
 				{/if}
 			</section>
 		</main>

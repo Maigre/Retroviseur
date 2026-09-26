@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { publicOrigin } from '$lib/move';
+	import { nativeShare } from '$lib/native';
 
 	let { onabout, onclose, onnotice }: { onabout?: () => void; onclose?: () => void; onnotice: (msg: 'linkCopied') => void } = $props();
 
 	async function share() {
 		const data = { title: 'Retroviseur', text: t('shareText'), url: publicOrigin() };
 		try {
+			if (await nativeShare(data)) return;
 			if (navigator.share) return await navigator.share(data);
 		} catch (e) {
 			if ((e as DOMException).name === 'AbortError') return;

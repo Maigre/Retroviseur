@@ -14,6 +14,7 @@ export function isAndroid(nav: Pick<Navigator, 'userAgent'> | undefined = global
  */
 export function isStandalone(): boolean {
 	return (
+		__ANDROID_APP__ || // the Android app is installed by definition
 		globalThis.matchMedia?.('(display-mode: fullscreen)').matches === true ||
 		globalThis.matchMedia?.('(display-mode: standalone)').matches === true ||
 		(globalThis.navigator as { standalone?: boolean } | undefined)?.standalone === true
