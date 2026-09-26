@@ -37,9 +37,11 @@ fullscreen, install; **v2** = native camera (D57).
 - Signing key: made on the laptop, never in git, backed up in the password manager
   **and** the hub's `secrets/` (D57) — losing it means installed apps can never be
   updated.
-- Toolchain on the laptop: Android SDK present (build-tools ≤ 37, platforms 33–34),
-  Gradle 8.7, adb; needs JDK 21 (system has 25, too new for the Android Gradle
-  plugin) and platform 35/36, both user-level. `npm run android` → signed APK.
+- Toolchain on the laptop (checked 2026-09-26): Android SDK in `~/Android/Sdk`
+  (build-tools 34–37, platforms 33–36.1, platform-tools 37, cmdline-tools
+  `latest`), JDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64`. The shell's default
+  `JAVA_HOME` is JDK 17 (other projects), so the Android build sets JDK 21 for
+  itself — never the global one. `npm run android` → signed APK.
 - iOS: out of scope (needs a Mac + Apple developer account).
 
 ## Decisions (Thomas, 2026-09-26 — D57)
