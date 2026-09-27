@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { CameraError, captureStill, closeCamera, flashSupport, openCamera, type FlashSupport } from '$lib/camera/capture';
-	import { captureNative, closeNative, openNative, placeNative } from '$lib/camera/native-camera';
+	import { captureNative, closeNative, cutHole, openNative, placeNative } from '$lib/camera/native-camera';
 	import { buzz, HAPTIC, Sounds } from '$lib/camera/sound';
 	import { Winder } from '$lib/camera/winder';
 	import DevPanel from '$lib/components/DevPanel.svelte';
@@ -62,6 +62,7 @@
 	let video = $state<HTMLVideoElement>();
 	// the app's native camera (v2, D61) draws under this box
 	let finderEl = $state<HTMLDivElement>();
+	let shellEl = $state<HTMLDivElement>();
 	let stream: MediaStream | undefined;
 	let camera = $state<'off' | 'starting' | 'live' | 'denied' | 'unavailable' | 'insecure'>('off');
 	let visible = $state(true);
@@ -188,12 +189,17 @@
 		armed = winder.armed;
 	}
 
-	// the native preview follows the finder whenever the page lays out again
+	// the native preview follows the finder whenever the page lays out again,
+	// and the camera body's plate keeps a hole over the finder for it
 	$effect(() => {
-		if (!NATIVE || camera !== 'live' || !finderEl) return;
-		void [bodyW, bodyH, turned];
+		if (!NATIVE || !finderEl || !shellEl) return;
+		void [bodyW, bodyH, turned, camera];
 		const el = finderEl;
-		requestAnimationFrame(() => void placeNative(el));
+		const shell = shellEl;
+		requestAnimationFrame(() => {
+			cutHole(shell, el);
+			if (camera === 'live') void placeNative(el);
+		});
 	});
 
 	async function startNative() {
@@ -488,7 +494,7 @@
 
 <div class="app">
 <!-- one camera body: the header is its left end (held sideways), the grip its right end -->
-<div class="shell">
+<div class="shell" bind:this={shellEl}>
 	<Header onabout={() => (about = true)} onclose={closeApp} onnotice={(m) => (notice = m)} />
 
 	{#if !booted}
@@ -846,9 +852,27 @@
 	}
 	/* On a turned stage the finder is a window onto the scene: undo the stage's
 	   quarter-turn for the video itself. */
-	/* the app (v2): the native preview shows through the finder from behind the page */
+	/* the app (v2): the native preview shows through the finder from behind the
+	   page. The body plate moves to a layer of its own with a hole over the finder
+	   (cutHole sets --hole-*); the finder's ring and vignette stay on top. */
 	:global(html.native) .finder {
 		background: transparent;
+	}
+	:global(html.native) .shell {
+		position: relative;
+		isolation: isolate;
+		background: none;
+	}
+	:global(html.native) .shell::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(90deg, var(--shell-in), var(--bg) 45%, var(--bg) 55%, var(--shell-in));
+		mask:
+			linear-gradient(#000 0 0),
+			linear-gradient(#000 0 0) var(--hole-x, 0) var(--hole-y, 0) / var(--hole-w, 0) var(--hole-h, 0) no-repeat;
+		mask-composite: exclude;
 	}
 	:global(html.native) .finder video {
 		display: none;

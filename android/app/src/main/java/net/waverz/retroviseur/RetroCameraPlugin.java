@@ -14,6 +14,10 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.webkit.WebView;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraXConfig;
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -60,9 +64,21 @@ public class RetroCameraPlugin extends Plugin {
     private float radius = 0;
 
     @Override
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     public void load() {
         dir = new File(getContext().getCacheDir(), "retro-capture");
         wipe();
+        // only the rear camera exists for us: faster start, and no waiting on
+        // phones (or emulators) that report their cameras oddly
+        try {
+            ProcessCameraProvider.configureInstance(
+                CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
+                    .setAvailableCamerasLimiter(CameraSelector.DEFAULT_BACK_CAMERA)
+                    .build()
+            );
+        } catch (IllegalStateException alreadyConfigured) {
+            // a reloaded page: CameraX keeps its first configuration
+        }
     }
 
     @PluginMethod

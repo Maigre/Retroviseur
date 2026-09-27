@@ -77,3 +77,16 @@ export async function captureNative(flash: boolean, rotate: 0 | -90, film: Devel
 	const bitmap = await createImageBitmap(blob); // EXIF orientation applied: upright for a portrait screen
 	return developStill(bitmap, flash ? 'native+flash' : 'native', rotate, film);
 }
+
+/** Where the camera body's plate must stay open: the finder, in the shell's own box. */
+export function cutHole(shell: HTMLElement, finder: HTMLElement): void {
+	const s = shell.getBoundingClientRect();
+	const f = finder.getBoundingClientRect();
+	const cs = getComputedStyle(shell);
+	const x = f.left - s.left - (parseFloat(cs.borderLeftWidth) || 0);
+	const y = f.top - s.top - (parseFloat(cs.borderTopWidth) || 0);
+	shell.style.setProperty('--hole-x', `${x}px`);
+	shell.style.setProperty('--hole-y', `${y}px`);
+	shell.style.setProperty('--hole-w', `${f.width}px`);
+	shell.style.setProperty('--hole-h', `${f.height}px`);
+}
