@@ -680,6 +680,10 @@
 		{#if !isStandalone() && platformGate()}
 			<button class="link" onclick={offerInstall}>{t('installAgain')}</button>
 		{/if}
+		{#if isAndroid() && !NATIVE}
+			<!-- the real Android app (D57, D60) -->
+			<a class="link" href={APK_URL}>{t('aboutApk')}</a>
+		{/if}
 		<p class="small">
 			{t('aboutCredits')} · <a href="https://github.com/Maigre/Retroviseur" target="_blank" rel="noopener">GitHub</a> · {__APP_VERSION__}
 			<br />{t('aboutContact')} <a href="mailto:contact@waverz.net">contact@waverz.net</a>
