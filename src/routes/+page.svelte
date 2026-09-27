@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { CameraError, captureStill, closeCamera, flashSupport, openCamera, type FlashSupport } from '$lib/camera/capture';
-	import { captureNative, closeNative, cutHole, openNative, placeNative } from '$lib/camera/native-camera';
+	import { CameraError, closeCamera, developStill, exposeWeb, flashSupport, openCamera, type Exposure, type FlashSupport } from '$lib/camera/capture';
+	import { closeNative, cutHole, exposeNative, openNative, placeNative } from '$lib/camera/native-camera';
 	import { buzz, HAPTIC, Sounds } from '$lib/camera/sound';
 	import { Winder } from '$lib/camera/winder';
 	import DevPanel from '$lib/components/DevPanel.svelte';
@@ -150,6 +150,8 @@
 		if (!wanted && (camera === 'live' || camera === 'starting')) stopCamera();
 	});
 
+	let restoredFor: string | undefined;
+
 	async function refresh() {
 		if (!repo) return;
 		let list = await repo.list();
@@ -185,7 +187,12 @@
 		rolls = await repo.list();
 		list = rolls;
 		const current = list.find((r) => r.state === 'loaded');
-		winder.restore(!!current?.wound); // a wound camera stays wound across reloads
+		// a wound camera stays wound across reloads — restored once per roll, so a
+		// frame stored in the background never undoes a wind in progress (D62)
+		if (current?.id !== restoredFor) {
+			winder.restore(!!current?.wound);
+			restoredFor = current?.id;
+		}
 		armed = winder.armed;
 	}
 
@@ -279,53 +286,84 @@
 		armed = winder.armed;
 	}
 
+	// Shooting and developing overlap (D62): the shutter only waits for the sensor;
+	// the darkroom (film look, JPEG, seal, store) runs one frame at a time behind
+	// it, at most MAX_PENDING frames waiting, so a slow phone never eats a shot.
+	const MAX_PENDING = 2;
+	let pending = $state(0);
+	let darkroom: Promise<void> = Promise.resolve();
+	/** frames left as the photographer sees them: taken ones count at once */
+	const left = $derived(inCamera ? framesLeft(inCamera) - pending : 0);
+
 	async function shoot() {
 		sounds.unlock();
 		if (!repo || !inCamera || busy) return;
-		if (!winder.armed || camera !== 'live' || (!NATIVE && (!stream || !video))) {
+		const index = inCamera.shot + pending;
+		if (!winder.armed || camera !== 'live' || (!NATIVE && (!stream || !video)) || pending >= MAX_PENDING || index >= inCamera.exposures) {
 			sounds.dry();
 			buzz(HAPTIC.dry);
 			return;
 		}
 		const free = await freeBytes();
-		if (free !== null && free < FRAME_BYTES) {
+		if (free !== null && free < FRAME_BYTES * (pending + 1)) {
 			notice = 'storageFull'; // the film stays wound: nothing is lost
 			return;
 		}
+		const r = repo;
+		const { id, exposures, stock } = inCamera;
+		const takenAt = Date.now();
+		const withFlash = flash && !!flashCaps;
+		// turned stage = phone held sideways on a portrait screen → rotate the frame upright
+		const rotate = turned ? -90 : 0;
+		const film = {
+			stock: STOCKS[stock],
+			seed: `${id}:${index}`,
+			stamp: DATE_STAMP ? formatStamp(takenAt) : null,
+			leak: leakFor(index, exposures, id)
+		};
 		busy = true;
-		blackout = true; // dark until the counter rolls, never shorter than a blink (D34)
-		const minBlack = new Promise((r) => setTimeout(r, SHUTTER_BLACKOUT_MS));
+		blackout = true; // dark until the sensor has the frame, never shorter than a blink (D34, D62)
+		const minBlack = new Promise((ok) => setTimeout(ok, SHUTTER_BLACKOUT_MS));
 		sounds.shutter();
 		buzz(HAPTIC.shutter);
 		const t0 = performance.now();
+		let exposure: Exposure;
 		try {
-			// turned stage = phone held sideways on a portrait screen → rotate the frame upright
-			const film = {
-				stock: STOCKS[inCamera.stock],
-				seed: `${inCamera.id}:${inCamera.shot}`,
-				stamp: DATE_STAMP ? formatStamp(Date.now()) : null,
-				leak: leakFor(inCamera.shot, inCamera.exposures, inCamera.id)
-			};
-			const rotate = turned ? -90 : 0;
-			const still = NATIVE
-				? await captureNative(flash && !!flashCaps, rotate, film)
-				: await captureStill(stream!, video!, rotate, flash ? flashCaps : null, film);
-			const tCapture = performance.now();
-			await repo.recordFrame(inCamera.id, await still.jpeg.arrayBuffer(), flash);
-			const track = stream?.getVideoTracks()[0]?.getSettings();
-			lastCapture = `${still.method}${still.developed ? ' +film' : ' (no film look)'} ${still.sourceWidth}×${still.sourceHeight} · capture ${Math.round(tCapture - t0)} ms + store ${Math.round(performance.now() - tCapture)} ms · stream ${track ? `${track.width}×${track.height}` : 'native'}`;
-			winder.fire(); // the film is only consumed once the frame is safely stored
-			armed = false;
-			await minBlack;
-			await refresh();
+			exposure = NATIVE ? await exposeNative(withFlash) : await exposeWeb(stream!, video!, flash ? flashCaps : null);
 		} catch (e) {
 			console.error(e);
-			notice = isQuotaError(e) ? 'storageFull' : 'captureFailed';
-		} finally {
+			notice = 'captureFailed'; // nothing exposed: the film stays wound
 			await minBlack;
 			blackout = false;
 			busy = false;
+			return;
 		}
+		const exposedMs = Math.round(performance.now() - t0);
+		pending += 1;
+		winder.fire(); // the frame is on the film: wind on
+		armed = false;
+		await minBlack;
+		blackout = false;
+		busy = false;
+
+		darkroom = darkroom.then(async () => {
+			try {
+				const t1 = performance.now();
+				const still = await developStill(exposure.bitmap, exposure.method, rotate, film);
+				const t2 = performance.now();
+				await r.recordFrame(id, await still.jpeg.arrayBuffer(), withFlash, takenAt);
+				const timing = Object.entries({ ...exposure.timing, ...still.timing }).map(([k, v]) => `${k} ${v}`).join(', ');
+				lastCapture = `${still.method}${still.developed ? ' +film' : ' (no film look)'} ${still.sourceWidth}×${still.sourceHeight} · exposed ${exposedMs} ms · darkroom ${Math.round(t2 - t1)} ms (${timing}) + store ${Math.round(performance.now() - t2)} ms`;
+				// storing clears the saved wind; wound again meanwhile? keep it wound
+				if (winder.armed) await r.setWound(id, true);
+			} catch (e) {
+				console.error(e); // the frame is lost; the counter gives it back
+				notice = isQuotaError(e) ? 'storageFull' : 'captureFailed';
+			} finally {
+				pending -= 1;
+				await refresh();
+			}
+		});
 	}
 
 	async function takeToLab() {
@@ -560,8 +598,8 @@
 				<div class="tools">
 					<div class="info">
 						<button class="counter" aria-label={t('framesLeft')} onclick={counterTap}>
-							{#key inCamera.shot}
-								<span class="digits" in:fly={{ y: -18, duration: 320 }}>{String(framesLeft(inCamera)).padStart(2, '0')}</span>
+							{#key left}
+								<span class="digits" in:fly={{ y: -18, duration: 320 }}>{String(left).padStart(2, '0')}</span>
 							{/key}
 						</button>
 						{#if flashCaps}<FlashToggle bind:on={flash} label={t('flash')} />{/if}

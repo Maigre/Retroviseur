@@ -35,6 +35,10 @@ android {
         }
     }
     buildTypes {
+        // installs next to the real app, so a phone can be measured without touching its rolls
+        debug {
+            applicationIdSuffix '.debug'
+        }
         release {
             signingConfig signing.storeFile ? signingConfigs.release : null
             minifyEnabled false

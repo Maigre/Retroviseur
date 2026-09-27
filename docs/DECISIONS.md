@@ -534,6 +534,25 @@ real, pre-metered flash. The camera body, finder vignette and blackout stay web;
 frames still go capture → film look → seal → storage, the unsealed file living
 only until the page has read it. Details in docs/ANDROID.md.
 
+## D62 — The shutter waits for the sensor only · 2026-09-27
+
+Thomas, on the Jelly Star: the black after a shot was very long. Measured there
+(1.37): sensor 1 s — CameraX had picked the 48 MP mode (8000 × 6000) — reading it
+0.6 s, film look 33 ms, **JPEG encoding 4.5 s** (this WebView's encoder is ~13×
+slower at 11 MP than at 7 MP, whatever the canvas), storing 56 ms; the finder
+stayed dark through all of it (D34).
+
+Now a shot has two halves. **Exposure**: the finder goes dark only until the
+sensor has the frame (never shorter than the blink), then the film winds on and
+the counter drops at once, like a real disposable. **Darkroom**: film look, JPEG,
+seal, store run behind it one frame at a time, in order, with at most two frames
+waiting — a slow phone never eats a shot, a failed frame gives its count back.
+A wind in progress survives a frame being stored. The sensor is asked for the
+4:3 size closest **at or below** 4096 × 3072 (never a 48 MP mode); zero-shutter-lag
+where the phone has it. On the Jelly Star that is 3264 × 2448: frames of 3264 ×
+2176 (~7 MP, a 300 dpi print up to ~18 × 28 cm) — blackout ~0.9 s, darkroom
+0.35 s. Phones with a 12 MP output still give the full 4096 of D58.
+
 ---
 
 ## Open questions

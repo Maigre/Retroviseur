@@ -4,11 +4,10 @@
  * the real flash. Only the app build loads it (see native.ts); the pixels still
  * go through developStill → seal → storage like any other shot.
  */
-import type { DevelopOptions } from '../film/develop';
-import { CameraError, developStill, type Still } from './capture';
+import { CameraError, type Exposure } from './capture';
 
 interface RetroCameraPlugin {
-	start(o: Rect): Promise<{ hasFlash: boolean; width?: number; height?: number }>;
+	start(o: Rect): Promise<{ hasFlash: boolean; zsl?: boolean; width?: number; height?: number }>;
 	place(o: Rect): Promise<void>;
 	capture(o: { flash: boolean }): Promise<{ path: string }>;
 	release(o: { path: string }): Promise<void>;
@@ -48,7 +47,7 @@ export async function openNative(el: HTMLElement): Promise<NativeOpen> {
 	const { cam } = await load();
 	try {
 		const r = await cam.start(finderRect(el));
-		return { hasFlash: r.hasFlash, report: `native CameraX · still ${r.width}×${r.height} · flash ${r.hasFlash}` };
+		return { hasFlash: r.hasFlash, report: `native CameraX · still ${r.width}×${r.height} · flash ${r.hasFlash} · zsl ${r.zsl}` };
 	} catch (e) {
 		throw new CameraError(String((e as Error)?.message ?? e).includes('denied') ? 'denied' : 'unavailable', e);
 	}
@@ -64,10 +63,12 @@ export async function closeNative(): Promise<void> {
 	await cam.stop().catch(() => {});
 }
 
-/** One shot: native still → the same darkroom as the web camera. */
-export async function captureNative(flash: boolean, rotate: 0 | -90, film: DevelopOptions | null): Promise<Still> {
+/** Expose one frame: the native still, decoded — the darkroom comes after (developStill). */
+export async function exposeNative(flash: boolean): Promise<Exposure> {
 	const { cam, fileSrc } = await load();
+	const t0 = performance.now();
 	const { path } = await cam.capture({ flash });
+	const t1 = performance.now();
 	let blob: Blob;
 	try {
 		blob = await (await fetch(fileSrc(path))).blob();
@@ -75,7 +76,7 @@ export async function captureNative(flash: boolean, rotate: 0 | -90, film: Devel
 		void cam.release({ path }); // the unsealed file goes at once
 	}
 	const bitmap = await createImageBitmap(blob); // EXIF orientation applied: upright for a portrait screen
-	return developStill(bitmap, flash ? 'native+flash' : 'native', rotate, film);
+	return { bitmap, method: flash ? 'native+flash' : 'native', timing: { sensor: Math.round(t1 - t0), read: Math.round(performance.now() - t1) } };
 }
 
 /** Where the camera body's plate must stay open: the finder, in the shell's own box. */

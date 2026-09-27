@@ -104,8 +104,8 @@ driven by `src/lib/camera/native-camera.ts`:
   paints `--bg` behind them, so only the finder shows the camera; the vignette,
   the blackout and every control stay web, on top. The activity is portrait-locked,
   so the preview is a true window onto the scene — no counter-rotation needed.
-- **Still**: `ImageCapture`, minimise-latency mode, the 4:3 size closest to
-  4096 × 3072 (a 48–50 MP sensor gives its ~12 MP output, not 20 MB files), real
+- **Still**: `ImageCapture`, zero-shutter-lag where supported else minimise-latency,
+  the 4:3 size closest at or below 4096 × 3072 (never a 48–50 MP mode, D62), real
   flash with CameraX's pre-flash metering (`FLASH_MODE_ON`) — the late flash of
   the web path (D36) is gone. JPEG 95 to a private cache file → read by the page
   through `Capacitor.convertFileSrc` → released (deleted) at once; the folder is
@@ -113,3 +113,8 @@ driven by `src/lib/camera/native-camera.ts`:
   4096 px, upright, film look) → seal → storage.
 - The dev panel's last-shot line reads `native` / `native+flash` with the source
   size; the device report gives the still size CameraX chose and the flash unit.
+- **Shot timing (D62)**: the blackout lasts only the exposure; the darkroom runs
+  queued behind it. The dev panel's last-shot line splits it: `exposed` (sensor,
+  read) and `darkroom` (crop, film, encode) + store. To measure a phone without
+  touching its rolls, `./gradlew assembleDebug` installs `net.waverz.retroviseur.debug`
+  next to the real app (debuggable WebView, never offers updates).

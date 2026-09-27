@@ -84,17 +84,21 @@ export interface Still {
 	sourceHeight: number;
 	/** the film look was applied (false: no WebGL2, or no film options) */
 	developed: boolean;
+	/** ms spent per darkroom step, for the dev panel */
+	timing?: Record<string, number>;
 }
 
-export async function captureStill(
-	stream: MediaStream,
-	video: HTMLVideoElement,
-	rotate: 0 | -90 = 0,
-	flash: FlashSupport | null = null,
-	film: DevelopOptions | null = null
-): Promise<Still> {
-	const { bitmap, method } = await withFlash(stream, video, flash);
-	return developStill(bitmap, method, rotate, film);
+/** What the sensor gave, before the darkroom: a shot's first, quick half. */
+export interface Exposure {
+	bitmap: ImageBitmap;
+	method: Still['method'];
+	/** ms per step, for the dev panel */
+	timing?: Record<string, number>;
+}
+
+/** Expose one frame with the web camera (the flash as the device allows, D36). */
+export function exposeWeb(stream: MediaStream, video: HTMLVideoElement, flash: FlashSupport | null = null): Promise<Exposure> {
+	return withFlash(stream, video, flash);
 }
 
 /**
@@ -108,6 +112,7 @@ export async function developStill(
 	rotate: 0 | -90,
 	film: DevelopOptions | null
 ): Promise<Still> {
+	const t0 = performance.now();
 	try {
 		const c = crop3x2(bitmap.width, bitmap.height, CAPTURE_MAX_LONG_SIDE);
 		const canvas = document.createElement('canvas');
@@ -123,11 +128,14 @@ export async function developStill(
 		}
 		ctx.drawImage(bitmap, c.sx, c.sy, c.sw, c.sh, 0, 0, c.dw, c.dh);
 		// the film look, baked in before the frame is sealed (D40)
+		const t1 = performance.now();
 		const out = film ? develop(canvas, film) : canvas;
+		const t2 = performance.now();
 		const jpeg = await new Promise<Blob>((resolve, reject) =>
 			out.toBlob((b) => (b ? resolve(b) : reject(new Error('JPEG encoding failed'))), 'image/jpeg', JPEG_QUALITY)
 		);
-		return { jpeg, method, sourceWidth: bitmap.width, sourceHeight: bitmap.height, developed: !!film && out !== canvas };
+		const timing = { crop: Math.round(t1 - t0), film: Math.round(t2 - t1), encode: Math.round(performance.now() - t2) };
+		return { jpeg, method, sourceWidth: bitmap.width, sourceHeight: bitmap.height, developed: !!film && out !== canvas, timing };
 	} finally {
 		bitmap.close();
 	}

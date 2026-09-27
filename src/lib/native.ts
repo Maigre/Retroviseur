@@ -129,7 +129,7 @@ export async function appUpdateAvailable(): Promise<boolean> {
 	try {
 		const { App } = await import('@capacitor/app');
 		const [info, r] = await Promise.all([App.getInfo(), fetch(`${HOME}/android/version.json`, { cache: 'no-store' })]);
-		if (!r.ok) return false;
+		if (!r.ok || info.id.endsWith('.debug')) return false; // a debug copy never updates itself
 		const { versionCode } = await r.json();
 		return Number(versionCode) > Number(info.build);
 	} catch {

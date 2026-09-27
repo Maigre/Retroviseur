@@ -19,6 +19,7 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -50,7 +51,11 @@ import java.io.File;
  */
 @CapacitorPlugin(name = "RetroCamera", permissions = @Permission(strings = { Manifest.permission.CAMERA }, alias = "camera"))
 public class RetroCameraPlugin extends Plugin {
-    /** the frame size asked of the sensor: the closest to this, 4:3 (frames are cropped to 3:2 at 4096 px, D58) */
+    /**
+     * The frame size asked of the sensor: the closest at or below this, 4:3 (frames
+     * are cropped to 3:2 at 4096 px, D58). Never above: 48–50 MP sensors would hand
+     * over their full mode (a Jelly Star: 8000×6000, ~1 s more per shot) for nothing.
+     */
     private static final Size STILL = new Size(4096, 3072);
     private static final Size LIVE = new Size(1600, 1200);
     /** the body colour the page shows around the finder (--bg) */
@@ -105,11 +110,15 @@ public class RetroCameraPlugin extends Plugin {
             future.addListener(() -> {
                 try {
                     provider = future.get();
+                    // zero shutter lag where the phone has it (the frame is already buffered
+                    // when the shutter is pressed; CameraX turns it off when the flash fires)
+                    CameraInfo info = provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA);
+                    boolean zsl = info.isZslSupported();
                     Preview live = new Preview.Builder().setResolutionSelector(closestTo(LIVE)).build();
                     live.setSurfaceProvider(preview.getSurfaceProvider());
                     // a disposable fires at once: latency over the last bit of processing
                     still = new ImageCapture.Builder()
-                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .setCaptureMode(zsl ? ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG : ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .setResolutionSelector(closestTo(STILL))
                         .setJpegQuality(95)
                         .build();
@@ -117,6 +126,7 @@ public class RetroCameraPlugin extends Plugin {
                     camera = provider.bindToLifecycle(getActivity(), CameraSelector.DEFAULT_BACK_CAMERA, live, still);
                     JSObject r = new JSObject();
                     r.put("hasFlash", camera.getCameraInfo().hasFlashUnit());
+                    r.put("zsl", zsl);
                     if (still.getResolutionInfo() != null) {
                         r.put("width", still.getResolutionInfo().getResolution().getWidth());
                         r.put("height", still.getResolutionInfo().getResolution().getHeight());
@@ -132,7 +142,7 @@ public class RetroCameraPlugin extends Plugin {
     private static ResolutionSelector closestTo(Size size) {
         return new ResolutionSelector.Builder()
             .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
-            .setResolutionStrategy(new ResolutionStrategy(size, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+            .setResolutionStrategy(new ResolutionStrategy(size, ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER))
             .build();
     }
 
